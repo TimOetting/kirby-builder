@@ -71,8 +71,9 @@ class BuilderField extends BaseField {
 
     if(!$this->readonly) {
 
+      $fieldName = $this->name;
       $blueprint  = blueprint::find($this->page());
-      $fieldsets = $blueprint->fields()->buildersection->fieldsets;
+      $fieldsets = $blueprint->fields()->$fieldName->fieldsets;
 
       $addDropdownHtml = '<div class="drop-down">';
       $addDropdownHtml .= '<a class="drop-down-toggle label-option"><i class="icon icon-left fa fa-chevron-circle-down"></i>' . l('fields.structure.add') . '</a>';
