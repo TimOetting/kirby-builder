@@ -1,6 +1,8 @@
 # Kirby Builder
 
-The Builder plugin is an extended structure field for Kirby CMS. It adopted some ideas from this [post in the original kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296) . 
+The Builder plugin is an extended structure field for Kirby CMS. It adopted some ideas from this [post in the original kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296). 
+
+The plugin also comes with the handy placeholder variable *_fileUrl* that can be used inside your entry templates of the blueprint.
 
 Here is a blueprint example:
 

@@ -1,6 +1,10 @@
 <?php
-
-// require_once 'app/lib/view.php';
+/**
+ * Builder Plugin
+ *
+ * @author Tim Ötting <email@tim-oetting.de>
+ * @version 0.9
+ */
 $router = new Router(array( 
   array(
     'pattern' => 'views/editor/builder2/(:all)/(:any)/(:any)/(:any)',
