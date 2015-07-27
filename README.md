@@ -2,7 +2,7 @@
 
 The Builder plugin is an extended structure field for Kirby CMS. It adopted some ideas from this [post in the original kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296) . 
 
-Use the following syntax in your blueprint:
+Here is a blueprint example:
 
 	fields:
       ...
@@ -42,11 +42,11 @@ Use the following syntax in your blueprint:
                 label: Citation
                 type: text
 
-This will result in a a section field like this:
+This will give us a section field like this:
 
 ![Kirby builder Screenshot](https://raw.githubusercontent.com/TimOetting/kirby-builder/master/kirby-builder-panel.png)
 
-The content will be saved like this:
+The content will be stored like this:
 
 	----
 
@@ -77,5 +77,8 @@ The content will be saved like this:
       citation: Mahadma Gandhi
       _fieldset: quote
 
-
+## Setup
+The plugin comes in two pieces:
+* The content of the fields folder has to be copied into site/fields inside your Kirby installation
+* The content of the plugins folder has to be copied into site/plugins inside your Kirby installation
  

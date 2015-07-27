@@ -7,7 +7,7 @@
     <script class="builder-entries-template" type="text/x-handlebars-template">
       {{#unless entries}}
       <div class="builder-empty">
-        <?php _l('fields.structure.empty') ?> <a class="builder-add-button" href="#"><?php _l('fields.structure.add.first') ?></a>
+        <?php _l('fields.structure.empty') ?>
       </div>
       {{/unless}}
 
