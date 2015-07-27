@@ -79,6 +79,6 @@ The content will be stored like this:
 
 ## Setup
 The plugin comes in two pieces:
-* The content of the fields folder has to be copied into site/fields inside your Kirby installation
-* The content of the plugins folder has to be copied into site/plugins inside your Kirby installation
+* The content of the **fields** folder has to be copied into **site/fields** inside your Kirby installation
+* The content of the **plugins** folder has to be copied into **site/plugins** inside your Kirby installation
  
