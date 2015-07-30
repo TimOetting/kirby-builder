@@ -1,4 +1,4 @@
-# Kirby Builder
+# Kirby Builder (beta)
 
 The Builder plugin is an extended structure field for Kirby CMS. It adopted some ideas from this [post in the original kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296). 
 
@@ -46,7 +46,7 @@ Here is a blueprint example:
 
 This will give us a section field like this:
 
-![Kirby builder Screenshot](https://raw.githubusercontent.com/TimOetting/kirby-builder/master/kirby-builder-panel.png)
+![Kirby builder Screenshot](https://raw.githubusercontent.com/TimOetting/kirby-builder/master/PREVIEW.gif)
 
 The content will be stored like this:
 
