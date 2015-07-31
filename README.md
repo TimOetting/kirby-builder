@@ -1,8 +1,8 @@
-# Kirby Builder (beta)
+# Kirby Page Builder Plugin (beta)
 
-The Builder plugin is an extended structure field for Kirby CMS. It adopted some ideas from this [post in the original kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296). 
+The Builder plugin is an extended structure field for Kirby CMS. It adopted some ideas from this [post in the official kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296). 
 
-The plugin also comes with the handy placeholder variable *_fileUrl* that can be used inside your entry templates of the blueprint.
+The plugin also comes with the handy placeholder variable *_fileUrl* that can be used inside your entry templates of the blueprint for image previews inside the panel.
 
 Here is a blueprint example:
 
@@ -78,6 +78,42 @@ The content will be stored like this:
         of punishment.
       citation: Mahadma Gandhi
       _fieldset: quote
+
+##Template Usage
+
+There are different ways to use the builder field inside a template. A clean approach for this is to use different snippets inside *site/snippets/sections/* that have the same file name like the field set names in the blueprint
+
+### /site/templates/yourtempalte.php
+
+```
+<?php foreach($page->builder()->toStructure() as $section): ?>
+  <?php snippet( snippet('sections/' . $section->_fieldset(), array('section' => $section)) ) ?>
+<?php endforeach ?>
+```
+Don't forget to use **toStructure()** on the builder field to "gives you a full blown Kirby Collection which makes it possible to use Kirby's chaining syntax" ([Kirby Documentation](http://getkirby.com/docs/cheatsheet/field-methods/toStructure)).
+
+### /site/snippets/bodytext.php
+
+```
+<p><?php echo $section->text()->kt() ?></p>
+```
+
+### /site/snippets/linkedimage.php
+
+```
+<a href="<?php echo $section->url() ?>">
+  <img src="<?php echo $page->image( $section->image() )->url()?>" alt="section image">
+</a>
+```
+
+### /site/snippets/quote.php
+
+```
+<blockquote>
+  <?php echo $section->text()->kt() ?>
+</blockquote>
+<p><cite><?php echo $section->citation() ?></cite></p>
+```
 
 ## Setup
 The plugin comes in two pieces:
