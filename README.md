@@ -85,7 +85,7 @@ There are different ways to use the builder field inside a template. A clean app
 
 ### /site/templates/yourtempalte.php
 
-```
+```php
 <?php foreach($page->builder()->toStructure() as $section): ?>
   <?php snippet( snippet('sections/' . $section->_fieldset(), array('section' => $section)) ) ?>
 <?php endforeach ?>
