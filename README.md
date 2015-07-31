@@ -94,13 +94,13 @@ Don't forget to use **toStructure()** on the builder field to "gives you a full 
 
 ### /site/snippets/bodytext.php
 
-```
+```HTML
 <p><?php echo $section->text()->kt() ?></p>
 ```
 
 ### /site/snippets/linkedimage.php
 
-```
+```PHP
 <a href="<?php echo $section->url() ?>">
   <img src="<?php echo $page->image( $section->image() )->url()?>" alt="section image">
 </a>
@@ -108,7 +108,7 @@ Don't forget to use **toStructure()** on the builder field to "gives you a full 
 
 ### /site/snippets/quote.php
 
-```
+```php
 <blockquote>
   <?php echo $section->text()->kt() ?>
 </blockquote>
