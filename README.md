@@ -117,6 +117,6 @@ Don't forget to use **toStructure()** on the builder field to "gives you a full 
 
 ## Setup
 The plugin comes in two pieces:
-* The content of the `fields` folder has to be copied into `site/fields inside your Kirby installation
-* The content of the `plugins` folder has to be copied into site/plugins inside your Kirby installation
+* The content of the `fields` folder has to be copied into `site/fields` inside your Kirby installation
+* The content of the `plugins` folder has to be copied into `site/plugins` inside your Kirby installation
  
