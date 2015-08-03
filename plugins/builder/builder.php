@@ -47,7 +47,8 @@ function builderForm($id, $fieldName, $fieldsetName, $context) {
   }
   if(!$field) throw new Exception('The field could not be found');
 
-  $fields     = new Blueprint\Fields($field->fieldsets()[$fieldsetName]['fields'], $page);
+  $fieldsets  = $field->fieldsets();
+  $fields     = new Blueprint\Fields($fieldsets[$fieldsetName]['fields'], $page);
   $fields     = $fields->toArray();
   foreach($fields as $key => $field) {
     if($field['type'] == 'textarea') $fields[$key]['buttons'] = false;
