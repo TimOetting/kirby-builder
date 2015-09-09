@@ -71,6 +71,9 @@
 .drop-down .drop-down-toggle{
   position: relative;
 }
+.drop-down-toggle {
+  cursor: pointer;
+}
 .drop-down ul li{
   border-top: 1px solid #202020;
 }

@@ -74,9 +74,14 @@ class BuilderField extends BaseField {
       $fieldName = $this->name;
       $blueprint  = blueprint::find($this->page());
       $fieldsets = $blueprint->fields()->$fieldName->fieldsets;
+      $fieldsetcount = count($blueprint->fields()->$fieldName->fieldsets);
 
       $addDropdownHtml = '<div class="drop-down">';
-      $addDropdownHtml .= '<a class="drop-down-toggle label-option"><i class="icon icon-left fa fa-chevron-circle-down"></i>' . l('fields.structure.add') . '</a>';
+      if ($fieldsetcount > 1 ) {
+        $addDropdownHtml .= '<a class="drop-down-toggle label-option"><i class="icon icon-left fa fa-chevron-circle-down"></i>' . l('fields.structure.add') . '</a>';
+      } else {
+        $addDropdownHtml .= '<a class="drop-down-toggle label-option"><i class="icon icon-left fa fa-plus-circle"></i>' . l('fields.structure.add') . '</a>';
+      }
       $addDropdownHtml .= '<ul>';
       foreach ($fieldsets as $fieldsetName => $fieldsetFields) {
         $addDropdownHtml .= '<li>';
