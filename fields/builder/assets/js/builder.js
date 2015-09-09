@@ -165,9 +165,13 @@
     };
 
     this.toggleDropDown = function() {
-      console.log('click');
-      $(this).parents('.drop-down').toggleClass('active');
-    }
+      if ( !$(this).parents('.drop-down').hasClass('active') && $(this).next('ul').children('li').length < 2 ) {
+        // If this is your only fieldset, it'll skip the dropdown option and give you a new template for the only fieldset.
+        $(this).next('ul').children('li').first().children('a').click();
+      } else {
+        $(this).parents('.drop-down').toggleClass('active');
+      }
+    };
 
     return this.init();
 
