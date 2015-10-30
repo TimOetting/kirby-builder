@@ -7,23 +7,12 @@ class BuilderStructure extends Kirby\Panel\Models\Page\Structure {
   protected $fieldsets;
 
   public function __construct($page, $field, $fieldsetName) {
-
-    $this->page = $page;
-
-    if(!$this->page) {
-      throw new Exception('Invalid page');
-    }
-
-    $this->field     = $field;
-    $this->blueprint = $this->page->blueprint();
-
-    $config    = $this->blueprint->fields()->get($this->field);
-    $this->fieldsets = $config->get("fieldsets");
+    parent::__construct($page, $field);
+    
+    $this->fieldsets = $this->config->get("fieldsets");
     $fieldsetConfig = new Kirby\Panel\Models\Page\Blueprint\Field($this->fieldsets[$fieldsetName]);
 
     $this->config = $fieldsetConfig;
-
-    $this->data(); 
   }
 }
 

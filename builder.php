@@ -20,7 +20,12 @@ class BuilderField extends StructureField {
 
     if(isset($this->fieldsets[$fieldsetName])) {
       $fieldset = $this->fieldsets[$fieldsetName];
-      $this->entry = $fieldset["entry"];
+
+      if(isset($fieldset["entry"]))
+        $this->entry = $fieldset["entry"];
+      else
+        $this->entry = null;
+
       $this->fields = $fieldset["fields"];
     } else 
       return 'No fieldset with name "'. $fieldsetName . '" found.';
