@@ -119,13 +119,13 @@ Don't forget to use `toStructure()` on the builder field that "gives you a full 
 
 ## Setup
 
-git clone https://github.com/TimOetting/kirby-builder.git site/fields/builder
+``git clone https://github.com/TimOetting/kirby-builder.git site/fields/builder``
 From the root of your kirby install.
 
 Alternatively you can download the zip file, unzip it's contents into site/fields/builder.
 
 ##Known Issues
 
-Builder fields do not support nested fields that require a modal to handle the content, which are structure fields or other builder fields.
+All issues related to the structure field of Kirby Panel v2.2 beta. It's still in development and buggy.
 
  
