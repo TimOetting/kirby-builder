@@ -1,0 +1,103 @@
+<?php
+
+class BuilderFieldset {
+
+  private $fieldset;
+
+  public function __construct($fieldset) {
+    $this->fieldset = $fieldset;
+  }
+
+  public function label() {
+    return $this->fieldset["label"];
+  }
+
+  public function entry() {
+    if(isset($this->fieldset["entry"]))
+      return $this->fieldset["entry"];
+    else
+      null;
+  }
+
+  public function fields() {
+    return $this->fieldset["fields"];
+  }
+}
+
+class BuilderField extends StructureField {
+
+  static public $assets = array(
+    'js' => array(
+      'structure.js'
+    ),
+    'css' => array(
+      'structure.css'
+    )
+  );
+
+  public function entry($data) {
+
+    if(isset($data->_fieldset))
+      $fieldsetName = $data->_fieldset;
+    else
+      return "No fieldset found in entry.";
+
+    if(isset($this->fieldsets[$fieldsetName])) {
+      $fieldset = new BuilderFieldset($this->fieldsets[$fieldsetName]);
+      $this->entry = $fieldset->entry();
+      $this->fields = $fieldset->fields();
+    } else 
+      return 'No fieldset with name "'. $fieldsetName . '" found.';
+
+    return parent::entry($data);
+  }
+
+  public function headline() {
+
+    if(!$this->readonly) {
+
+      $fieldName = $this->name;
+      $blueprint = $this->page()->blueprint();
+      $fieldsets = $blueprint->fields()->$fieldName->fieldsets;
+
+      // $addDropdown = new Brick("div");
+      // $addDropdown->addClass('builder-add-button');
+      // $addDropdown->html('<a class="drop-down-toggle label-option"><i class="icon icon-left fa fa-chevron-circle-down"></i>' . l('fields.structure.add') . '</a>';
+
+      $addList = new Brick('dl');
+      $addList->addClass('builder-add-list');
+
+      $addListHeadline = new Brick("dt");
+      $addListHeadline->html(l('fields.structure.add'). ":");
+      $addList->append($addListHeadline);
+
+      foreach ($fieldsets as $fieldsetName => $fieldsetFields) {
+
+        $addListItem = new Brick('dd');
+
+        $add = new Brick('a');
+        $add->html('<i class="icon icon-left fa fa-plus-circle"></i>' . $fieldsetFields['label']);
+        $add->addClass('builder-add-button');
+        $add->data('modal', true);
+        $add->attr('href', purl($this->page, 'field/' . $this->name . '/builder/add?fieldset=' . $fieldsetName));
+
+        $addListItem->append($add);
+        $addList->append($addListItem);
+      }
+
+    } else
+      $addList = null;
+
+    $label = BaseField::label();
+    $label->addClass('structure-label');
+    $label->append($addList);
+
+    return $label;
+
+  }
+
+  public function content() {
+    return tpl::load(__DIR__ . DS . 'template.php', array('field' => $this));
+  }
+
+}

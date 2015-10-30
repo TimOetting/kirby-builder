@@ -36,7 +36,7 @@ function builderForm($id, $fieldName, $fieldsetName, $context) {
   $page = empty($id) ? site() : page($id);
 
   if(!$page) throw new Exception('The page could not be found');
-  $blueprint  = blueprint::find($page);
+  $blueprint  = $page->blueprint();
   $field      = null;
   $fields     = ($context == 'file') ? $blueprint->files()->fields() : $blueprint->fields();
   // make sure to get fields by case insensitive field names
