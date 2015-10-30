@@ -2,6 +2,31 @@
 
 require_once(panel()->roots()->fields()."/structure/controller.php");
 
+class BuilderStructure extends Kirby\Panel\Models\Page\Structure {
+
+  protected $fieldsets;
+
+  public function __construct($page, $field, $fieldsetName) {
+
+    $this->page = $page;
+
+    if(!$this->page) {
+      throw new Exception('Invalid page');
+    }
+
+    $this->field     = $field;
+    $this->blueprint = $this->page->blueprint();
+
+    $config    = $this->blueprint->fields()->get($this->field);
+    $this->fieldsets = $config->get("fieldsets");
+    $fieldsetConfig = new Kirby\Panel\Models\Page\Blueprint\Field($this->fieldsets[$fieldsetName]);
+
+    $this->config = $fieldsetConfig;
+
+    $this->data(); 
+  }
+}
+
 class BuilderFieldController extends StructureFieldController {
 
   public function add() {
@@ -14,7 +39,7 @@ class BuilderFieldController extends StructureFieldController {
     $store     = $this->store($page);
 
     $fieldsetName = get("fieldset");
-    $fieldsetStore = $this->getFieldset($fieldsetName);
+    $fieldsetStore = $this->fieldset($fieldsetName);
 
     if(!$fieldsetStore)
       return $this->modal('error', array(
@@ -51,7 +76,9 @@ class BuilderFieldController extends StructureFieldController {
     $store = $this->store($page);
     $entry = $store->find($entryId);
 
-    $fieldsetStore = $this->getFieldset($entry->_fieldset);
+    $fieldsetStore = $this->fieldset($entry->_fieldset);
+
+    PC::debug($fieldsetStore->fields(), "updatez");
 
     if(!$fieldsetStore)
       return $this->modal('error', array(
@@ -85,14 +112,8 @@ class BuilderFieldController extends StructureFieldController {
         
   }
 
-  private function getFieldset($fieldsetName) {
-
-    $fieldsets = $this->field()->fieldsets();
-
-    if(isset($fieldsets[$fieldsetName]))
-      return new BuilderFieldset($fieldsets[$fieldsetName]);
-    else
-      return null;
+  private function fieldset($fieldsetName) {
+    return new BuilderStructure($this->model(), $this->fieldname(), $fieldsetName);
   }
 
 }

@@ -1,29 +1,5 @@
 <?php
 
-class BuilderFieldset {
-
-  private $fieldset;
-
-  public function __construct($fieldset) {
-    $this->fieldset = $fieldset;
-  }
-
-  public function label() {
-    return $this->fieldset["label"];
-  }
-
-  public function entry() {
-    if(isset($this->fieldset["entry"]))
-      return $this->fieldset["entry"];
-    else
-      null;
-  }
-
-  public function fields() {
-    return $this->fieldset["fields"];
-  }
-}
-
 class BuilderField extends StructureField {
 
   static public $assets = array(
@@ -43,9 +19,9 @@ class BuilderField extends StructureField {
       return "No fieldset found in entry.";
 
     if(isset($this->fieldsets[$fieldsetName])) {
-      $fieldset = new BuilderFieldset($this->fieldsets[$fieldsetName]);
-      $this->entry = $fieldset->entry();
-      $this->fields = $fieldset->fields();
+      $fieldset = $this->fieldsets[$fieldsetName];
+      $this->entry = $fieldset["entry"];
+      $this->fields = $fieldset["fields"];
     } else 
       return 'No fieldset with name "'. $fieldsetName . '" found.';
 
