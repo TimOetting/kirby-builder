@@ -1,3 +1,19 @@
+.structure-entry-content {
+  position: relative;
+}
+
+.builder-entry-fieldset {
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  color: #B3B3B3;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  text-align: center;
+}
+
 .builder-drop-down{
   position: absolute;
   width: 100%;

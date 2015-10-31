@@ -43,6 +43,11 @@ class BuilderField extends StructureField {
       $blueprint = $this->page()->blueprint();
       $fieldsets = $blueprint->fields()->$fieldName->fieldsets;
 
+      $add = new Brick('a');
+      $add->html('<i class="icon icon-left fa fa-chevron-circle-down"></i>' . l('fields.structure.add'));
+      $add->addClass('structure-add-button label-option');
+      $add->data('modal', true);
+
       $dropDown = new Brick("div");
       $dropDown->addClass('builder-drop-down');
 
@@ -53,22 +58,25 @@ class BuilderField extends StructureField {
 
         $addListItem = new Brick('li');
 
-        $add = new Brick('a');
-        $add->html('<i class="icon icon-left fa fa-plus-circle"></i>' . $fieldsetFields['label']);
-        $add->addClass('builder-add-button');
-        $add->data('modal', true);
-        $add->attr('href', purl($this->page, 'field/' . $this->name . '/builder/add?fieldset=' . $fieldsetName));
+        $addListItemLink = new Brick('a');
+        $addListItemLink->html('<i class="icon icon-left fa fa-plus-circle"></i>' . $fieldsetFields['label']);
+        $addListItemLink->addClass('builder-add-button');
+        $addListItemLink->data('modal', true);
+        $addListItemLink->attr('href', purl($this->page, 'field/' . $this->name . '/builder/add?fieldset=' . $fieldsetName));
 
-        $addListItem->append($add);
+        $addListItem->append($addListItemLink);
         $addList->append($addListItem);
       }
 
-    } else
-      $addList = null;
+      $dropDown->append($addList);
 
-    $label = parent::headline();
+    } else {
+      $addList = null;
+      $add = null;
+    }
     
-    $dropDown->append($addList);
+    $label = BaseField::label();
+    $label->append($add);
     $label->append($dropDown);
 
     return $label;
