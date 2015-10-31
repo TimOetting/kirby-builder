@@ -19,9 +19,6 @@ class BuilderStructure extends Kirby\Panel\Models\Page\Structure {
 class BuilderFieldController extends StructureFieldController {
 
   public function add() {
-    PC::debug(get("fieldset"), "add");
-
-    PC::debug($this, "this");
 
     $self      = $this;
     $page      = $this->model();
@@ -66,9 +63,7 @@ class BuilderFieldController extends StructureFieldController {
     $entry = $store->find($entryId);
 
     $fieldsetStore = $this->fieldset($entry->_fieldset);
-
-    PC::debug($fieldsetStore->fields(), "updatez");
-
+    
     if(!$fieldsetStore)
       return $this->modal('error', array(
         'text' => 'No fieldset with name "'. $fieldsetName . '" found.'
