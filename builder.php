@@ -41,10 +41,6 @@ class BuilderField extends StructureField {
       $blueprint = $this->page()->blueprint();
       $fieldsets = $blueprint->fields()->$fieldName->fieldsets;
 
-      // $addDropdown = new Brick("div");
-      // $addDropdown->addClass('builder-add-button');
-      // $addDropdown->html('<a class="drop-down-toggle label-option"><i class="icon icon-left fa fa-chevron-circle-down"></i>' . l('fields.structure.add') . '</a>';
-
       $addList = new Brick('dl');
       $addList->addClass('builder-add-list');
 

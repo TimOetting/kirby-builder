@@ -2,7 +2,10 @@
 
 require_once(panel()->roots()->fields()."/structure/controller.php");
 
-class BuilderStructure extends Kirby\Panel\Models\Page\Structure {
+use Kirby\Panel\Models\Page\Structure;
+use Kirby\Panel\Models\Page\Blueprint\Field;
+
+class BuilderStructure extends Structure {
 
   protected $fieldsets;
 
@@ -10,7 +13,7 @@ class BuilderStructure extends Kirby\Panel\Models\Page\Structure {
     parent::__construct($page, $field);
     
     $this->fieldsets = $this->config->get("fieldsets");
-    $fieldsetConfig = new Kirby\Panel\Models\Page\Blueprint\Field($this->fieldsets[$fieldsetName]);
+    $fieldsetConfig = new Field($this->fieldsets[$fieldsetName]);
 
     $this->config = $fieldsetConfig;
   }
