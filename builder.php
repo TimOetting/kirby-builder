@@ -4,10 +4,12 @@ class BuilderField extends StructureField {
 
   static public $assets = array(
     'js' => array(
-      'structure.js'
+      'structure.js',
+      'builder.js'
     ),
     'css' => array(
-      'structure.css'
+      'structure.css',
+      'builder.css'
     )
   );
 
@@ -41,16 +43,15 @@ class BuilderField extends StructureField {
       $blueprint = $this->page()->blueprint();
       $fieldsets = $blueprint->fields()->$fieldName->fieldsets;
 
-      $addList = new Brick('dl');
-      $addList->addClass('builder-add-list');
+      $dropDown = new Brick("div");
+      $dropDown->addClass('builder-drop-down');
 
-      $addListHeadline = new Brick("dt");
-      $addListHeadline->html(l('fields.structure.add'). ":");
-      $addList->append($addListHeadline);
+      $addList = new Brick('ul');
+      $addList->addClass('builder-add-list');
 
       foreach ($fieldsets as $fieldsetName => $fieldsetFields) {
 
-        $addListItem = new Brick('dd');
+        $addListItem = new Brick('li');
 
         $add = new Brick('a');
         $add->html('<i class="icon icon-left fa fa-plus-circle"></i>' . $fieldsetFields['label']);
@@ -65,9 +66,10 @@ class BuilderField extends StructureField {
     } else
       $addList = null;
 
-    $label = BaseField::label();
-    $label->addClass('structure-label');
-    $label->append($addList);
+    $label = parent::headline();
+    
+    $dropDown->append($addList);
+    $label->append($dropDown);
 
     return $label;
 
