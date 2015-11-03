@@ -1,0 +1,56 @@
+.structure-entry-content {
+  position: relative;
+}
+
+.builder-entry-fieldset {
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  color: #B3B3B3;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.builder-drop-down{
+  position: absolute;
+  width: 100%;
+  top: 0;
+  text-align: right;
+}
+.builder-drop-down ul{
+  background-color: #000;
+  list-style: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  text-align: left;
+  z-index: 100;
+  display: none;
+  margin-top: 25px;
+}
+.builder-drop-down.active ul{
+  display: block;
+}
+.builder-drop-down .drop-down-toggle{
+  position: relative;
+}
+.builder-drop-down ul li{
+  border-top: 1px solid #202020;
+}
+.builder-drop-down ul li:first-child{
+  border-top: none;
+}
+.builder-drop-down ul li a{
+  color: #FFF;
+  padding: .75em 1.5em;
+  display: block;
+  line-height: 1em;
+}
+.builder-drop-down ul li a:hover{
+  background-color: #202020;
+}
+
+

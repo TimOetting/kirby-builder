@@ -1,4 +1,4 @@
-# Kirby Page Builder Plugin (beta)
+# Kirby Page Builder Plugin (for Kirby Panel v2.2 beta)
 
 The Builder plugin is an extended structure field for [Kirby CMS](https://getkirby.com). It adopts some ideas from this [post in the official kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296) and gives you the possibility to create an arrange different field sets rather then being limited by only one field set type per [structure field](http://getkirby.com/docs/cheatsheet/panel-fields/structure).
 
@@ -19,13 +19,16 @@ Here is a blueprint example:
           linkedImage:
             label: Linked Image
             entry: >
-              <img src="{{_fileUrl}}{{image}}" height=120px/></br>
+              <img src="{{image}}" height=120px/></br>
               {{url}}
             fields:
               image:
                 label: Category
                 type: select
-                options: images
+                query: 
+                  fetch: images
+                  value: '{{url}}'
+                  text: '{{filename}}'
               url:
                 label: Link Url
                 type: text
@@ -42,7 +45,6 @@ Here is a blueprint example:
                 label: Citation
                 type: text
 
-Have a look at `_fileUrl`. This handy placeholder variable provides the path to the files of the current page and can be used for image previews inside the panel.
 
 The above blueprint will give us a section field like this:
 
@@ -117,12 +119,13 @@ Don't forget to use `toStructure()` on the builder field that "gives you a full 
 
 ## Setup
 
-The plugin comes in two pieces:
-* The content of the `fields` folder has to be copied into `site/fields` inside your Kirby installation
-* The content of the `plugins` folder has to be copied into `site/plugins inside your Kirby installation
+``git clone https://github.com/TimOetting/kirby-builder.git site/fields/builder``
+From the root of your kirby install.
+
+Alternatively you can download the zip file, unzip it's contents into site/fields/builder.
 
 ##Known Issues
 
-Builder fields do not support nested fields that require a modal to handle the content, which are structure fields or other builder fields.
+All issues related to the structure field of Kirby Panel v2.2 beta. It's still in development and buggy.
 
  
