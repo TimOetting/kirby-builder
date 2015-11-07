@@ -4,11 +4,9 @@ class BuilderField extends StructureField {
 
   static public $assets = array(
     'js' => array(
-      'structure.js',
       'builder.js'
     ),
     'css' => array(
-      'structure.css',
       'builder.css'
     )
   );
@@ -39,9 +37,7 @@ class BuilderField extends StructureField {
 
     if(!$this->readonly) {
 
-      $fieldName = $this->name;
-      $blueprint = $this->page()->blueprint();
-      $fieldsets = $blueprint->fields()->$fieldName->fieldsets;
+      $fieldsets = $this->fieldsets();
 
       $add = new Brick('a');
       $add->html('<i class="icon icon-left fa fa-chevron-circle-down"></i>' . l('fields.structure.add'));
@@ -86,5 +82,9 @@ class BuilderField extends StructureField {
   public function content() {
     return tpl::load(__DIR__ . DS . 'template.php', array('field' => $this));
   }
+
+  public function url($action) {
+    return purl($this->model(), 'field/' . $this->name() . '/builder/' . $action);
+  }  
 
 }
