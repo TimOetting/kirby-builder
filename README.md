@@ -19,12 +19,13 @@ Here is a blueprint example:
           linkedImage:
             label: Linked Image
             entry: >
-              <img src="{{image}}" height=120px/></br>
+              <img src="{{picture}}" height=120px/></br>
               {{url}}
             fields:
-              image:
-                label: Category
+              picture:
+                label: Photo
                 type: select
+                options: query
                 query: 
                   fetch: images
                   value: '{{url}}'
