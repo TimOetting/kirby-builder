@@ -1,4 +1,4 @@
-# Kirby Page Builder Plugin (for Kirby Panel v2.2 beta)
+# Kirby Page Builder Plugin (beta for Kirby Panel v2.2)
 
 The Builder plugin is an extended structure field for [Kirby CMS](https://getkirby.com). It adopts some ideas from this [post in the official kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296) and gives you the possibility to create an arrange different field sets rather then being limited by only one field set type per [structure field](http://getkirby.com/docs/cheatsheet/panel-fields/structure).
 
@@ -126,6 +126,7 @@ Alternatively you can download the zip file, unzip it's contents into site/field
 
 ##Known Issues
 
-All issues related to the structure field of Kirby Panel v2.2 beta. It's still in development and buggy.
+All issues related to the structure field of Kirby Panel.
+Builder fields do not support nested fields that require a modal to handle the content, which are structure fields or other builder fields.
 
  

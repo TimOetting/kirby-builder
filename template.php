@@ -1,6 +1,6 @@
 <div class="structure<?php e($field->readonly(), ' structure-readonly') ?>" 
   data-field="builder" 
-  data-api="<?php _u($field->page(), 'field/' . $field->name() . '/builder/sort') ?>" 
+  data-api="<?php __($field->url('sort')) ?>" 
   data-sortable="<?php e($field->readonly(), 'false', 'true') ?>" 
   data-style="<?php echo $field->style() ?>">
 
@@ -15,6 +15,6 @@
     <?php else: ?>
     <?php require(__DIR__ . DS . 'styles' . DS . $field->style() . '.php') ?>
     <?php endif ?>
-
   </div>
+
 </div>

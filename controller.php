@@ -2,20 +2,27 @@
 
 require_once(panel()->roots()->fields()."/structure/controller.php");
 
-use Kirby\Panel\Models\Page\Structure;
+use Kirby\Panel\Structure;;
 use Kirby\Panel\Models\Page\Blueprint\Field;
 
 class BuilderStructure extends Structure {
 
   protected $fieldsets;
 
-  public function __construct($page, $field, $fieldsetName) {
-    parent::__construct($page, $field);
-    
+  public function __construct($model) {
+    parent::__construct($model, "builder");
+  }
+
+  public function forFieldset($field, $fieldsetName) {
+    parent::forField($field);
+
     $this->fieldsets = $this->config->get("fieldsets");
-    $fieldsetConfig = new Field($this->fieldsets[$fieldsetName]);
+    $fieldsetConfig = new Field($this->fieldsets[$fieldsetName], $this->model);
 
     $this->config = $fieldsetConfig;
+
+    return $this;
+
   }
 }
 
@@ -24,19 +31,19 @@ class BuilderFieldController extends StructureFieldController {
   public function add() {
 
     $self      = $this;
-    $page      = $this->model();
-    $store     = $this->store($page);
+    $model     = $this->model();
+    $structure = $this->structure($model);
+    $modalsize = $this->field()->modalsize();
 
     $fieldsetName = get("fieldset");
-    $fieldsetStore = $this->fieldset($fieldsetName);
+    $fieldsetStructure = $this->fieldsetStructure($fieldsetName);
 
-    if(!$fieldsetStore)
+    if(!$fieldsetStructure)
       return $this->modal('error', array(
         'text' => 'No fieldset with name "'. $fieldsetName . '" found.'
       ));
 
-    $modalsize = $this->field()->modalsize();
-    $form      = $this->form('add', array($page, $fieldsetStore), function($form) use($page, $store, $self, $fieldsetName) {
+    $form      = $this->form('add', array($model, $fieldsetStructure), function($form) use($model, $structure, $self, $fieldsetName) {
 
       $form->validate();
 
@@ -47,27 +54,27 @@ class BuilderFieldController extends StructureFieldController {
       $data = $form->serialize();
       $data["_fieldset"] = $fieldsetName;
 
-      $store->add($data);
+      $structure->add($data);
       $self->notify(':)');
-      $self->redirect($page);
+      $self->redirect($model);
+
     });
 
     $form->attr('action', panel()->urls()->current()."?fieldset=".get("fieldset"));
 
     return $this->modal('add', compact('form', 'modalsize'));
-
   }
 
   public function update($entryId) {
 
-    $self  = $this;
-    $page  = $this->model();
-    $store = $this->store($page);
-    $entry = $store->find($entryId);
+    $self      = $this;
+    $model     = $this->model();
+    $structure = $this->structure($model);
+    $entry     = $structure->find($entryId);
 
-    $fieldsetStore = $this->fieldset($entry->_fieldset);
+    $fieldsetStructure = $this->fieldsetStructure($entry->_fieldset);
     
-    if(!$fieldsetStore)
+    if(!$fieldsetStructure)
       return $this->modal('error', array(
         'text' => 'No fieldset with name "'. $fieldsetName . '" found.'
       ));
@@ -79,28 +86,27 @@ class BuilderFieldController extends StructureFieldController {
     }
 
     $modalsize = $this->field()->modalsize();
-    $form      = $this->form('update', array($page, $fieldsetStore, $entry), function($form) use($page, $store, $self, $entryId) {
+    $form      = $this->form('update', array($model, $fieldsetStructure, $entry), function($form) use($model, $structure, $self, $entryId) {
 
       // run the form validator
-
       $form->validate();
 
       if(!$form->isValid()) {
         return false;
       }
 
-      $store->update($entryId, $form->serialize());
+      $structure->update($entryId, $form->serialize());
       $self->notify(':)');
-      $self->redirect($page);
+      $self->redirect($model);
 
     });
 
     return $this->modal('update', compact('form', 'modalsize'));
-        
   }
 
-  private function fieldset($fieldsetName) {
-    return new BuilderStructure($this->model(), $this->fieldname(), $fieldsetName);
+  private function fieldsetStructure($fieldsetName) {
+    $structure = new BuilderStructure($this->model());
+    return $structure->forFieldset($this->fieldname(), $fieldsetName);
   }
 
 }
