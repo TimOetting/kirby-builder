@@ -1,55 +1,55 @@
-# Kirby Page Builder Plugin (beta for Kirby Panel v2.2)
+# Kirby Page Builder (beta for Kirby Panel v2.2)
 
-The Builder plugin is an extended structure field for [Kirby CMS](https://getkirby.com). It adopts some ideas from this [post in the official kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296) and gives you the possibility to create an arrange different field sets rather then being limited by only one field set type per [structure field](http://getkirby.com/docs/cheatsheet/panel-fields/structure).
+This Page Builder is an extended structure field for [Kirby CMS](https://getkirby.com) v2.2 and above. For older versions of Kirby check out the corresponding branch. 
+
+The field adopts some ideas from this [post in the official kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296) and gives you the possibility to create an arrange different field sets rather then being limited by only one field set type per [structure field](http://getkirby.com/docs/cheatsheet/panel-fields/structure).
 
 Here is a blueprint example:
 
 	fields:
-      ...
-      builder:
-        label: Sections
-        type: builder
-        fieldsets:
-          bodytext:
-            label: Body Text
-            fields:
-              text:
-                label: text
-                type: textarea
-          linkedImage:
-            label: Linked Image
-            entry: >
-              <img src="{{picture}}" height=120px/></br>
-              {{url}}
-            fields:
-              picture:
-                label: Photo
-                type: select
-                options: query
-                query: 
-                  fetch: images
-                  value: '{{url}}'
-                  text: '{{filename}}'
-              url:
-                label: Link Url
-                type: text
-          quote:
-            label: Quote
-            entry: >
-              <i>"{{text}}"</i></br></br>
-              {{citation}}
-            fields:
-              text:
-                label: Quote Text
-                type: textarea
-              citation:
-                label: Citation
-                type: text
+    ...
+    builder:
+      label: Sections
+      type: builder
+      fieldsets:
+        bodytext:
+          label: Body Text
+          fields:
+            text:
+              label: text
+              type: textarea
+        linkedImage:
+          label: Linked Image
+          entry: >
+            <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
+            {{url}}
+          fields:
+            picture:
+              label: Photo
+              type: select
+              options: images
+            url:
+              label: Link Url
+              type: text
+        quote:
+          label: Quote
+          entry: >
+            <i>"{{text}}"</i></br></br>
+            {{citation}}
+          fields:
+            text:
+              label: Quote Text
+              type: textarea
+            citation:
+              label: Citation
+              type: text
 
 
 The above blueprint will give us a section field like this:
 
 ![Kirby builder Screenshot](https://raw.githubusercontent.com/TimOetting/kirby-builder/master/PREVIEW.gif)
+
+To get the full image path for a preview inside the panel you can utilize the placeholder `{{_fileUrl}}` in combination with the `{{picture}}` value inside fields->builder->fieldset->linkedImage->entry.
 
 The content will be stored like this:
 
@@ -86,7 +86,7 @@ The content will be stored like this:
 
 There are different ways to use the builder field inside a template. A clean approach for this is to use different snippets inside `site/snippets/sections/` that have the same file name like the field set names in the blueprint:
 
-### /site/templates/yourtempalte.php
+### /site/templates/yourtemplate.php
 
 ```php
 <?php foreach($page->builder()->toStructure() as $section): ?>
@@ -105,7 +105,7 @@ Don't forget to use `toStructure()` on the builder field that "gives you a full 
 
 ``` php
 <a href="<?php echo $section->url() ?>">
-  <img src="<?php echo $section->image()->toFile()->url() ?>" alt="section image">
+  <img src="<?php echo $section->picture()->toFile()->url() ?>" alt="section image">
 </a>
 ```
 
@@ -127,7 +127,7 @@ Alternatively you can download the zip file, unzip it's contents into site/field
 
 ##Known Issues
 
-All issues related to the structure field of Kirby Panel.
-Builder fields do not support nested fields that require a modal to handle the content, which are structure fields or other builder fields.
+All issues related to the structure field of Kirby Panel do also affect the builder field.
+Builder fields do not support nested fields that require a modal to handle the content, i.e. structure fields or other builder fields.
 
  
