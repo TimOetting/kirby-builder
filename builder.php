@@ -30,6 +30,7 @@ class BuilderField extends StructureField {
     } else 
       return 'No fieldset with name "'. $fieldsetName . '" found.';
 
+    $data->_fileUrl = $this->page->url() . DS;
     return parent::entry($data);
   }
 
