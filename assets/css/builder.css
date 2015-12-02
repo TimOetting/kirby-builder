@@ -2,6 +2,16 @@
   position: relative;
 }
 
+.structure-table-fieldset {
+  width: 8rem;
+}
+
+.structure-table-fieldset a {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #B3B3B3;
+}
+
 .builder-entry-fieldset {
   font-size: 12px;
   text-transform: uppercase;
