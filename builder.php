@@ -1,5 +1,7 @@
 <?php
 
+use Kirby\Panel\Models\Page\Blueprint\Field;
+
 class BuilderField extends StructureField {
 
   static public $assets = array(
@@ -11,6 +13,10 @@ class BuilderField extends StructureField {
     )
   );
 
+  public function fieldset($fieldsetName) {
+    return new Field($this->fieldsets[$fieldsetName], $this->page());;
+  }
+
   public function entry($data) {
 
     if(isset($data->_fieldset))
@@ -19,18 +25,13 @@ class BuilderField extends StructureField {
       return "No fieldset found in entry.";
 
     if(isset($this->fieldsets[$fieldsetName])) {
-      $fieldset = $this->fieldsets[$fieldsetName];
+      $fieldset = $this->fieldset($fieldsetName);
 
-      if(isset($fieldset["entry"]))
-        $this->entry = $fieldset["entry"];
-      else
-        $this->entry = null;
-
-      $this->fields = $fieldset["fields"];
+      $this->entry = $fieldset->entry();
+      $this->fields = $fieldset->fields();
     } else 
       return 'No fieldset with name "'. $fieldsetName . '" found.';
 
-    $data->_fileUrl = $this->page->url() . DS;
     return parent::entry($data);
   }
 
@@ -51,12 +52,13 @@ class BuilderField extends StructureField {
       $addList = new Brick('ul');
       $addList->addClass('builder-add-list');
 
-      foreach ($fieldsets as $fieldsetName => $fieldsetFields) {
-
+      foreach ($fieldsets as $fieldsetName => $fieldset) {
+        $fieldset = $this->fieldset($fieldsetName);
+        
         $addListItem = new Brick('li');
 
         $addListItemLink = new Brick('a');
-        $addListItemLink->html('<i class="icon icon-left fa fa-plus-circle"></i>' . $fieldsetFields['label']);
+        $addListItemLink->html('<i class="icon icon-left fa fa-plus-circle"></i>' . $fieldset->label());
         $addListItemLink->addClass('builder-add-button');
         $addListItemLink->data('modal', true);
         $addListItemLink->attr('href', purl($this->page, 'field/' . $this->name . '/builder/add?fieldset=' . $fieldsetName));
