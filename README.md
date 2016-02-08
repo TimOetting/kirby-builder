@@ -5,44 +5,45 @@ This Page Builder is an extended structure field for [Kirby CMS](https://getkirb
 The field adopts some ideas from this [post in the official kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296) and gives you the possibility to create an arrange different field sets rather then being limited by only one field set type per [structure field](http://getkirby.com/docs/cheatsheet/panel-fields/structure).
 
 Here is a blueprint example:
-
-	  fields:
-    ...
-      builder:
-        label: Sections
-        type: builder
-        fieldsets:
-          bodytext:
-            label: Body Text
-            fields:
-              text:
-                label: text
-                type: textarea
-          linkedImage:
-            label: Linked Image
-            entry: >
-              <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
-              {{url}}
-            fields:
-              picture:
-                label: Photo
-                type: select
-                options: images
-              url:
-                label: Link Url
-                type: text
-          quote:
-            label: Quote
-            entry: >
-              <i>"{{text}}"</i></br></br>
-              {{citation}}
-            fields:
-              text:
-                label: Quote Text
-                type: textarea
-              citation:
-                label: Citation
-                type: text
+```yaml
+fields:
+...
+  builder:
+    label: Sections
+    type: builder
+    fieldsets:
+      bodytext:
+        label: Body Text
+        fields:
+          text:
+            label: text
+            type: textarea
+      linkedImage:
+        label: Linked Image
+        entry: >
+          <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
+          {{url}}
+        fields:
+          picture:
+            label: Photo
+            type: select
+            options: images
+          url:
+            label: Link Url
+            type: text
+      quote:
+        label: Quote
+        entry: >
+          <i>"{{text}}"</i></br></br>
+          {{citation}}
+        fields:
+          text:
+            label: Quote Text
+            type: textarea
+          citation:
+            label: Citation
+            type: text
+```
 
 
 The above blueprint will give us a section field like this:
