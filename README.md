@@ -6,43 +6,43 @@ The field adopts some ideas from this [post in the official kirby forum](http://
 
 Here is a blueprint example:
 
-	fields:
+	  fields:
     ...
-    builder:
-      label: Sections
-      type: builder
-      fieldsets:
-        bodytext:
-          label: Body Text
-          fields:
-            text:
-              label: text
-              type: textarea
-        linkedImage:
-          label: Linked Image
-          entry: >
-            <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
-            {{url}}
-          fields:
-            picture:
-              label: Photo
-              type: select
-              options: images
-            url:
-              label: Link Url
-              type: text
-        quote:
-          label: Quote
-          entry: >
-            <i>"{{text}}"</i></br></br>
-            {{citation}}
-          fields:
-            text:
-              label: Quote Text
-              type: textarea
-            citation:
-              label: Citation
-              type: text
+      builder:
+        label: Sections
+        type: builder
+        fieldsets:
+          bodytext:
+            label: Body Text
+            fields:
+              text:
+                label: text
+                type: textarea
+          linkedImage:
+            label: Linked Image
+            entry: >
+              <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
+              {{url}}
+            fields:
+              picture:
+                label: Photo
+                type: select
+                options: images
+              url:
+                label: Link Url
+                type: text
+          quote:
+            label: Quote
+            entry: >
+              <i>"{{text}}"</i></br></br>
+              {{citation}}
+            fields:
+              text:
+                label: Quote Text
+                type: textarea
+              citation:
+                label: Citation
+                type: text
 
 
 The above blueprint will give us a section field like this:
