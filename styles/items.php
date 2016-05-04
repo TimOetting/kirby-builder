@@ -1,5 +1,5 @@
 <?php foreach($field->entries() as $entry): ?>
-<div class="structure-entry" id="structure-entry-<?php echo $entry->id() ?>">
+<div class="structure-entry structure-entry-<?php echo strtolower($entry->_fieldset()) ?>" id="structure-entry-<?php echo $entry->id() ?>">
   <div class="structure-entry-content text">
     <?php if($field->fieldsets() && isset($field->fieldsets()[$entry->_fieldset()])) : ?>
     <label class="builder-entry-fieldset"><?php echo html($field->fieldset($entry->_fieldset())->label()) ?></label>
