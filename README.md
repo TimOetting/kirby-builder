@@ -1,10 +1,10 @@
-# Kirby Page Builder (beta for Kirby Panel v2.2)
+# Kirby Page Builder
 
 This Page Builder is an extended structure field for [Kirby CMS](https://getkirby.com) v2.2 and above. For older versions of Kirby check out the corresponding branch. 
 
 The field adopts some ideas from this [post in the official kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296) and gives you the possibility to create an arrange different field sets rather then being limited by only one field set type per [structure field](http://getkirby.com/docs/cheatsheet/panel-fields/structure).
 
-Here is a blueprint example:
+### Blueprint example
 ```yaml
 fields:
 ...
@@ -26,8 +26,7 @@ fields:
         fields:
           picture:
             label: Photo
-            type: select
-            options: images
+            type: image
           url:
             label: Link Url
             type: text
@@ -50,9 +49,21 @@ The above blueprint will give us a section field like this:
 
 ![Kirby builder Screenshot](https://raw.githubusercontent.com/TimOetting/kirby-builder/master/PREVIEW.gif)
 
-To get the full image path for a preview inside the panel you can utilize the placeholder `{{_fileUrl}}` in combination with the `{{picture}}` value inside fields->builder->fieldset->linkedImage->entry.
+### Previewing the content inside the panel
 
-The content will be stored like this:
+The builder field (just like the structure field) allows you to define how the section content is displayed inside the panel via the entry field inside the blueprint. To get the full image path for a preview inside the panel you can utilize the placeholder `{{_fileUrl}}` in combination with the `{{picture}}` value inside fields->builder->fieldset->linkedImage->entry:
+
+```yaml
+...
+        entry: >
+          <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
+          {{url}}
+...
+```
+
+In addition to this, the panel containers for the different sections get a dedicated class name for the respective fieldset. The container for the `linkedImage` from above, for example, will have the class `structure-entry-linkedimage`. You can use a [custom panel styling](https://getkirby.com/docs/developer-guide/panel/css) to control the look of the individual section previews.
+
+### How the content will be stored
 
 	----
 
@@ -83,7 +94,8 @@ The content will be stored like this:
       citation: Mahadma Gandhi
       _fieldset: quote
 
-##Template Usage
+
+## Template Usage
 
 There are different ways to use the builder field inside a template. A clean approach for this is to use different snippets inside `site/snippets/sections/` that have the same file name like the field set names in the blueprint:
 
@@ -91,7 +103,7 @@ There are different ways to use the builder field inside a template. A clean app
 
 ```php
 <?php foreach($page->builder()->toStructure() as $section): ?>
-  <?php snippet( snippet('sections/' . $section->_fieldset(), array('section' => $section)) ) ?>
+  <?php snippet('sections/' . $section->_fieldset(), array('section' => $section)) ?>
 <?php endforeach ?>
 ```
 Don't forget to use `toStructure()` on the builder field that "gives you a full blown Kirby Collection which makes it possible to use Kirby's chaining syntax" ([Kirby Documentation](http://getkirby.com/docs/cheatsheet/field-methods/toStructure)).
