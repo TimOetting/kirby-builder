@@ -12,16 +12,16 @@
   color: #B3B3B3;
 }
 
-.builder-entry-fieldset {
+.builder-entry-fieldset-name {
   font-size: 12px;
   text-transform: uppercase;
   padding: 2px 5px;
-  color: #B3B3B3;
+  color: #FFF;
   position: absolute;
-  left: 0;
+  right: 0;
   top: 0;
-  width: 100%;
   text-align: center;
+  background-color: rgba(0,0,0,.62);
 }
 
 .builder-drop-down{
@@ -36,7 +36,7 @@
   position: absolute;
   top: 100%;
   right: 0;
-  text-align: left;
+  text-align: left;x
   z-index: 100;
   display: none;
   margin-top: 25px;
@@ -61,6 +61,12 @@
 }
 .builder-drop-down ul li a:hover{
   background-color: #202020;
+}
+@media screen and (min-width: 30em){
+  .modal-content-extralarge {
+    width: 90%;
+    max-width: 55em;
+  }
 }
 
 

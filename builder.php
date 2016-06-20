@@ -14,7 +14,12 @@ class BuilderField extends StructureField {
   );
 
   public function fieldset($fieldsetName) {
-    return new Field($this->fieldsets[$fieldsetName], $this->page());;
+    return new Field($this->fieldsets[$fieldsetName], $this->page());
+  }
+
+  public function modalsize() {
+    $sizes = array('small', 'medium', 'large', 'extralarge');
+    return in_array($this->modalsize, $sizes) ? $this->modalsize : 'large';
   }
 
   public function entry($data) {
@@ -26,14 +31,24 @@ class BuilderField extends StructureField {
 
     if(isset($this->fieldsets[$fieldsetName])) {
       $fieldset = $this->fieldset($fieldsetName);
-
+      $this->snippet = $fieldset->snippet();
       $this->entry = $fieldset->entry();
       $this->fields = $fieldset->fields();
     } else 
       return 'No fieldset with name "'. $fieldsetName . '" found.';
 
     $data->_fileUrl = $this->page->contentUrl() . DS;
-    return parent::entry($data);
+    if ($this->snippet){
+      $data = structure((array) $data, $this->page());
+      return tpl::load(c::get( 'buildersnippets.path', kirby()->roots()->snippets() ) . DS . $this->snippet . '.php', array(
+        'page' => $this->page(),
+        'field' => $this,
+        'data' => $data,
+        'style' => $this->style,
+      ));
+    } else {
+      return parent::entry($data);
+    }
   }
 
   public function headline() {

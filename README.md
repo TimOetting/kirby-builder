@@ -1,8 +1,6 @@
 # Kirby Page Builder
 
-This Page Builder is an extended structure field for [Kirby CMS](https://getkirby.com) v2.2 and above. For older versions of Kirby check out the corresponding branch. 
-
-The field adopts some ideas from this [post in the official kirby forum](http://forum.getkirby.com/t/choose-from-multiple-field-groups-within-a-structure-field/1296) and gives you the possibility to create an arrange different field sets rather then being limited by only one field set type per [structure field](http://getkirby.com/docs/cheatsheet/panel-fields/structure).
+This custom field for [Kirby CMS](https://getkirby.com) (v2.2 and above) lets you predefine content blocks with different field sets that can then be added and arranged inside the panel (Kirby's backend).
 
 ### Blueprint example
 ```yaml
@@ -11,30 +9,28 @@ fields:
   builder:
     label: Sections
     type: builder
+    modalsize: extralarge
     fieldsets:
       bodytext:
         label: Body Text
+        snippet: sections/bodyText
         fields:
           text:
             label: text
             type: textarea
-      linkedImage:
-        label: Linked Image
-        entry: >
-          <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
-          {{url}}
+      imageBanner:
+        label: Image Banner
+        snippet: sections/imageBanner
         fields:
           picture:
-            label: Photo
+            label: Background Image
             type: image
-          url:
-            label: Link Url
+          text:
+            label: Headline Text
             type: text
       quote:
         label: Quote
-        entry: >
-          <i>"{{text}}"</i></br></br>
-          {{citation}}
+        snippet: sections/quote
         fields:
           text:
             label: Quote Text
@@ -45,23 +41,46 @@ fields:
 ```
 
 
-The above blueprint will give us a section field like this:
+The above blueprint will give us a panel field like this:
 
 ![Kirby builder Screenshot](https://raw.githubusercontent.com/TimOetting/kirby-builder/master/PREVIEW.gif)
 
 ### Previewing the content inside the panel
 
-The builder field (just like the structure field) allows you to define how the section content is displayed inside the panel via the entry field inside the blueprint. To get the full image path for a preview inside the panel you can utilize the placeholder `{{_fileUrl}}` in combination with the `{{picture}}` value inside fields->builder->fieldset->linkedImage->entry:
+The builder field, just like the structure field, allows you to define how the content blocks are previewd inside the panel. The builder field extends this feature with the `{{_fileUrl}}` variable, to display images in the preview. This can be done via the entry field in the blueprint: 
 
 ```yaml
 ...
-        entry: >
-          <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
-          {{url}}
+  builder:
+    ...
+    fieldsets:
+      ...
+      imageBanner:
+        ...
+		    entry: >
+		      <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
+		      {{url}}
 ...
 ```
 
-In addition to this, the panel containers for the different sections get a dedicated class name for the respective fieldset. The container for the `linkedImage` from above, for example, will have the class `structure-entry-linkedimage`. You can use a [custom panel styling](https://getkirby.com/docs/developer-guide/panel/css) to control the look of the individual section previews.
+The builder field, however, even gives you the possibility to use snippets to preview the content blocks. Inside these snippets, you have access to all the logic of the field's data, i.e. you can render text as kirbytext, iterate over list items, etc.
+
+You can just declare a path to the respective snippet path in a snippet field inside the blueprint:
+
+```yaml
+...
+  builder:
+    ...
+    fieldsets:
+      ...
+      imageBanner:
+        ...
+        snippet: builder/imageBanner
+...
+```
+
+
+With this solution, it is possible to use the same snippet both in the website's frontend and in the panel. You can use a [custom panel styling](https://getkirby.com/docs/developer-guide/panel/css) to control the look of the individual previews.
 
 ### How the content will be stored
 
@@ -81,8 +100,8 @@ In addition to this, the panel containers for the different sections get a dedic
       _fieldset: bodytext
     - 
       image: forrest.jpg
-      url: www.getkirby.com
-      _fieldset: linkedImage
+      text: Headline
+      _fieldset: imageBanner
     - 
       text: >
         Power is of two kinds. One is obtained
@@ -114,7 +133,7 @@ Don't forget to use `toStructure()` on the builder field that "gives you a full 
 <p><?php echo $section->text()->kt() ?></p>
 ```
 
-### /site/snippets/sections/linkedimage.php
+### /site/snippets/sections/imagebanner
 
 ``` php
 <a href="<?php echo $section->url() ?>">

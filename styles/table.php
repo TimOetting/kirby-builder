@@ -11,7 +11,7 @@
   <tbody>
     <?php foreach($field->entries() as $entry): ?>
     <tr id="structure-entry-<?php echo $entry->id() ?>">
-      <td class="structure-table-fieldset">
+      <td class="structure-table-fieldset-name">
         <a data-modal href="<?php __($field->url($entry->id() . '/update')) ?>">
           <?php if($field->fieldsets() && isset($field->fieldsets()[$entry->_fieldset()])) : ?>
           <?php echo html($field->fieldset($entry->_fieldset())->label()) ?>
