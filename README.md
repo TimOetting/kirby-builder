@@ -83,7 +83,7 @@ There are three ways how the content of the builder entries can be displayed ins
 	...
 	```
 	
-	the snippet `site/snippets/sections/imageBanner.php` from the example above would look like this:
+	the snippet `site/snippets/builder/imageBanner.php` from the example above would look like this:
 	
 	```php
 	<section class="imageBanner" 
