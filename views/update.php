@@ -1,2 +1,3 @@
-<?php
-require_once(panel()->roots()->fields()."/structure/views/update.php");
+<div class="quickform">
+  <?php echo $form ?>
+</div>

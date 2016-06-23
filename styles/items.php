@@ -7,11 +7,11 @@
     <?php echo $field->entry($entry) ?>
   </div>
   <?php if(!$field->readonly()): ?>
-  <nav class="structure-entry-options cf">
-    <a data-modal class="btn btn-with-icon structure-edit-button" href="<?php __($field->url($entry->id() . '/update')) ?>">
+  <div class="builder-entry-quickform-container hidden" data-quickform-container="<?= $entry->id() ?>"></div>
+  <nav class="structure-entry-options builder-entry-options cf">
+    <a data-quickform class="btn btn-with-icon structure-edit-button" href='#' data-href="<?php __($field->url($entry->id() . '/update')) ?>">
       <?php i('pencil', 'left') . _l('fields.structure.edit') ?>
     </a>
-
     <a data-modal class="btn btn-with-icon structure-delete-button" href="<?php __($field->url($entry->id() . '/delete')) ?>">
       <?php i('trash-o', 'left') . _l('fields.structure.delete') ?>
     </a>

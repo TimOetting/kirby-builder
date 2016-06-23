@@ -1,2 +1,3 @@
-<?php
-require_once(panel()->roots()->fields()."/structure/views/add.php");
+<div class="quickform">
+  <?php echo $form ?>
+</div>

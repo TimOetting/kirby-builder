@@ -12,6 +12,21 @@
   color: #B3B3B3;
 }
 
+.builder-entries{
+  margin-bottom: 1em
+}
+
+.builder-entries-editing .builder-entry{
+  opacity: .3;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+
+.builder-entries-editing .builder-entry-editing{
+  opacity: 1;
+  pointer-events: all;
+}
+
 .builder-entry-fieldset-name {
   font-size: 12px;
   text-transform: uppercase;
@@ -24,11 +39,16 @@
   background-color: rgba(0,0,0,.62);
 }
 
+.builder-entry-options.hidden{
+  display: none;
+}
+
 .builder-drop-down{
   position: absolute;
   width: 100%;
   top: 0;
   text-align: right;
+  z-index: 100;
 }
 .builder-drop-down ul{
   background-color: #000;
@@ -62,11 +82,58 @@
 .builder-drop-down ul li a:hover{
   background-color: #202020;
 }
+.builder-add-container{
+  margin-bottom: 0;
+  margin-bottom: 1em;
+}
+.builder-add-buttons{
+  text-align: center;
+}
+.builder-add-buttons .btn{
+  margin-left: .25em;
+  margin-right: .25em;
+  margin-bottom: .5em;
+}
+
+.builder-add-buttons .btn .icon{
+  transform: translateY(1px);
+}
 @media screen and (min-width: 30em){
   .modal-content-extralarge {
     width: 90%;
     max-width: 55em;
   }
 }
+.builder-entry-quickform-container.hidden{
+  display: none;
+}
+.builder-entry-content.hidden{
+  display: none;
+}
+.quickform-container{
+  position: relative;    
+  padding: 1em 1.5em;
+}
+.mainbar .quickform .buttons{
+  position: initial!important;
+  background: none;
+}
+// .mainbar .quickform{
+//   padding: 1em 1.5em;
+// }
+.mainbar .quickform form{
+  padding: 1em 1.5em;
+}
+
+input[disabled]{
+  opacity: .3;
+  pointer-events: none;
+}
+
+.blocked-by-builder{
+  opacity: .3;
+  pointer-events: none;
+}
+
 
 
