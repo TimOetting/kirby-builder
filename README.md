@@ -9,7 +9,6 @@ fields:
   builder:
     label: Sections
     type: builder
-    modalsize: extralarge
     fieldsets:
       bodytext:
         label: Body Text
