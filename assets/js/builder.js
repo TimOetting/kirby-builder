@@ -97,12 +97,15 @@
   $(document).on('click', '.quickform .btn-submit', function(e){
     e.preventDefault();
     var fieldID = $(this).closest('.builder-entry').find('.builder-entry-quickform-container').data('quickform-container')
-    var data = $('.quickform form').serialize().split(fieldID + '-').join('');
-    var url = $('.quickform form').attr('action')
-    var urlParamSeparator = (url.indexOf('?') > -1) ? '&' : '?'
+    var data = $('.quickform form').serializeArray();
+    var url = $('.quickform form').attr('action');
+    $.each(data, function() {
+      this.name = this.name.replace(fieldID+'-', '');
+    });
     $.ajax({
       type: "POST",
-      url: url + urlParamSeparator + data,
+      url: url,
+      data: data,
       success: function(){
         app.content.reload();
       }
