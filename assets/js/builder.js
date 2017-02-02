@@ -102,7 +102,8 @@
     var urlParamSeparator = (url.indexOf('?') > -1) ? '&' : '?'
     $.ajax({
       type: "POST",
-      url: url + urlParamSeparator + data,
+      url: url + urlParamSeparator,
+      data: data,
       success: function(){
         app.content.reload();
       }
