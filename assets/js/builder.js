@@ -8,7 +8,7 @@
     var api      = element.data('api');
     var sortable = element.data('sortable');
     var entries  = style == 'table' ? element.find('.structure-table tbody') : element.find('.structure-entries');
-    
+
     if(sortable === false) return false;
 
     var offsetFix = false
@@ -112,7 +112,7 @@
   })
 
   getMainButtonBar = function(){
-    var mainForm = $('.form-blueprint-project')
+    var mainForm = $('form[class*=form-blueprint-]')
     var mainSaveButton = mainForm.find('[type="submit"]')
     return mainSaveButton.closest('.buttons-centered')
   }
@@ -122,7 +122,7 @@
       var mainButtonBar = getMainButtonBar()
       mainButtonBar.addClass('hidden')
       $container.removeClass('hidden')
-      var mainForm = $('.form-blueprint-project')
+      var mainForm = $('form[class*=form-blueprint-]')
       var fieldID = $container.data('quickform-container')
       var quickform = $(data.content)
       blockOtherFields($container)
@@ -142,7 +142,7 @@
   }
 
   blockOtherFields = function($container){
-    var mainForm = $('.form-blueprint-project')
+    var mainForm = $('form[class*=form-blueprint-]')
     mainForm.find('.field').addClass('blocked-by-builder')
     var builderWrapper = $container.closest('[data-field="builder"]').closest('.field')
     builderWrapper.removeClass('blocked-by-builder')
