@@ -112,7 +112,7 @@
   })
 
   getMainButtonBar = function(){
-    var mainForm = $('.form-blueprint-project')
+    var mainForm = $('form.form')
     var mainSaveButton = mainForm.find('[type="submit"]')
     return mainSaveButton.closest('.buttons-centered')
   }
