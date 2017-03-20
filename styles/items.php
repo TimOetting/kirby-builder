@@ -2,7 +2,7 @@
 <div class="structure-entry structure-entry-<?php echo strtolower($entry->_fieldset()) ?> builder-entry builder-entry-<?php echo strtolower($entry->_fieldset()) ?>" id="structure-entry-<?php echo $entry->id() ?>">
   <div class="structure-entry-content builder-entry-content text">
     <?php if($field->fieldsets() && isset($field->fieldsets()[$entry->_fieldset()])) : ?>
-    <label class="builder-entry-fieldset-name"><?php echo html($field->fieldset($entry->_fieldset())->label()) ?></label>
+    <label class="builder-entry-fieldset-name"><?php echo html(i18n($field->fieldset($entry->_fieldset())->label())) ?></label>
     <?php endif ?>
     <?php echo $field->entry($entry) ?>
   </div>

@@ -14,7 +14,7 @@
       <td class="structure-table-fieldset-name">
         <a data-modal href="<?php __($field->url($entry->id() . '/update')) ?>">
           <?php if($field->fieldsets() && isset($field->fieldsets()[$entry->_fieldset()])) : ?>
-          <?php echo html($field->fieldset($entry->_fieldset())->label()) ?>
+          <?php echo html($field->fieldset(i18n($entry->_fieldset())->label())) ?>
           <?php else: ?>
           No fieldset found.
           <?php endif ?>
