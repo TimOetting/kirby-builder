@@ -1,0 +1,14 @@
+{
+  "name": "timoetting/kirby-builder",
+  "license": "MIT",
+  "description": "A site builder extension for Kirby CMS",
+  "type": "library",
+  "require": {
+    "php": "^5.4 || ^7.0",
+    "getkirby/kirby": "2.4.*",
+    "getkirby/panel": "2.4.*"
+  },
+  "autoload": {
+    "files": ["index.php"]
+  }
+}
