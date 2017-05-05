@@ -183,7 +183,7 @@ From the root of your kirby install.
 
 Alternatively you can download the zip file, unzip it's contents into site/fields/builder.
 
-##Known Issues
+## Known Issues
 
 Some issues related to the structure field of Kirby Panel do also affect the builder field.
 Builder fields do not support nested structure fields or other builder fields (on the TODO).
