@@ -1,0 +1,23 @@
+{
+  "name": "timoetting/kirby-builder",
+  "type": "plugin",
+  "version": "0.0.1",
+  "description": "",
+  "license": "MIT",
+  "autoload": {
+    "files": [
+      "config.php"
+    ]
+  },
+  "authors": [
+    {
+      "name": "Tim Ötting",
+      "email": "no@email.com"
+    }
+  ],
+  "scripts": {
+    "build": "composer update --ignore-platform-reqs; composer dumpautoload -o;",
+    "zip": "rm kirby-builder.zip; composer update --ignore-platform-reqs; composer dumpautoload -o; zip -r kirby-builder.zip . -x *.git*; composer dumpautoload -o;"
+  },
+  "minimum-stability": "beta"
+}

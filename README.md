@@ -1,171 +1,110 @@
-# Kirby Page Builder
+# Kirby Builder
 
-This custom field for [Kirby CMS](https://getkirby.com) (v2.4.1 and above) lets you predefine content blocks with different field sets that can then be added and arranged inside the panel (Kirby's backend).
+This versatile plugin for [Kirby CMS](https://getkirby.com) (v3) lets you predefine content blocks with different field sets that can then be added and arranged inside Kirby's panel.
 
-### Blueprint example
+## Commercial Use
+
+Kirby Builder can be used in so many different extents. You know best how big the value is that you get out of this plugin. Please pay what (and if) you want.
+
+[PayPal.me Link](https://www.paypal.me/TimOetting/10)
+
+## Setup
+
+`git clone https://github.com/TimOetting/kirby-builder.git site/plugins/kirby-builder`
+From the root of your kirby install.
+
+Alternatively you can download the zip file, unzip it's contents into site/plugins/kirby-builder.
+
+## Blueprint Structure
+
 ```yaml
-fields:
-...
-  builder:
-    label: Sections
-    type: builder
-    fieldsets:
-      bodytext:
-        label: Body Text
-        snippet: sections/bodytext
-        fields:
-          text:
-            label: text
-            type: textarea
-      imageBanner:
-        label: Image Banner
-        snippet: sections/imagebanner
-        fields:
-          picture:
-            label: Background Image
-            type: image
-          text:
-            label: Headline Text
-            type: text
-      quote:
-        label: Quote
-        snippet: sections/quote
-        fields:
-          text:
-            label: Quote Text
-            type: textarea
-          citation:
-            label: Citation
-            type: text
+mybuilder:
+  label: Page Builder
+  type: builder
+  columns: 1 # Optional. If set to 2 or more, the builder blocks will be places in a grid.
+  max: 10 # Optional. Limits the number of builder blocks that can be added.
+  fieldsets:
+    quote: # This is a field set. It contains a group of kirby fields. The user can select from these sets to build the content.
+      label: Quote
+      preview: # Optional. If defined, a preview of the block can be rendered by the specified snippet from within the snippets folder
+        snippet: blocks/quote
+        css: /assets/css/blocks/quote.css
+      fields: 
+        text:
+          label: Quote Text
+          type: textarea
+        citation:
+          label: Citation
+          type: text
+    bodytext:
+      label: Text Block (without preview but with tabs)
+      tabs: # Optional. Tabs can be used to group the fields of a field set. In this example, we use one tab to contain the content related fields and one for styling settings. Is makes no difference for the contentn handling in the template if there are tabs or not.
+        content:
+          label: Content
+          icon: edit # Optional. This icon appears next to the tab. The icon name can be chosen from the Kirby's icon set getkirby.com/docs/reference/ui/icon
+          fields:
+            text:
+              label: text
+              type: textarea
+        style:
+          label: Style
+          icon: cog
+          fields:
+            fontfamily:
+              label: Font
+              type: select
+              options:
+                helvetica: Helvetica
+                comicsans: Comic Sans
+            fontsize:
+              label: Font Size
+              type: number
+    events:
+      label: Events
+      preview:
+        snippet: blocks/events
+        css: /assets/css/blocks/events.css
+      fields:
+        eventlist: # The Builder Field can even be nested!
+          type: builder
+          label: Event List
+          columns: 2
+          fieldsets:
+            event:
+              label: Event
+              fields:
+                title:
+                  label: Title
+                  type: text
+                text:
+                  label: Description
+                  type: textarea
+                date:
+                  label: Date
+                  type: date
+    calltoaction:
+      extends: blocks/calltoaction # the Builder Field blueprint can be rather complex. It is therefore recommended to organize your fieldsets in single files. This example here would take the content of the file /site/blueprints/blocks/calltoaction.yml and use it instead of the extends statement.
+
 ```
-
-
-The above blueprint will give us a panel field like this:
-
-![Kirby builder Screenshot](https://raw.githubusercontent.com/TimOetting/kirby-builder/master/PREVIEW.gif)
-
-### Previewing the content inside the panel
-
-There are three ways how the content of the builder entries can be displayed inside the panel:
-
-- By default the builder entries just show the plain content of the coresponding field set row by row
-- The builder field, just like the structure field, allows you to define some markup in teh blueprint's entry field to preview the content. The builder field extends this feature with the `{{_fileUrl}}` variable, to display images in the preview: 
-
-	```yaml
-	...
-	  builder:
-	    ...
-	    fieldsets:
-	      ...
-	      imageBanner:
-	        ...
-			    entry: >
-			      <img src="{{_fileUrl}}{{picture}}" height=120px/></br>
-			      {{url}}
-	...
-	```
-
-
-- The builder field, however, even gives you the possibility to use snippets to preview the content blocks. Inside these snippets, you have access to the `$page` and a `$data` variable. The latter contains all the content and logic of the field's data, i.e. you can render text as kirbytext, iterate over list items, etc.
-
-	You can just declare a path to the respective snippet path in a snippet field inside the blueprint:
-	
-	```yaml
-	...
-	  builder:
-	    ...
-	    fieldsets:
-	      ...
-	      imageBanner:
-	        ...
-	        snippet: builder/imagebanner
-	...
-	```
-	
-	the snippet `site/snippets/builder/imageBanner.php` from the example above would look like this:
-	
-	```php
-	<section class="imageBanner" 
-	<?php if ($data->picture()->isNotEmpty()): ?>
-	  style="background-image: url(<?= $page->image($data->picture())->url() ?>)"
-	<?php endif ?>
-	>
-	  <h2 class="imageBanner-headline">
-	    <?= $data->text() ?>
-	  </h2>
-	</section>
-	```
-	
-	With this solution, it is possible to use the same snippet both in the website's frontend and in the panel. You can use a [custom panel styling](https://getkirby.com/docs/developer-guide/panel/css) to control the look of the individual previews.
-
-### How the content will be stored
-
-	----
-
-	Builder: 
-	
-	- 
-	  picture: forrest.jpg
-	  text: Hey folks!
-	  _fieldset: imageBanner
-	- 
-	  text: |
-	    ## Thanks for watching
-	    Lorem ipsum dolor sit amet, consetetur sadipscing 
-	    elitr, sed diam nonumy eirmod tempor invidunt ut 
-	    labore et dolore magna aliquyam erat, sed diam voluptua. 
-	    [...]
-	  _fieldset: bodytext
-	- 
-	  text: >
-	    Power is of two kinds. One is obtained
-	    by the fear of punishment and the other
-	    by acts of love. Power based on love is
-	    a thousand times more effective and
-	    permanent then the one derived from fear
-	    of punishment.
-	  citation: Mahadma Gandhi
-	  _fieldset: quote
-
 
 ## Template Usage
 
-There are different ways to use the builder field inside a template. A clean approach for this is to use different snippets inside `site/snippets/sections/` that have the same file name like the field set names in the blueprint. Like mentioned above, these snippets could be the same like those used in the panel.
+There are different ways to use the builder field inside a template. A clean approach for this is to use different snippets inside `site/snippets/sections/` that have the same file name like the field set names in the blueprint. In this case, we use the same snippet that we used for the preview inside the panel.
 
 ### /site/templates/yourtemplate.php
 
 ```php
-<?php foreach($page->builder()->toStructure() as $section): ?>
-  <?php snippet('sections/' . $section->_fieldset(), array('data' => $section)) ?>
+<?php foreach($page->builder()->toBuilderBlocks() as $block): ?>
+  <?php snippet('blocks' . $block->_key_(), array('data' => $block)) ?>
 <?php endforeach ?>
 ```
-Don't forget to use `toStructure()` on the builder field that "gives you a full blown Kirby Collection which makes it possible to use Kirby's chaining syntax" ([Kirby Documentation](http://getkirby.com/docs/cheatsheet/field-methods/toStructure)).
+The `toBuilderBlocks` method converts the builder field to a Kirby Collection which makes it possible to use Kirby's chaining syntax. Under the hood it is an alias for the `toStructure` method.
 
-### /site/snippets/sections/bodytext.php
+The quote snippet, for example, could then be rendered by this snippet
 
-``` php
-<section class="bodyText">
-  <?= $data->text()->kt() ?>
-</section>
-```
+### /site/snippets/blocks/quote.php
 
-### /site/snippets/sections/imagebanner.php
-
-``` php
-<section class="imageBanner" 
-<?php if ($data->picture()->isNotEmpty()): ?>
-  style="background-image: url(<?= $page->image($data->picture())->url() ?>)"
-<?php endif ?>
->
-  <h2 class="imageBanner-headline">
-    <?= $data->text() ?>
-  </h2>
-</section>
-```
-
-### /site/snippets/sections/quote.php
-
-``` php
+```php
 <section class="quote">
   <blockquote>
     <?= $data->text() ?>
@@ -175,17 +114,3 @@ Don't forget to use `toStructure()` on the builder field that "gives you a full 
   </div>
 </section>
 ```
-
-## Setup
-
-``git clone https://github.com/TimOetting/kirby-builder.git site/fields/builder``
-From the root of your kirby install.
-
-Alternatively you can download the zip file, unzip it's contents into site/fields/builder.
-
-##Known Issues
-
-Some issues related to the structure field of Kirby Panel do also affect the builder field.
-Builder fields do not support nested structure fields or other builder fields (on the TODO).
-
- 

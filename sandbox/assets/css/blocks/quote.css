@@ -1,0 +1,14 @@
+.quote{
+  background-color: #bd689a;
+  padding: 20px;
+  font-family: sans-serif;
+}
+.quote blockquote{
+  font-size: 20px;
+  font-style: italic;
+}
+.quote .citation{
+  font-size: .75em;
+  text-align: right;
+  opacity: .7;
+}

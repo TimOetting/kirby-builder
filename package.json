@@ -1,8 +1,36 @@
 {
-  "name": "builder",
-  "description": "A builder field for Kirby CMS",
-  "author": "Tim Ötting <tim@whateveryouremailaddresis.com>",
+  "name": "test",
+  "description": "test",
+  "author": "Thomas Günther <mail@medienbaecker.com>",
+  "version": "0.0.1",
+  "type": "kirby-field",
   "license": "MIT",
-  "version": "1.1",
-  "type": "kirby-field"
+  "scripts": {
+    "watch": "parcel watch src/main.js --out-dir ./ --out-file index.js --no-source-maps",
+    "build": "parcel build src/main.js --out-dir ./ --out-file index.js --no-source-maps --experimental-scope-hoisting"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "last 2 versions"
+  ],
+  "posthtml": {
+    "recognizeSelfClosing": true
+  },
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^2.3.0",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "parcel-bundler": "^1.10.3",
+    "sass": "^1.15.1",
+    "stylus": "^0.54.5",
+    "vue-hot-reload-api": "^2.3.1",
+    "vue-template-compiler": "^2.5.17"
+  },
+  "dependencies": {
+    "vue": "^2.5.17"
+  }
 }

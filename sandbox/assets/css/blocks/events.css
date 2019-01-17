@@ -1,0 +1,26 @@
+.events{
+  display: flex;
+  font-family: sans-serif;
+  background-color:#67bdaa;
+  color: white
+}
+.events__item{
+  text-align: center;
+  flex-grow: 1;
+  flex-basis: 0;
+  background-color: rgba(0,0,0,.2);
+  margin: 30px;
+  padding: 20px;
+}
+.events__headline{
+  margin-bottom: 8px
+}
+.events__date{
+  opacity: .6;
+  font-size: .75em;
+}
+.events__icon{
+  width: 50px;
+  height: 50px;
+  fill: rgba(255,255,255,.5);
+}
