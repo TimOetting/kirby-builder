@@ -111,7 +111,7 @@ There are different ways to use the builder field inside a template. A clean app
   <?php snippet('blocks' . $block->_key_(), array('data' => $block)) ?>
 <?php endforeach ?>
 ```
-The `toBuilderBlocks` method converts the builder field to a Kirby Collection which makes it possible to use Kirby's chaining syntax. Under the hood it is an alias for the `toStructure` method.
+The `toBuilderBlocks` method converts the builder field to a Kirby Collection which makes it possible to use Kirby's chaining syntax. Under the hood it is an alias for the `toStructure` method.
 
 The quote snippet, for example, could then be rendered by this snippet
 
