@@ -9639,6 +9639,7 @@ exports.default = _default;
         {
           staticClass: "kBuilder__blocks k-grid",
           attrs: {
+            list: _vm.blocks,
             end: _vm.onDragEnd,
             move: _vm.onMove,
             options: _vm.draggableOptions
@@ -9646,20 +9647,12 @@ exports.default = _default;
           on: {
             update: _vm.onBlockMoved,
             add: _vm.onBlockAdded,
-            remove: _vm.onBlockRemoved,
-            move: _vm.onMove
+            remove: _vm.onBlockRemoved
           },
           nativeOn: {
             start: function($event) {
               return _vm.onStartDrag($event)
             }
-          },
-          model: {
-            value: _vm.blocks,
-            callback: function($$v) {
-              _vm.blocks = $$v
-            },
-            expression: "blocks"
           }
         },
         [
@@ -9860,7 +9853,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60167" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61220" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

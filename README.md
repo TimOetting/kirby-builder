@@ -2,6 +2,8 @@
 
 This versatile plugin for [Kirby CMS](https://getkirby.com) (v3) lets you predefine content blocks with different field sets that can then be added and arranged inside Kirby's panel.
 
+The legacy version for Kirby 2 can be found under another [branch](https://github.com/TimOetting/kirby-builder/tree/kirby_v2).
+
 ## Commercial Use
 
 Kirby Builder can be used in so many different extents. You know best how big the value is that you get out of this plugin. Please pay what (and if) you want.

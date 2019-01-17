@@ -6,14 +6,13 @@
   >
     <k-draggable 
       class="kBuilder__blocks k-grid" 
-      v-model="blocks"
-      :end="onDragEnd" 
       @update="onBlockMoved"
       @add="onBlockAdded"
       @remove="onBlockRemoved"
-      @move="onMove"
-      :move="onMove"
       @start.native="onStartDrag"
+      :list="blocks"
+      :end="onDragEnd" 
+      :move="onMove"
       :options="draggableOptions"
     >
       <k-column 
