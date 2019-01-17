@@ -34,25 +34,27 @@ Kirby::plugin('timoetting/kirbybuilder', [
           $vals = [];
           foreach ($values as $key => $value) {
             $blockKey = $value['_key'];
-            if (array_key_exists('fields', $this->fieldsets[$blockKey])) {
-              $fields = $this->fieldsets[$blockKey]['fields'];
-              $form = new Form([
-                'fields' => $this->fieldsets[$blockKey]['fields'],
-                'values' => $value,
-                'model'  => $this->model() ?? null
-              ]);
-            } 
-            else if (array_key_exists('tabs', $this->fieldsets[$blockKey])) {
-              $fields = [];
-              $tabs = $this->fieldsets[$blockKey]['tabs'];
-              foreach ( $tabs as $tabKey => $tab) {
-                $field = array_merge($fields, $tab['fields']);
+            if (array_key_exists($blockKey, $this->fieldsets)) {
+              if (array_key_exists('fields', $this->fieldsets[$blockKey])) {
+                $fields = $this->fieldsets[$blockKey]['fields'];
+                $form = new Form([
+                  'fields' => $this->fieldsets[$blockKey]['fields'],
+                  'values' => $value,
+                  'model'  => $this->model() ?? null
+                ]);
+              } 
+              else if (array_key_exists('tabs', $this->fieldsets[$blockKey])) {
+                $fields = [];
+                $tabs = $this->fieldsets[$blockKey]['tabs'];
+                foreach ( $tabs as $tabKey => $tab) {
+                  $field = array_merge($fields, $tab['fields']);
+                }
+                $form = new Form([
+                  'fields' => $fields,
+                  'values' => $value,
+                  'model'  => $this->model() ?? null
+                ]);
               }
-              $form = new Form([
-                'fields' => $fields,
-                'values' => $value,
-                'model'  => $this->model() ?? null
-              ]);
             }
             $vals[] = $form->values();
           }
