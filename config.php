@@ -280,7 +280,7 @@ function fieldFromPath($fieldPath, $page, $fields) {
   if ($fieldProps['type'] === 'builder' && count($fieldPath) > 0) {
     $fieldsetKey = array_shift($fieldPath);
     $fieldset = $fieldProps['fieldsets'][$fieldsetKey];
-    if (array_key_exists('tabs', $fieldset)) {
+    if (array_key_exists('tabs', $fieldset) && is_array($fieldset['tabs'])) {
       $fieldsetFields = [];
       foreach ( $fieldset['tabs'] as $tabKey => $tab) {
         $fieldsetFields = array_merge($fieldsetFields, $tab['fields']);
