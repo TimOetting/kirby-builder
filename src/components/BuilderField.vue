@@ -4,13 +4,13 @@
     class="kBuilder"
     :class="'kBuilder--col-' + columnsCount"
   >
-    <k-draggable 
+    <draggable 
       class="kBuilder__blocks k-grid" 
       @update="onBlockMoved"
       @add="onBlockAdded"
       @remove="onBlockRemoved"
-      @start.native="onStartDrag"
-      :list="blocks"
+      @start="onStartDrag"
+      v-model="blocks"
       :end="onDragEnd" 
       :move="onMove"
       :options="draggableOptions"
@@ -56,7 +56,7 @@
           {{addBlockButtonLabel}}
         </k-button>
       </k-column>
-    </k-draggable>
+    </draggable>
     <k-dialog 
       ref="dialog" 
       class="kBuilder__dialog"
@@ -78,6 +78,7 @@
 
 <script>
 import BuilderBlock from "./BuilderBlock.vue";
+import draggable from 'vuedraggable'
 export default {
   props: {    
     counter: [Boolean, Object],
@@ -101,7 +102,10 @@ export default {
     jsUrls: String,
     parentPath: String
   },
-  components: { BuilderBlock },
+  components: { 
+    BuilderBlock,
+    draggable
+  },
   mounted() {
     for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
       fetch(cssUrl.replace(/^\/+/g, ''))//regex removes leading slashes
@@ -207,16 +211,14 @@ export default {
     onStartDrag(event) {
       const draggedBlockPreviewFrame = event.item.getElementsByClassName('kBuilderPreview__frame')[0]
       if (draggedBlockPreviewFrame) {
-        window.requestAnimationFrame(() => {
-          const originalBlockPreviewFrameDocument = draggedBlockPreviewFrame.contentWindow.document
-          const clonedBlockPreviewFrameDocument = document.getElementsByClassName('sortable-drag')[0]
-                                      .getElementsByClassName('kBuilderPreview__frame')[0]
-                                      .contentWindow
-                                      .document
-          clonedBlockPreviewFrameDocument.open();
-          clonedBlockPreviewFrameDocument.write(originalBlockPreviewFrameDocument.documentElement.innerHTML);
-          clonedBlockPreviewFrameDocument.close();
-        });
+        const originalBlockPreviewFrameDocument = draggedBlockPreviewFrame.contentWindow.document
+        const clonedBlockPreviewFrameDocument = document.getElementsByClassName('sortable-drag')[0]
+                                    .getElementsByClassName('kBuilderPreview__frame')[0]
+                                    .contentWindow
+                                    .document
+        clonedBlockPreviewFrameDocument.open();
+        clonedBlockPreviewFrameDocument.write(originalBlockPreviewFrameDocument.documentElement.innerHTML);
+        clonedBlockPreviewFrameDocument.close();
       }
     },
     onClickAddBlock(position) {
