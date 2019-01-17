@@ -1,8 +1,8 @@
 # Kirby Builder
 
-This versatile plugin for [Kirby CMS](https://getkirby.com) (v3) lets you predefine content blocks with different field sets that can then be added and arranged inside Kirby's panel.
+This versatile plugin for [Kirby CMS](https://a.paddle.com/v2/click/1129/38717?link=1170) (v3) lets you predefine content blocks with different field sets that can then be added and arranged inside Kirby's panel.
 
-The legacy version for Kirby 2 can be found under another [branch](https://github.com/TimOetting/kirby-builder/tree/kirby_v2).
+The legacy version for Kirby 2 can be found under [this branch](https://github.com/TimOetting/kirby-builder/tree/kirby_v2).
 
 ## Commercial Use
 
@@ -10,14 +10,25 @@ Kirby Builder can be used in so many different extents. You know best how big th
 
 [PayPal.me Link](https://www.paypal.me/TimOetting/10)
 
+Another way to support this plugin is to buy a Kirby Licence via this affiliate link with no extra costs for you. You need that licence anyway, right? :wink:
+
+[Buy a Kirby licence](https://a.paddle.com/v2/click/1129/38717?link=1170)
+
+## Preview
+
+![Kirby Builder Screenshot](https://raw.githubusercontent.com/TimOetting/kirby-builder/master/PREVIEW.png)
+
 ## Setup
 
-`git clone https://github.com/TimOetting/kirby-builder.git site/plugins/kirby-builder`
-From the root of your kirby install.
+```
+git clone https://github.com/TimOetting/kirby-builder.git site/plugins/kirby-builder
+```
+
+from the root of your kirby project.
 
 Alternatively you can download the zip file, unzip it's contents into site/plugins/kirby-builder.
 
-## Blueprint Structure
+## Example Blueprint Structure
 
 ```yaml
 mybuilder:
@@ -39,7 +50,7 @@ mybuilder:
           label: Citation
           type: text
     bodytext:
-      label: Text Block (without preview but with tabs)
+      label: Text
       tabs: # Optional. Tabs can be used to group the fields of a field set. In this example, we use one tab to contain the content related fields and one for styling settings. Is makes no difference for the contentn handling in the template if there are tabs or not.
         content:
           label: Content
