@@ -127,3 +127,7 @@ The quote snippet, for example, could then be rendered by this snippet
   </div>
 </section>
 ```
+
+### Licence
+
+[MIT](https://opensource.org/licenses/MIT)
