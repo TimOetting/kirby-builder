@@ -23,6 +23,7 @@
       >
         <div 
           class="kBuilder__inlineAddButton"
+          v-if="!max || blockCount < max"
           :class="{'kBuilder__inlineAddButton--horizontal': (columnsCount == 1), 'kBuilder__inlineAddButton--vertical': (columnsCount > 1)}"
           @click="onClickAddBlock(index)"
         ></div>
@@ -42,7 +43,7 @@
           @delete="deleteBlock"
         />
         <div 
-          v-if="(columnsCount % index == 0 && columnsCount > 1)"
+          v-if="(columnsCount % index == 0 && columnsCount > 1 && (!max || blockCount < max))"
           class="kBuilder__inlineAddButton kBuilder__inlineAddButton--vertical kBuilder__inlineAddButton--after"
           @click="onClickAddBlock(index + 1)"
         ></div>
