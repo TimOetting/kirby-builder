@@ -18,13 +18,22 @@ Another way to support this plugin is to buy a Kirby Licence via this affiliate 
 
 ![Kirby Builder Screenshot](https://raw.githubusercontent.com/TimOetting/kirby-builder/master/PREVIEW.png)
 
-## Setup
+## Installation
 
+### Git
+
+From the root of your kirby project:
 ```
 git clone https://github.com/TimOetting/kirby-builder.git site/plugins/kirby-builder
 ```
 
-from the root of your kirby project.
+### Composer
+
+```
+composer require timoetting/kirby-builder
+```
+
+### Direct Download
 
 Alternatively you can download the zip file, unzip it's contents into site/plugins/kirby-builder.
 
