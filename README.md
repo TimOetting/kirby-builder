@@ -40,6 +40,7 @@ Alternatively you can download the zip file, unzip it's contents into site/plugi
 ## Example Blueprint Structure
 
 ```yaml
+# inside the fields section of your blueprint:
 mybuilder:
   label: Page Builder
   type: builder
@@ -117,7 +118,7 @@ There are different ways to use the builder field inside a template. A clean app
 
 ```php
 <?php foreach($page->builder()->toBuilderBlocks() as $block): ?>
-  <?php snippet('blocks' . $block->_key_(), array('data' => $block)) ?>
+  <?php snippet('blocks/' . $block->_key_(), array('data' => $block)) ?>
 <?php endforeach ?>
 ```
 The `toBuilderBlocks` method converts the builder field to a Kirby Collection which makes it possible to use Kirby's chaining syntax. Under the hood it is an alias for the `toStructure` method.
