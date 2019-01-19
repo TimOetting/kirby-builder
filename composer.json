@@ -28,7 +28,6 @@
     "builder"
   ],
   "require": {
-      "php": ">=7.1.0",
-      "getkirby/cms": "^3.0.0"
+      "php": ">=7.1.0"
   }
 }
