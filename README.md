@@ -52,7 +52,7 @@ mybuilder:
       preview: # Optional. If defined, a preview of the block can be rendered by the specified snippet from within the snippets folder
         snippet: blocks/quote
         css: /assets/css/blocks/quote.css
-      fields: 
+      fields:
         text:
           label: Quote Text
           type: textarea
@@ -118,7 +118,7 @@ There are different ways to use the builder field inside a template. A clean app
 
 ```php
 <?php foreach($page->builder()->toBuilderBlocks() as $block): ?>
-  <?php snippet('blocks/' . $block->_key_(), array('data' => $block)) ?>
+  <?php snippet('blocks/' . $block->_key(), array('data' => $block)) ?>
 <?php endforeach ?>
 ```
 The `toBuilderBlocks` method converts the builder field to a Kirby Collection which makes it possible to use Kirby's chaining syntax. Under the hood it is an alias for the `toStructure` method.
