@@ -3,6 +3,7 @@
     :class="[
     'kBuilderBlock', 
     'kBuilderBlock--col-' + columnsCount, 
+    'kBuilderBlock--type-' + block.blockKey,
     {'kBuilderBlock--pending': pending }, 
     {'kBuilderBlock--previewMode': showPreview && expanded }, 
     {'kBuilderBlock--expanded': expanded },
