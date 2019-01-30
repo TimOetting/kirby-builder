@@ -3,6 +3,7 @@
     <iframe 
       ref="previewFrame" 
       class="kBuilderPreview__frame"
+      @load="onFrameLoad"
       @sizechange="onResize"
       :style="{height: previewHeight + 'px'}"
     ></iframe>
@@ -19,7 +20,7 @@
           </style>
         </head>
         <body>
-          <div id="content">
+          <div id="kirby-builder-content">
             {{markup}}
           </div>
         </body>
@@ -56,7 +57,7 @@ export default {
   },
   computed: {
     heighto() {
-      return this.previewFrameDocument.getElementById("content").scrollHeight;
+      return this.previewFrameDocument.getElementById("kirby-builder-content").scrollHeight;
     }
   },
   mounted () {
@@ -100,7 +101,7 @@ export default {
     },
     updateFrameIfEmpty() {
       this.$nextTick().then(() => {
-        const contentElement = this.$refs['previewFrame'].contentWindow.document.getElementById('content')
+        const contentElement = this.$refs['previewFrame'].contentWindow.document.getElementById('kirby-builder-content')
         if (contentElement === null) {
           this.updateContent()
         }
@@ -110,7 +111,10 @@ export default {
       this.resize()
     },
     resize() {
-      this.previewHeight = this.previewFrameDocument.getElementById("content").scrollHeight;
+      this.previewHeight = this.previewFrameDocument.getElementById("kirby-builder-content").scrollHeight;
+    },
+    onFrameLoad() {
+      this.resize()
     }
   },
   watch: {
@@ -133,6 +137,7 @@ export default {
     &__frame
       border none
       width 100%
+      height 200px
 </style>
 
 

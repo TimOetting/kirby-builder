@@ -158,6 +158,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
           $kirby            = kirby();
           $blockUid         = get('blockUid');
           $blockContent     = get('blockContent');
+          $blockFields     = get('blockFields');
           $previewOptions   = get('preview');
           $cache            = $kirby->cache('timoetting.builder');
           $existingPreviews = $cache->get('previews');
@@ -172,10 +173,16 @@ Kirby::plugin('timoetting/kirbybuilder', [
           $snippet      = $previewOptions['snippet'] ?? null;
           $modelName    = $previewOptions['modelname'] ?? 'data';
           $originalPage = $kirby->page(get('pageid'));
+          $form = new Form([
+            'fields' => $blockFields,
+            'values' => $blockContent,
+            'model'  => $originalPage
+          ]);
           $page = new Page([
             'slug'     => 'builder-preview',
             'template' => 'builder-preview',
-            'content'  => $blockContent,
+            'content'  => $form->data(),
+            'files'    => $originalPage->files()->toArray()
           ]);
           return array(
             'preview' => snippet($snippet, ['page' => $originalPage, $modelName => $page->content()], true) ,
@@ -267,10 +274,6 @@ Kirby::plugin('timoetting/kirbybuilder', [
   'fieldMethods' => [
       'toBuilderBlocks' => function ($field) {
         return $field->toStructure();
-      },
-      'fieldSetKey' => function ($field) {
-        // return $field->_key();
-        return 'holla';
       }
   ]
 ]);
