@@ -55,11 +55,6 @@ export default {
       type: Number
     }
   },
-  computed: {
-    heighto() {
-      return this.previewFrameDocument.getElementById("kirby-builder-content").scrollHeight;
-    }
-  },
   mounted () {
     this.$root.$on('blockMoved', this.updateFrameIfEmpty)
 

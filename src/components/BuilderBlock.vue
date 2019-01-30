@@ -50,7 +50,7 @@
               @click="$refs['blockActions' + block.uniqueKey].toggle()"
               class="kBuilderBlock__actionsButton"
             ></k-button>
-            <k-dropdown-content :ref="'blockActions' + block.uniqueKey">
+            <k-dropdown-content :ref="'blockActions' + block.uniqueKey" align="right">
               <k-dropdown-item icon="copy" @click="$emit('clone', index)">{{ $t('builder.clone') }}</k-dropdown-item>
               <k-dropdown-item icon="trash" @click="$emit('delete', index)">{{ $t('delete') }}</k-dropdown-item>
             </k-dropdown-content>
