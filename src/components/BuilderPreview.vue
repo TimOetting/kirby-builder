@@ -106,7 +106,13 @@ export default {
       this.resize()
     },
     resize() {
-      this.previewHeight = this.previewFrameDocument.getElementById("kirby-builder-content").scrollHeight;
+      if (this.previewFrameDocument.getElementById) {
+        const content = this.previewFrameDocument.getElementById("kirby-builder-content")
+        const contentHeight = content.scrollHeight
+        if (contentHeight > 0) {
+          this.previewHeight = contentHeight
+        }
+      }
     },
     onFrameLoad() {
       this.resize()

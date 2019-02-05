@@ -1,13 +1,13 @@
 <template>
-  <k-field :label="label" class="kBuilder" :class="'kBuilder--col-' + columnsCount">
-    <draggable
+  <k-field :label="label" class="kBuilder" :class="classObject">
+    <k-draggable
       class="kBuilder__blocks k-grid"
       @update="onBlockMoved"
       @add="onBlockAdded"
       @remove="onBlockRemoved"
       @start="onStartDrag"
+      @end="onDragEnd"
       :list="blocks"
-      :end="onDragEnd"
       :move="onMove"
       :options="draggableOptions"
     >
@@ -51,7 +51,7 @@
           class="kBuilder__addButton"
         >{{addBlockButtonLabel}}</k-button>
       </k-column>
-    </draggable>
+    </k-draggable>
     <k-dialog ref="dialog" class="kBuilder__dialog" @open="onOpenDialog" @close="onCloseDialog">
       <k-list>
         <k-list-item
@@ -125,6 +125,7 @@ export default {
   },
   data() {
     return {
+      dragging: false,
       blocks: [],
       toggle: true,
       targetPosition: null,
@@ -137,6 +138,12 @@ export default {
   computed: {
     val() {
       return this.blocks.map(block => block.content);
+    },
+    classObject() {
+      let classObject = {};
+      classObject["kBuilder--col-" + this.columnsCount] = true;
+      classObject["kBuilder--dragging"] = this.dragging;
+      return classObject;
     },
     path() {
       return this.parentPath ? `${this.parentPath}+${this.name}` : this.name;
@@ -188,7 +195,7 @@ export default {
       this.$emit("input", this.val);
     },
     onDragEnd(event) {
-      this.drag = false;
+      this.dragging = false;
     },
     onMove(event) {
       this.$root.$emit("blockMoved");
@@ -206,6 +213,7 @@ export default {
       );
     },
     onStartDrag(event) {
+      this.dragging = true;
       const draggedBlockPreviewFrame = event.item.getElementsByClassName(
         "kBuilderPreview__frame"
       )[0];
@@ -440,7 +448,7 @@ kBuilder__block:hover .kBuilder__dragDropHandle--col-1 {
   display: none;
 }
 
-.sortable-ghost .kBuilderPreview__frame {
+.kBuilder--dragging .kBuilderPreview__frame {
   pointer-events: none;
 }
 </style>

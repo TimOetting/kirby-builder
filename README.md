@@ -1,6 +1,6 @@
 # Kirby Builder
 
-This versatile plugin for [Kirby CMS](https://a.paddle.com/v2/click/1129/38717?link=1170) (v3) lets you predefine content blocks with different field sets that can then be added, edited and arranged inside Kirby's panel.
+This versatile plugin for [Kirby CMS](https://a.paddle.com/v2/click/1129/38717?link=1170) (>= v3.0.1) lets you predefine content blocks with different field sets that can then be added, edited and arranged inside Kirby's panel.
 
 The legacy version for Kirby 2 can be found under [this branch](https://github.com/TimOetting/kirby-builder/tree/kirby_v2).
 
@@ -23,6 +23,7 @@ Another way to support this plugin is to buy a Kirby Licence via this affiliate 
 ### Git
 
 From the root of your kirby project:
+
 ```
 git clone https://github.com/TimOetting/kirby-builder.git site/plugins/kirby-builder
 ```
@@ -52,7 +53,7 @@ mybuilder:
       preview: # Optional. If defined, a preview of the block can be rendered by the specified snippet from within the snippets folder
         snippet: blocks/quote
         css: /assets/css/blocks/quote.css
-      fields: 
+      fields:
         text:
           label: Quote Text
           type: textarea
@@ -107,7 +108,6 @@ mybuilder:
                   type: date
     calltoaction:
       extends: blocks/calltoaction # the Builder Field blueprint can be rather complex. It is therefore recommended to organize your fieldsets in single files. This example here would take the content of the file /site/blueprints/blocks/calltoaction.yml and use it instead of the extends statement.
-
 ```
 
 ## Template Usage
@@ -121,6 +121,7 @@ There are different ways to use the builder field inside a template. A clean app
   <?php snippet('blocks/' . $block->_key(), array('data' => $block)) ?>
 <?php endforeach ?>
 ```
+
 The `toBuilderBlocks` method converts the builder field to a Kirby Collection which makes it possible to use Kirby's chaining syntax. Under the hood it is an alias for the `toStructure` method.
 
 The quote snippet, for example, could then be rendered by this snippet
