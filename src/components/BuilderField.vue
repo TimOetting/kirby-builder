@@ -1,5 +1,9 @@
 <template>
-  <k-field :label="label" class="kBuilder" :class="classObject">
+  <k-field
+    :label="label"
+    class="kBuilder"
+    :class="classObject"
+  >
     <k-draggable
       class="kBuilder__blocks k-grid"
       @update="onBlockMoved"
@@ -44,7 +48,10 @@
           @click="onClickAddBlock(index + 1)"
         ></div>
       </k-column>
-      <k-column :width="columnWidth" v-if="!max || blockCount < max">
+      <k-column
+        :width="columnWidth"
+        v-if="!max || blockCount < max"
+      >
         <k-button
           icon="add"
           @click="onClickAddBlock()"
@@ -52,7 +59,12 @@
         >{{addBlockButtonLabel}}</k-button>
       </k-column>
     </k-draggable>
-    <k-dialog ref="dialog" class="kBuilder__dialog" @open="onOpenDialog" @close="onCloseDialog">
+    <k-dialog
+      ref="dialog"
+      class="kBuilder__dialog"
+      @open="onOpenDialog"
+      @close="onCloseDialog"
+    >
       <k-list>
         <k-list-item
           class="kBuilder__addBlockButton"
@@ -93,8 +105,7 @@ export default {
     parentPath: String
   },
   components: {
-    BuilderBlock,
-    draggable
+    BuilderBlock
   },
   mounted() {
     for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
