@@ -117,7 +117,7 @@ There are different ways to use the builder field inside a template. A clean app
 ### /site/templates/yourtemplate.php
 
 ```php
-<?php foreach($page->builder()->toBuilderBlocks() as $block): ?>
+<?php foreach($page->mybuilder()->toBuilderBlocks() as $block): ?>
   <?php snippet('blocks/' . $block->_key(), array('data' => $block)) ?>
 <?php endforeach ?>
 ```
