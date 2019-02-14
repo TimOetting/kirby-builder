@@ -114,21 +114,20 @@ mybuilder:
 
 There are different ways to use the builder field inside a template. A clean approach for this is to use different snippets inside `site/snippets/sections/` that have the same file name like the field set names in the blueprint. In this case, we use the same snippet that we used for the preview inside the panel.
 
-### /site/templates/yourtemplate.php
-
 ```php
-<?php foreach($page->mybuilder()->toBuilderBlocks() as $block): ?>
-  <?php snippet('blocks/' . $block->_key(), array('data' => $block)) ?>
-<?php endforeach ?>
+<?php # /site/templates/yourtemplate.php
+foreach($page->mybuilder()->toBuilderBlocks() as $block):
+  snippet('blocks/' . $block->_key(), array('data' => $block));
+endforeach;
+?>
 ```
 
 The `toBuilderBlocks` method converts the builder field to a Kirby Collection which makes it possible to use Kirby's chaining syntax. Under the hood it is an alias for the `toStructure` method.
 
-
-### /site/snippets/blocks/quote.php
 The quote snippet, for example, could then be rendered by this snippet:
 
 ```php
+<php # /site/snippets/blocks/quote.php ?>
 <section class="quote">
   <blockquote>
     <?= $data->text() ?>
