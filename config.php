@@ -267,6 +267,10 @@ Kirby::plugin('timoetting/kirbybuilder', [
       'builder.clone' => 'Duplizieren',
       'builder.preview' => 'Vorschau',
     ],
+    'sv' => [
+      'builder.clone' => 'Duplicera',
+      'builder.preview' => 'Förhandsgranska',
+    ],
   ],  
   'templates' => [
     'snippet-wrapper' => __DIR__ . '/templates/snippet-wrapper.php'
