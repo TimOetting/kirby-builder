@@ -45,12 +45,12 @@ Alternatively you can download the zip file, unzip it's contents into site/plugi
 mybuilder:
   label: Page Builder
   type: builder
-  columns: 1 # Optional. If set to 2 or more, the builder blocks will be places in a grid.
+  columns: 1 # Optional. If set to 2 or more, the builder blocks will be placed in a grid.
   max: 10 # Optional. Limits the number of builder blocks that can be added.
   fieldsets:
     quote: # This is a field set. It contains a group of kirby fields. The user can select from these sets to build the content.
       label: Quote
-      preview: # Optional. If defined, a preview of the block can be rendered by the specified snippet from within the snippets folder
+      preview: # Optional. If defined, a preview of the block can be rendered by the specified snippet from within the snippets folder.
         snippet: blocks/quote
         css: /assets/css/blocks/quote.css
       fields:
@@ -62,7 +62,7 @@ mybuilder:
           type: text
     bodytext:
       label: Text
-      tabs: # Optional. Tabs can be used to group the fields of a field set. In this example, we use one tab to contain the content related fields and one for styling settings. Is makes no difference for the contentn handling in the template if there are tabs or not.
+      tabs: # Optional. Tabs can be used to group the fields of a field set. In this example, we use one tab to contain the content related fields and one for styling settings. It makes no difference for the content handling in the template if there are tabs or not.
         content:
           label: Content
           icon: edit # Optional. This icon appears next to the tab. The icon name can be chosen from the Kirby's icon set getkirby.com/docs/reference/ui/icon
@@ -124,9 +124,9 @@ There are different ways to use the builder field inside a template. A clean app
 
 The `toBuilderBlocks` method converts the builder field to a Kirby Collection which makes it possible to use Kirby's chaining syntax. Under the hood it is an alias for the `toStructure` method.
 
-The quote snippet, for example, could then be rendered by this snippet
 
 ### /site/snippets/blocks/quote.php
+The quote snippet, for example, could then be rendered by this snippet:
 
 ```php
 <section class="quote">
