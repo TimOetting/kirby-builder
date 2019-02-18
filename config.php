@@ -47,7 +47,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
                 $fields = [];
                 $tabs = $this->fieldsets[$blockKey]['tabs'];
                 foreach ( $tabs as $tabKey => $tab) {
-                  $field = array_merge($fields, $tab['fields']);
+                  $fields = array_merge($fields, $tab['fields']);
                 }
                 $form = new Form([
                   'fields' => $fields,
