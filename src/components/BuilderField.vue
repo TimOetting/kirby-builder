@@ -281,7 +281,7 @@ export default {
           content[fieldName] =
             fieldSet.fields[fieldName].value ||
             fieldSet.fields[fieldName].default ||
-            "";
+            null;
         });
       } else if (fieldSet.tabs) {
         for (const tabName in fieldSet.tabs) {
@@ -291,7 +291,7 @@ export default {
               content[fieldName] =
                 tab.fields[fieldName].value ||
                 tab.fields[fieldName].default ||
-                "";
+                null;
             });
           }
         }
