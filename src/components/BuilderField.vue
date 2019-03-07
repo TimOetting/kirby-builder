@@ -72,7 +72,14 @@
           :key="key"
           :text="value.label"
           @click="addBlock(key)"
-        />
+        >
+          <template slot="options">
+            <k-icon
+              type="add"
+              class="kBuilder__addBlockButtonIcon"
+            />
+          </template>
+        </k-list-item>
       </k-list>
     </k-dialog>
   </k-field>
@@ -362,6 +369,9 @@ export default {
 }
 .kBuilder__addBlockButton {
   cursor: pointer;
+}
+.kBuilder__addBlockButtonIcon {
+  margin-right: .75em;
 }
 .kBuilder .kBuilder--col-1 {
   padding-left: 25px;
