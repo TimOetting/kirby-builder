@@ -109,7 +109,7 @@ export default {
   },
   mounted() {
     for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
-      fetch(cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
+      fetch("/" + cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
         .then(res => {
           return res.text();
         })
@@ -118,7 +118,7 @@ export default {
         });
     }
     for (const [fieldSetKey, jsUrls] of Object.entries(this.jsUrls)) {
-      fetch(jsUrls.replace(/^\/+/g, "")) //regex removes leading slashes
+      fetch("/" + jsUrls.replace(/^\/+/g, "")) //regex removes leading slashes
         .then(res => {
           return res.text();
         })
