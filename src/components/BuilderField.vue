@@ -67,7 +67,7 @@
     >
       <k-list>
         <k-list-item
-          class="kBuilder__addBlockButton"
+          :class="['kBuilder__addBlockButton', 'kBuilder__addBlockButton--' + key]"
           v-for="(value, key) in fieldsets"
           :key="key"
           :text="value.label"
