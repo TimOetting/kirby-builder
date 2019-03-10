@@ -1,6 +1,5 @@
 <template>
-  <div
-    :class="[
+  <div :class="[
     'kBuilderBlock', 
     'kBuilderBlock--col-' + columnsCount, 
     'kBuilderBlock--type-' + block.blockKey,
@@ -9,14 +8,16 @@
     {'kBuilderBlock--expanded': expanded },
     {'kBuilderBlock--collapsed': !expanded },
     {'kBuilderBlock--editMode': !showPreview && expanded }
-  ]"
-  >
+  ]">
     <div :class="'kBuilderBlock__header kBuilderBlock__header--col-' + columnsCount">
       <k-icon
         type="sort"
         :class="'kBuilder__dragDropHandle kBuilder__dragDropHandle--col-' + columnsCount"
       />
-      <span class="kBuilderBlock__label" @click="toggleExpand">
+      <span
+        class="kBuilderBlock__label"
+        @click="toggleExpand"
+      >
         <k-icon
           class="kBuilderBlock__expandedIcon"
           :class="{'kBuilderBlock__expandedIcon--expanded': expanded}"
@@ -51,15 +52,27 @@
               @click="$refs['blockActions' + block.uniqueKey].toggle()"
               class="kBuilderBlock__actionsButton"
             ></k-button>
-            <k-dropdown-content :ref="'blockActions' + block.uniqueKey" align="right">
-              <k-dropdown-item icon="copy" @click="$emit('clone', index)">{{ $t('builder.clone') }}</k-dropdown-item>
-              <k-dropdown-item icon="trash" @click="$emit('delete', index)">{{ $t('delete') }}</k-dropdown-item>
+            <k-dropdown-content
+              :ref="'blockActions' + block.uniqueKey"
+              align="right"
+            >
+              <k-dropdown-item
+                icon="copy"
+                @click="$emit('clone', index)"
+              >{{ $t('builder.clone') }}</k-dropdown-item>
+              <k-dropdown-item
+                icon="trash"
+                @click="$emit('delete', index)"
+              >{{ $t('delete') }}</k-dropdown-item>
             </k-dropdown-content>
           </k-dropdown>
         </div>
       </div>
     </div>
-    <div class="kBuilderBlock__content" v-show="expanded">
+    <div
+      class="kBuilderBlock__content"
+      v-show="expanded"
+    >
       <builder-preview
         v-if="block.preview"
         v-show="showPreview"
@@ -320,7 +333,6 @@ export default {
   &__header {
     height: 38px;
     font-size: 0.875rem;
-    // color: #999;
     display: flex;
     align-items: center;
 
@@ -334,7 +346,7 @@ export default {
     right: 0;
     top: 0;
     display: flex;
-    z-index: 1;
+    z-index: 2;
   }
 
   &__actionsGroup {
