@@ -5,6 +5,7 @@ use Kirby\Cms\Api;
 use Kirby\Cms\Form;
 use Kirby\Form\Field;
 use Kirby\Form\Fields;
+use Kirby\Toolkit\I18n;
 
 Kirby::plugin('timoetting/kirbybuilder', [
   'fields' => [
@@ -85,6 +86,9 @@ Kirby::plugin('timoetting/kirbybuilder', [
             if(is_array($property)){
               $properties[$propertyName] = $this->model()->blueprint()->extend($property);
               $properties[$propertyName] = $this->extendRecursively($properties[$propertyName], $propertyName);
+            }
+            if($propertyName == "label") {
+              $properties[$propertyName] = I18n::translate($property, $property);
             }
           }
           if ($currentPropertiesName === 'fields') {
