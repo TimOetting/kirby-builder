@@ -356,6 +356,14 @@ export default {
 </script>
 
 <style>
+/* Allow line breaks in validation error message */
+.k-error-details li {
+  white-space: pre-line; 
+  word-wrap: break-word;
+  font-family: inherit;
+  margin-top: -1.25em;
+}
+
 .kBuilder__addButton {
   width: 100%;
   background-color: transparent;

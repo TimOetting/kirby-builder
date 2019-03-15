@@ -32,34 +32,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
         },
         'value' => function () {
           $values = $this->value != null ? Yaml::decode($this->value) : Yaml::decode($this->default);
-          $vals = [];
-          foreach ($values as $key => $value) {
-            $blockKey = $value['_key'];
-            if (array_key_exists($blockKey, $this->fieldsets)) {
-              if (array_key_exists('fields', $this->fieldsets[$blockKey])) {
-                $fields = $this->fieldsets[$blockKey]['fields'];
-                $form = new Form([
-                  'fields' => $this->fieldsets[$blockKey]['fields'],
-                  'values' => $value,
-                  'model'  => $this->model() ?? null
-                ]);
-              } 
-              else if (array_key_exists('tabs', $this->fieldsets[$blockKey])) {
-                $fields = [];
-                $tabs = $this->fieldsets[$blockKey]['tabs'];
-                foreach ( $tabs as $tabKey => $tab) {
-                  $fields = array_merge($fields, $tab['fields']);
-                }
-                $form = new Form([
-                  'fields' => $fields,
-                  'values' => $value,
-                  'model'  => $this->model() ?? null
-                ]);
-              }
-            }
-            $vals[] = $form->values();
-          }
-          return $vals;
+          return $this->getValues($values);
         },
         'cssUrls' => function() {
           $cssUrls = array_map(function($arr) {
@@ -100,36 +73,67 @@ Kirby::plugin('timoetting/kirbybuilder', [
           }
           return $properties;
         },
-      ],
-      'save' => function ($values = null) {
-        $vals = [];
-        if ($values == null) {
+        'getValues' => function ($values) {
+          $vals = [];
+          if ($values == null) {
+            return $vals;
+          }
+          foreach ($values as $key => $value) {
+            $blockKey = $value['_key'];
+            $block = $this->fieldsets[$blockKey];
+            if (array_key_exists($blockKey, $this->fieldsets)) {
+              $form = $this->getBlockForm($value, $block);
+            }
+            $vals[] = $form->data();
+          }
           return $vals;
-        }
-        foreach ($values as $key => $value) {
-          $blockKey = $value['_key'];
-          if (array_key_exists('fields', $this->fieldsets[$blockKey])) {
-            $fields = $this->fieldsets[$blockKey]['fields'];
-            $form = new Form([
-              'fields' => $fields,
-              'values' => $value,
-              'model'  => $this->model() ?? null
-            ]);
-          } else if (array_key_exists('tabs', $this->fieldsets[$blockKey])) {
-            $fields = [];
-            $tabs = $this->fieldsets[$blockKey]['tabs'];
+        },
+        'getBlockForm' => function ($value, $block) {
+          $fields = [];
+          if (array_key_exists('fields', $block)) {
+            $fields = $block['fields'];
+          } else if (array_key_exists('tabs', $block)) {
+            $tabs = $block['tabs'];
             foreach ( $tabs as $tabKey => $tab) {
               $fields = array_merge($fields, $tab['fields']);
             }
-            $form = new Form([
-              'fields' => $fields,
-              'values' => $value,
-              'model'  => $this->model() ?? null
-            ]);
           }
-          $vals[] = $form->data();
+          $form = new Form([
+            'fields' => $fields,
+            'values' => $value,
+            'model'  => $this->model() ?? null
+          ]);
+          return $form;
         }
-        return $vals;
+      ],
+      'validations' => [
+        'validateChildren' => function ($values) {
+          $errorMessages = [];
+          foreach ($values as $key => $value) {
+            $blockKey = $value['_key'];
+            $block = $this->fieldsets[$blockKey];
+            if (array_key_exists($blockKey, $this->fieldsets)) {
+              $form = $this->getBlockForm($value, $block);
+              if ($form->errors()) {
+                foreach ($form->errors() as $fieldKey => $error) {
+                  foreach ($error["message"] as $errorKey => $message) {
+                    if ($errorKey != "validateChildren") {
+                      $errorMessages[] = $error['label'] . ': ' . $message;
+                    } else {
+                      $errorMessages[] = $message;
+                    }
+                  }
+                }
+              }
+            }
+          }
+          if (count($errorMessages)) {
+            throw new Exception(implode("\n", $errorMessages));
+          }
+        }
+      ],
+      'save' => function ($values = null) {
+        return $this->getValues($values);
       },
     ],
   ],
