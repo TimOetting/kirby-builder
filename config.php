@@ -3,6 +3,7 @@
 use Kirby\Cms\Blueprint;
 use Kirby\Cms\Api;
 use Kirby\Cms\Form;
+use Kirby\Cms\Content;
 use Kirby\Form\Field;
 use Kirby\Form\Fields;
 use Kirby\Toolkit\I18n;
@@ -73,7 +74,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
           }
           return $properties;
         },
-        'getValues' => function ($values) {
+        'getData' => function ($values) {
           $vals = [];
           if ($values == null) {
             return $vals;
@@ -85,6 +86,21 @@ Kirby::plugin('timoetting/kirbybuilder', [
               $form = $this->getBlockForm($value, $block);
             }
             $vals[] = $form->data();
+          }
+          return $vals;
+        },
+        'getValues' => function ($values) {
+          $vals = [];
+          if ($values == null) {
+            return $vals;
+          }
+          foreach ($values as $key => $value) {
+            $blockKey = $value['_key'];
+            $block = $this->fieldsets[$blockKey];
+            if (array_key_exists($blockKey, $this->fieldsets)) {
+              $form = $this->getBlockForm($value, $block);
+            }
+            $vals[] = $form->values();
           }
           return $vals;
         },
@@ -133,7 +149,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
         }
       ],
       'save' => function ($values = null) {
-        return $this->getValues($values);
+        return $this->getData($values);
       },
     ],
   ],
@@ -186,14 +202,8 @@ Kirby::plugin('timoetting/kirbybuilder', [
             'values' => $blockContent,
             'model'  => $originalPage
           ]);
-          $page = new Page([
-            'slug'     => 'builder-preview',
-            'template' => 'builder-preview',
-            'content'  => $form->data(),
-            'files'    => $originalPage->files()->toArray()
-          ]);
           return array(
-            'preview' => snippet($snippet, ['page' => $originalPage, $modelName => $page->content()], true) ,
+            'preview' => snippet($snippet, ['page' => $originalPage, $modelName => new Content($form->data(), $originalPage)], true) ,
             'content' => get('blockContent')
           );
         }
@@ -216,52 +226,6 @@ Kirby::plugin('timoetting/kirbybuilder', [
       ],
     ],
   ],
-  'routes' => [
-    [
-      'pattern' => 'kirby-builder-preview/(:any)',
-      'method' => 'GET',
-      'action'  => function ($blockUid) {
-        $content = kirby()->session()->data()->get('kirby-builder-previews')[$blockUid];
-        if (get('pageid')) {
-          $content['_pageid'] = get('pageid');
-        }
-        if (get('snippet')) {
-          $content['_snippetpath'] = get('snippet');
-        }
-        if (get('css')) {
-          $content['_csspath'] = get('css');
-        }
-        if (get('js')) {
-          $content['_jspath'] = get('js');
-        }
-        $content['_modelname'] = (get('modelname')) ? get('modelname') : 'data';
-        $responsePage = new Page([
-          'slug' => 'virtual-reality',
-          'template' => 'snippet-wrapper',
-          'content' => $content
-        ]);
-        return $responsePage;
-      }
-    ],
-    [
-      'pattern' => 'kirby-builder-frame',
-      'method' => 'GET',
-      'action'  => function () {
-        return '<!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta http-equiv="X-UA-Compatible" content="ie=edge">
-            <title>Document</title>
-          </head>
-          <body>
-            hey
-          </body>
-          </html>';
-      }
-    ],
-  ], 
   'translations' => [
     'en' => [
       'builder.clone' => 'Clone',
