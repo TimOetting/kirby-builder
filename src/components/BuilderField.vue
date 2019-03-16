@@ -341,6 +341,7 @@ export default {
     },
     newBlock(fieldSet, key, content, uniqueKey) {
       return {
+        endpoints: this.endpoints,
         fields: fieldSet.fields ? fieldSet.fields : null,
         tabs: fieldSet.tabs ? fieldSet.tabs : null,
         blockKey: key,
