@@ -53,6 +53,7 @@
               class="kBuilderBlock__actionsButton"
             ></k-button>
             <k-dropdown-content
+              class="kBuilderBlock__actionsDropDownContent"
               :ref="'blockActions' + block.uniqueKey"
               align="right"
             >
@@ -346,7 +347,6 @@ export default {
     right: 0;
     top: 0;
     display: flex;
-    z-index: 2;
   }
 
   &__actionsGroup {
@@ -360,6 +360,10 @@ export default {
 
   &__actionsDropDown {
     display: inline-block;
+  }
+
+  &__actionsDropDownContent {
+    z-index: 2;
   }
 
   &__actionsButton {

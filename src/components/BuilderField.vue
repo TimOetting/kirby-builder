@@ -11,15 +11,15 @@
       @remove="onBlockRemoved"
       @start="onStartDrag"
       @end="onDragEnd"
-      :list="blocks"
+      :list="value"
       :move="onMove"
       :options="draggableOptions"
     >
       <k-column
         class="kBuilder__column"
         :width="columnWidth"
-        v-for="(block, index) in blocks"
-        :key="block.uniqueKey"
+        v-for="(blockValue, index) in value"
+        :key="blockValue._uid"
       >
         <div
           class="kBuilder__inlineAddButton"
@@ -31,12 +31,11 @@
           :page-id="pageId"
           :page-uid="pageUid"
           :encoded-page-id="encodedPageId"
-          :block="block"
+          :block="newBlock(blockValue, blockValue._uid)"
           :index="index"
           :columns-count="columnsCount"
-          :show-preview.sync="block.showPreview"
-          :styles="cssContents[block.blockKey]"
-          :script="jsContents[block.blockKey]"
+          :styles="cssContents[blockValue._key]"
+          :script="jsContents[blockValue._key]"
           :parentPath="path"
           @input="onBlockInput"
           @clone="cloneBlock"
@@ -133,18 +132,10 @@ export default {
           this.$set(this.jsContents, fieldSetKey, res);
         });
     }
-    if (this.value) {
-      this.value.forEach((block, index) => {
-        let fieldSet = this.fieldsets[block._key];
-        this.blocks.push(this.newBlock(fieldSet, block._key, block, index));
-      });
-      this.lastUniqueKey = this.value.length;
-    }
   },
   data() {
     return {
       dragging: false,
-      blocks: [],
       toggle: true,
       targetPosition: null,
       lastUniqueKey: 0,
@@ -156,6 +147,16 @@ export default {
   computed: {
     val() {
       return this.blocks.map(block => block.content);
+    },
+    blocks() {
+      let blocks = [];
+      if (this.value) {
+        this.value.forEach((block, index) => {
+          blocks.push(this.newBlock(block, index));
+        });
+        this.lastUniqueKey = this.value.length;
+      }
+      return blocks;
     },
     classObject() {
       let classObject = {};
@@ -174,7 +175,7 @@ export default {
     },
     draggableOptions() {
       return {
-        group: "kirby-builder",
+        group: this._uid,
         clone: true,
         handle: ".kBuilder__dragDropHandle",
         forceFallback: true,
@@ -201,34 +202,23 @@ export default {
   },
   methods: {
     onBlockInput(event) {
-      this.$emit("input", this.val);
+      this.$emit("input", this.value);
     },
     onBlockMoved(event) {
-      this.$emit("input", this.val);
+      this.$emit("input", this.value);
     },
     onBlockAdded(event) {
-      this.$emit("input", this.val);
+      this.$emit("input", this.value);
     },
     onBlockRemoved(event) {
-      this.$emit("input", this.val);
+      this.$emit("input", this.value);
     },
     onDragEnd(event) {
       this.dragging = false;
     },
     onMove(event) {
       this.$root.$emit("blockMoved");
-      const isNotLastIndex =
-        event.relatedContext.index != this.blocks.length + 1;
-      const isNotSameIndex =
-        event.draggedContext.futureIndex == event.draggedContext.index;
-      const isEmptyList = this.blocks.length == 0;
-      const isSupportedBlockType = this.supportedBlockTypes.includes(
-        event.relatedContext.element.blockKey
-      );
-      return (
-        (isEmptyList || isNotLastIndex || isNotSameIndex) &&
-        isSupportedBlockType
-      );
+      return event.relatedContext.index != this.value.length + 1;
     },
     onStartDrag(event) {
       this.dragging = true;
@@ -264,19 +254,15 @@ export default {
       this.dialogOpen = false;
     },
     addBlock(key) {
-      let position =
-        this.targetPosition == null ? this.blocks.length : this.targetPosition;
-      let fieldSet = this.fieldsets[key];
-      let newBlock = this.newBlock(
-        fieldSet,
-        key,
-        this.getBlankContent(key, fieldSet),
-        this.lastUniqueKey++
-      );
-      newBlock.isNew = true;
-      this.blocks.splice(position, 0, JSON.parse(JSON.stringify(newBlock)));
+      const position =
+        this.targetPosition == null ? this.value.length : this.targetPosition;
+      const fieldSet = this.fieldsets[key];
+      this.value.splice(position, 0, this.getBlankContent(key, fieldSet));
+      this.$emit("input", this.value);
+      this.$nextTick(function() {
+        this.$emit("input", this.value);
+      });
       this.targetPosition = null;
-      this.$emit("input", this.val);
       if (this.dialogOpen) {
         this.$refs.dialog.close();
       }
@@ -306,12 +292,14 @@ export default {
       return content;
     },
     cloneBlock(index) {
-      let clone = JSON.parse(JSON.stringify(this.blocks[index]));
-      clone.isNew = true;
-      this.deepRemoveProperty(clone.content, "_uid");
-      this.blocks.splice(index + 1, 0, clone);
-      this.blocks[index + 1].uniqueKey = this.lastUniqueKey++;
-      this.$emit("input", this.val);
+      let clone = JSON.parse(JSON.stringify(this.value[index]));
+      this.deepRemoveProperty(clone, "_uid");
+      this.value.splice(index + 1, 0, clone);
+      this.value[index + 1].uniqueKey = this.lastUniqueKey++;
+      this.$emit("input", this.value);
+      this.$nextTick(function() {
+        this.$emit("input", this.value);
+      });
     },
     deleteBlock(index) {
       this.clearLocalUiStates(this.blocks[index]);
@@ -339,7 +327,9 @@ export default {
         }
       }
     },
-    newBlock(fieldSet, key, content, uniqueKey) {
+    newBlock(content, uniqueKey) {
+      const key = content._key;
+      const fieldSet = this.fieldsets[key];
       return {
         fields: fieldSet.fields ? fieldSet.fields : null,
         tabs: fieldSet.tabs ? fieldSet.tabs : null,
