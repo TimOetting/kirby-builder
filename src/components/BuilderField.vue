@@ -331,6 +331,7 @@ export default {
       const key = content._key;
       const fieldSet = this.fieldsets[key];
       return {
+        endpoints: this.endpoints,
         fields: fieldSet.fields ? fieldSet.fields : null,
         tabs: fieldSet.tabs ? fieldSet.tabs : null,
         blockKey: key,

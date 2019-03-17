@@ -256,7 +256,9 @@ export default {
         fieldSet.fields[fieldName].endpoints = {
           field: `kirby-builder/pages/${this.encodedPageId}/fields/${
             this.blockPath
-          }+${fieldSet.fields[fieldName].name}`
+          }+${fieldSet.fields[fieldName].name}`,
+          model: fieldSet.endpoints.model,
+          section: fieldSet.endpoints.section
         };
         fieldSet.fields[fieldName].parentPath = this.blockPath;
       });
