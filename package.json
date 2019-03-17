@@ -1,7 +1,7 @@
 {
-  "name": "test",
-  "description": "test",
-  "author": "Thomas Günther <mail@medienbaecker.com>",
+  "name": "Kirby Builder Asset Pipeline",
+  "description": "Kirby Builder Asset Pipeline",
+  "author": "Tim Ötting",
   "version": "0.0.1",
   "type": "kirby-field",
   "license": "MIT",
