@@ -84,6 +84,7 @@
         ref="preview"
       ></builder-preview>
       <k-fieldset
+        v-show="!showPreview"
         v-if="(activeFieldSet === fieldSet.key)"
         v-for="fieldSet in fieldSets"
         class="kBuilderBlock__form"
