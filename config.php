@@ -57,7 +57,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
       'methods' => [
         'extendRecursively' => function ($properties, $currentPropertiesName = null) {
           foreach ($properties as $propertyName => $property) {
-            if(is_array($property)){
+            if(is_array($property) && $propertyName != "options"){
               $properties[$propertyName] = $this->model()->blueprint()->extend($property);
               $properties[$propertyName] = $this->extendRecursively($properties[$propertyName], $propertyName);
             }
