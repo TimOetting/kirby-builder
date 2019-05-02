@@ -3,7 +3,6 @@
     'kBuilderBlock', 
     'kBuilderBlock--col-' + columnsCount, 
     'kBuilderBlock--type-' + block.blockKey,
-    {'kBuilderBlock--pending': pending }, 
     {'kBuilderBlock--previewMode': showPreview && expanded }, 
     {'kBuilderBlock--expanded': expanded },
     {'kBuilderBlock--collapsed': !expanded },
@@ -23,7 +22,7 @@
           :class="{'kBuilderBlock__expandedIcon--expanded': expanded}"
           type="angle-down"
         />
-        {{block.label}}
+        {{block.label}} {{block.uniqueKey}}
       </span>
       <div class="kBuilderBlock__actions">
         <k-button-group class="kBuilderBlock__actionsGroup">
@@ -49,17 +48,18 @@
           <k-dropdown class="kBuilderBlock__actionsDropDown">
             <k-button
               icon="dots"
-              @click="$refs['blockActions' + block.uniqueKey].toggle()"
+              @click="$refs['blockActions'].toggle()"
               class="kBuilderBlock__actionsButton"
             ></k-button>
             <k-dropdown-content
               class="kBuilderBlock__actionsDropDownContent"
-              :ref="'blockActions' + block.uniqueKey"
-              align="right"
+              :ref="'blockActions'"
+              align="
+              right"
             >
               <k-dropdown-item
                 icon="copy"
-                @click="$emit('clone', index)"
+                @click="$emit('clone', index, showPreview, expanded)"
               >{{ $t('builder.clone') }}</k-dropdown-item>
               <k-dropdown-item
                 icon="trash"
@@ -118,13 +118,6 @@ export default {
     BuilderPreview
   },
   mounted() {
-    if (this.block.isNew) {
-      this.$nextTick(function() {
-        this.pending = false;
-      });
-    } else {
-      this.pending = false;
-    }
     if (!this.block.content._uid) {
       this.block.content._uid =
         this.block.content._key + "_" + new Date().valueOf() + "_" + this._uid;
@@ -145,9 +138,9 @@ export default {
     } else {
       this.displayFieldSet(this.activeFieldSet);
     }
-    if (this.block.isNew) {
-      this.$emit("input");
-    }
+    // if (this.block.isNew) {
+    //   this.$emit("input");
+    // }
   },
   data() {
     return {
@@ -313,10 +306,10 @@ export default {
   opacity: 1;
   transition: opacity 0.5s, transform 0.5s;
 
-  &--pending {
-    opacity: 0;
-    transform: translateY(5%);
-  }
+  // &--pending {
+  //   opacity: 0;
+  //   transform: translateY(5%);
+  // }
 
   &__label {
     display: flex;

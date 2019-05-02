@@ -9,10 +9,9 @@
       @update="onBlockMoved"
       @add="onBlockAdded"
       @remove="onBlockRemoved"
-      @start="onStartDrag"
       @end="onDragEnd"
-      :list="value"
       :move="onMove"
+      :list="value"
       :options="draggableOptions"
     >
       <k-column
@@ -32,7 +31,7 @@
           :page-uid="pageUid"
           :encoded-page-id="encodedPageId"
           :endpoints="endpoints"
-          :block="newBlock(blockValue, blockValue._uid)"
+          :block="blocks[index]"
           :index="index"
           :columns-count="columnsCount"
           :styles="cssContents[blockValue._key]"
@@ -177,7 +176,7 @@ export default {
     draggableOptions() {
       return {
         group: this._uid,
-        clone: true,
+        // clone: true,
         handle: ".kBuilder__dragDropHandle",
         forceFallback: true,
         fallbackClass: "sortable-fallback",
@@ -268,6 +267,23 @@ export default {
         this.$refs.dialog.close();
       }
     },
+    cloneBlock(index, showPreview, expanded) {
+      let clone = JSON.parse(JSON.stringify(this.value[index]));
+      this.deepRemoveProperty(clone, "_uid");
+      this.value.splice(index + 1, 0, clone);
+      let cloneValue = this.value[index + 1];
+      cloneValue.uniqueKey = this.lastUniqueKey++;
+      if (showPreview) {
+        cloneValue.showPreviewInitially = showPreview;
+      }
+      if (expanded) {
+        cloneValue.expandedInitially = expanded;
+      }
+      this.$emit("input", this.value);
+      this.$nextTick(function() {
+        this.$emit("input", this.value);
+      });
+    },
     getBlankContent(key, fieldSet) {
       let content = { _key: key };
       if (fieldSet.fields) {
@@ -291,16 +307,6 @@ export default {
         }
       }
       return content;
-    },
-    cloneBlock(index) {
-      let clone = JSON.parse(JSON.stringify(this.value[index]));
-      this.deepRemoveProperty(clone, "_uid");
-      this.value.splice(index + 1, 0, clone);
-      this.value[index + 1].uniqueKey = this.lastUniqueKey++;
-      this.$emit("input", this.value);
-      this.$nextTick(function() {
-        this.$emit("input", this.value);
-      });
     },
     deleteBlock(index) {
       this.clearLocalUiStates(this.blocks[index]);

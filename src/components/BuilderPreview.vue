@@ -93,14 +93,16 @@ export default {
   methods: {
     updateContent() {
       this.$nextTick().then(() => {
-        this.previewFrameWindow = this.$refs["previewFrame"].contentWindow;
-        this.previewFrameDocument = this.previewFrameWindow.document;
-        this.previewFrameDocument.open();
-        this.previewFrameDocument.write(
-          this.$refs.previewFrameContent.innerHTML
-        );
-        this.previewFrameDocument.close();
-        this.resize();
+        if (this.$refs["previewFrame"]) {
+          this.previewFrameWindow = this.$refs["previewFrame"].contentWindow;
+          this.previewFrameDocument = this.previewFrameWindow.document;
+          this.previewFrameDocument.open();
+          this.previewFrameDocument.write(
+            this.$refs.previewFrameContent.innerHTML
+          );
+          this.previewFrameDocument.close();
+          this.resize();
+        }
       });
     },
     updateFrameIfEmpty() {
