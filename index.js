@@ -8869,10 +8869,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 //
 //
+//
 var _default = {
   props: {
     endpoints: Object,
     block: Object,
+    fieldGroup: Object,
     index: Number,
     columnsCount: Number,
     pageUid: String,
@@ -8886,8 +8888,10 @@ var _default = {
     BuilderPreview: _BuilderPreview.default
   },
   mounted: function mounted() {
-    if (!this.block.content._uid) {
-      this.block.content._uid = this.block.content._key + "_" + new Date().valueOf() + "_" + this._uid;
+    var _this = this;
+
+    if (!this.block._uid) {
+      this.block._uid = this.block._key + "_" + new Date().valueOf() + "_" + this._uid;
     }
 
     if (!this.activeFieldSet) {
@@ -8895,6 +8899,29 @@ var _default = {
     }
 
     var localUiState = JSON.parse(localStorage.getItem(this.localUiStateKey));
+
+    if (this.block.expandedInitially != null) {
+      this.expanded = this.block.expandedInitially;
+      delete this.block.expandedInitially;
+    }
+
+    if (this.block.showPreviewInitially) {
+      this.showPreview = this.block.showPreviewInitially;
+      delete this.block.showPreviewInitially;
+    }
+
+    if (this.block.activeFieldSetInitially) {
+      this.activeFieldSet = this.block.activeFieldSetInitially;
+      delete this.block.activeFieldSetInitially;
+    }
+
+    if (this.block.isNew) {
+      this.isNew = true;
+      window.requestAnimationFrame(function () {
+        _this.isNew = false;
+        delete _this.block.isNew;
+      });
+    }
 
     if (localUiState) {
       this.expanded = localUiState.expanded;
@@ -8904,20 +8931,18 @@ var _default = {
       this.storeLocalUiState();
     }
 
-    if (this.block.preview && this.showPreview) {
-      this.displayPreview(this.block.preview);
+    if (this.fieldGroup.preview && this.showPreview) {
+      this.displayPreview(this.fieldGroup.preview);
     } else {
       this.displayFieldSet(this.activeFieldSet);
-    } // if (this.block.isNew) {
-    //   this.$emit("input");
-    // }
-
+    }
   },
   data: function data() {
     return {
       pending: true,
       activeFieldSet: null,
       expanded: true,
+      isNew: false,
       previewFrameContent: null,
       previewHeight: 0,
       previewStored: false,
@@ -8927,14 +8952,14 @@ var _default = {
   },
   computed: {
     localUiStateKey: function localUiStateKey() {
-      return "kBuilder.uiState.".concat(this.block.content._uid);
+      return "kBuilder.uiState.".concat(this.block._uid);
     },
     extendedUid: function extendedUid() {
       return this.pageId.replace("/", "-") + "-" + this._uid;
     },
     previewUrl: function previewUrl() {
       if (this.previewStored) {
-        return "kirby-builder-preview/" + this.extendedUid + "?" + this.objectToGetParams(this.block.preview) + "&pageid=" + this.pageId;
+        return "kirby-builder-preview/" + this.extendedUid + "?" + this.objectToGetParams(this.fieldGroup.preview) + "&pageid=" + this.pageId;
       } else {
         return null;
       }
@@ -8945,15 +8970,15 @@ var _default = {
     fieldSets: function fieldSets() {
       var fieldSets = [];
 
-      if (this.block.tabs) {
-        for (var tabKey in this.block.tabs) {
-          if (this.block.tabs.hasOwnProperty(tabKey)) {
-            var tab = this.block.tabs[tabKey];
-            fieldSets.push(this.newFieldSet(tab, tabKey, this.block.content));
+      if (this.fieldGroup.tabs) {
+        for (var tabKey in this.fieldGroup.tabs) {
+          if (this.fieldGroup.tabs.hasOwnProperty(tabKey)) {
+            var tab = this.fieldGroup.tabs[tabKey];
+            fieldSets.push(this.newFieldSet(tab, tabKey, this.block));
           }
         }
-      } else if (this.block.fields) {
-        fieldSets.push(this.newFieldSet(this.block, "content", this.block.content, "edit", this.$t("edit")));
+      } else if (this.fieldGroup.fields) {
+        fieldSets.push(this.newFieldSet(this.fieldGroup, "content", this.block, "edit", this.$t("edit")));
       }
 
       return fieldSets;
@@ -8964,22 +8989,22 @@ var _default = {
       this.$emit("input", this.val);
     },
     displayPreview: function displayPreview() {
-      var _this = this;
+      var _this2 = this;
 
       this.showPreview = true;
       this.expanded = true;
       var previewData = {
-        preview: this.block.preview,
-        blockContent: this.block.content,
-        blockFields: this.block.fields,
+        preview: this.fieldGroup.preview,
+        blockContent: this.block,
+        blockFields: this.fieldGroup.fields,
         blockUid: this.extendedUid,
         pageid: this.pageId
       };
       this.$api.post("kirby-builder/rendered-preview", previewData).then(function (res) {
-        _this.previewMarkup = res.preview;
-        _this.activeFieldSet = null;
+        _this2.previewMarkup = res.preview;
+        _this2.activeFieldSet = null;
 
-        _this.$refs["preview"].resize();
+        _this2.$refs["preview"].resize();
       });
       this.storeLocalUiState();
     },
@@ -9007,15 +9032,15 @@ var _default = {
       this.storeLocalUiState();
     },
     newFieldSet: function newFieldSet(fieldSet, key, model, icon, label) {
-      var _this2 = this;
+      var _this3 = this;
 
       Object.keys(fieldSet.fields).forEach(function (fieldName) {
         fieldSet.fields[fieldName].endpoints = {
-          field: "kirby-builder/pages/".concat(_this2.encodedPageId, "/fields/").concat(_this2.blockPath, "+").concat(fieldSet.fields[fieldName].name),
-          model: _this2.endpoints.model,
-          section: _this2.endpoints.section
+          field: "kirby-builder/pages/".concat(_this3.encodedPageId, "/fields/").concat(_this3.blockPath, "+").concat(fieldSet.fields[fieldName].name),
+          model: _this3.endpoints.model,
+          section: _this3.endpoints.section
         };
-        fieldSet.fields[fieldName].parentPath = _this2.blockPath;
+        fieldSet.fields[fieldName].parentPath = _this3.blockPath;
       });
       var newFieldSet = {
         fields: fieldSet.fields,
@@ -9079,6 +9104,7 @@ exports.default = _default;
         "kBuilderBlock--type-" + _vm.block.blockKey,
         { "kBuilderBlock--previewMode": _vm.showPreview && _vm.expanded },
         { "kBuilderBlock--expanded": _vm.expanded },
+        { "kBuilderBlock--pending": _vm.isNew },
         { "kBuilderBlock--collapsed": !_vm.expanded },
         { "kBuilderBlock--editMode": !_vm.showPreview && _vm.expanded }
       ]
@@ -9113,13 +9139,7 @@ exports.default = _default;
                 },
                 attrs: { type: "angle-down" }
               }),
-              _vm._v(
-                "\n      " +
-                  _vm._s(_vm.block.label) +
-                  " " +
-                  _vm._s(_vm.block.uniqueKey) +
-                  "\n    "
-              )
+              _vm._v("\n      " + _vm._s(_vm.fieldGroup.label) + "\n    ")
             ],
             1
           ),
@@ -9133,7 +9153,7 @@ exports.default = _default;
                 { staticClass: "kBuilderBlock__actionsGroup" },
                 [
                   _vm._l(_vm.fieldSets, function(fieldSet) {
-                    return _vm.fieldSets.length > 1 || _vm.block.preview
+                    return _vm.fieldSets.length > 1 || _vm.fieldGroup.preview
                       ? _c(
                           "k-button",
                           {
@@ -9161,7 +9181,7 @@ exports.default = _default;
                       : _vm._e()
                   }),
                   _vm._v(" "),
-                  _vm.block.preview
+                  _vm.fieldGroup.preview
                     ? _c(
                         "k-button",
                         {
@@ -9220,7 +9240,8 @@ exports.default = _default;
                                     "clone",
                                     _vm.index,
                                     _vm.showPreview,
-                                    _vm.expanded
+                                    _vm.expanded,
+                                    _vm.activeFieldSet
                                   )
                                 }
                               }
@@ -9270,7 +9291,7 @@ exports.default = _default;
           staticClass: "kBuilderBlock__content"
         },
         [
-          _vm.block.preview
+          _vm.fieldGroup.preview
             ? _c("builder-preview", {
                 directives: [
                   {
@@ -11933,25 +11954,6 @@ var _default = {
     };
   },
   computed: {
-    val: function val() {
-      return this.blocks.map(function (block) {
-        return block.content;
-      });
-    },
-    blocks: function blocks() {
-      var _this2 = this;
-
-      var blocks = [];
-
-      if (this.value) {
-        this.value.forEach(function (block, index) {
-          blocks.push(_this2.newBlock(block, index));
-        });
-        this.lastUniqueKey = this.value.length;
-      }
-
-      return blocks;
-    },
     classObject: function classObject() {
       var classObject = {};
       classObject["kBuilder--col-" + this.columnsCount] = true;
@@ -11979,7 +11981,7 @@ var _default = {
       };
     },
     blockCount: function blockCount() {
-      return this.blocks.length;
+      return this.value.length;
     },
     fieldsetCount: function fieldsetCount() {
       return Object.keys(this.fieldsets).length;
@@ -12045,6 +12047,7 @@ var _default = {
       var position = this.targetPosition == null ? this.value.length : this.targetPosition;
       var fieldSet = this.fieldsets[key];
       this.value.splice(position, 0, this.getBlankContent(key, fieldSet));
+      this.value[this.targetPosition].isNew = true;
       this.$emit("input", this.value);
       this.$nextTick(function () {
         this.$emit("input", this.value);
@@ -12055,21 +12058,26 @@ var _default = {
         this.$refs.dialog.close();
       }
     },
-    cloneBlock: function cloneBlock(index, showPreview, expanded) {
+    cloneBlock: function cloneBlock(index, showPreview, expanded, activeFieldSet) {
       var clone = JSON.parse(JSON.stringify(this.value[index]));
       this.deepRemoveProperty(clone, "_uid");
       this.value.splice(index + 1, 0, clone);
       var cloneValue = this.value[index + 1];
       cloneValue.uniqueKey = this.lastUniqueKey++;
 
-      if (showPreview) {
+      if (showPreview != null) {
         cloneValue.showPreviewInitially = showPreview;
       }
 
-      if (expanded) {
+      if (expanded != null) {
         cloneValue.expandedInitially = expanded;
       }
 
+      if (activeFieldSet) {
+        cloneValue.activeFieldSetInitially = activeFieldSet;
+      }
+
+      cloneValue.isNew = true;
       this.$emit("input", this.value);
       this.$nextTick(function () {
         this.$emit("input", this.value);
@@ -12100,18 +12108,18 @@ var _default = {
       return content;
     },
     deleteBlock: function deleteBlock(index) {
-      this.clearLocalUiStates(this.blocks[index]);
-      this.blocks.splice(index, 1);
-      this.$emit("input", this.val);
+      this.clearLocalUiStates(this.value[index]);
+      this.value.splice(index, 1);
+      this.$emit("input", this.value);
     },
     deepRemoveProperty: function deepRemoveProperty(obj, property) {
-      var _this3 = this;
+      var _this2 = this;
 
       Object.keys(obj).forEach(function (prop) {
         if (prop === property) {
           delete obj[prop];
-        } else if (_typeof(obj[prop]) === "object") {
-          _this3.deepRemoveProperty(obj[prop], property);
+        } else if (obj[prop] && _typeof(obj[prop]) === "object") {
+          _this2.deepRemoveProperty(obj[prop], property);
         }
       });
     },
@@ -12127,20 +12135,6 @@ var _default = {
           }
         }
       }
-    },
-    newBlock: function newBlock(content, uniqueKey) {
-      var key = content._key;
-      var fieldSet = this.fieldsets[key];
-      return {
-        fields: fieldSet.fields ? fieldSet.fields : null,
-        tabs: fieldSet.tabs ? fieldSet.tabs : null,
-        blockKey: key,
-        content: content,
-        label: fieldSet.label,
-        uniqueKey: uniqueKey,
-        preview: fieldSet.preview,
-        showPreview: false
-      };
     }
   }
 };
@@ -12214,7 +12208,8 @@ exports.default = _default;
                     "page-uid": _vm.pageUid,
                     "encoded-page-id": _vm.encodedPageId,
                     endpoints: _vm.endpoints,
-                    block: _vm.blocks[index],
+                    block: blockValue,
+                    fieldGroup: _vm.fieldsets[blockValue._key],
                     index: index,
                     "columns-count": _vm.columnsCount,
                     styles: _vm.cssContents[blockValue._key],

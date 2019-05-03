@@ -13,6 +13,11 @@
   opacity: 1;
   transition: opacity 0.5s, transform 0.5s;
 }
+.kBuilderBlock--pending {
+  opacity: 0;
+  transform: translateY(calc(10px + 5%));
+  transition: opacity 0s, transform 0s;
+}
 .kBuilderBlock__label {
   display: -ms-flexbox;
   display: flex;
