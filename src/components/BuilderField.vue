@@ -246,7 +246,7 @@ export default {
         this.targetPosition == null ? this.value.length : this.targetPosition;
       const fieldSet = this.fieldsets[key];
       this.value.splice(position, 0, this.getBlankContent(key, fieldSet));
-      this.value[this.targetPosition].isNew = true;
+      this.value[position].isNew = true;
       this.$emit("input", this.value);
       this.$nextTick(function() {
         this.$emit("input", this.value);

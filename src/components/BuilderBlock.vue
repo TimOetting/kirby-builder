@@ -2,7 +2,7 @@
   <div :class="[
     'kBuilderBlock', 
     'kBuilderBlock--col-' + columnsCount, 
-    'kBuilderBlock--type-' + block.blockKey,
+    'kBuilderBlock--type-' + block._key,
     {'kBuilderBlock--previewMode': showPreview && expanded }, 
     {'kBuilderBlock--expanded': expanded },
     {'kBuilderBlock--pending': isNew },
@@ -195,7 +195,7 @@ export default {
       }
     },
     blockPath() {
-      return this.parentPath + "+" + this.block.blockKey;
+      return this.parentPath + "+" + this.block._key;
     },
     fieldSets() {
       let fieldSets = [];
@@ -268,9 +268,9 @@ export default {
       Object.keys(fieldSet.fields).forEach(fieldName => {
         const modelEndpoint = this.endpoints.model;
         fieldSet.fields[fieldName].endpoints = {
-          field: `kirby-builder/${modelEndpoint}/fields/${
-            this.blockPath
-          }+${fieldSet.fields[fieldName].name}`,
+          field: `kirby-builder/${modelEndpoint}/fields/${this.blockPath}+${
+            fieldSet.fields[fieldName].name
+          }`,
           model: modelEndpoint,
           section: this.endpoints.section
         };
