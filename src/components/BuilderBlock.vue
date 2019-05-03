@@ -266,13 +266,15 @@ export default {
     },
     newFieldSet(fieldSet, key, model, icon, label) {
       Object.keys(fieldSet.fields).forEach(fieldName => {
+        const modelEndpoint = this.endpoints.model;
         fieldSet.fields[fieldName].endpoints = {
-          field: `kirby-builder/pages/${this.encodedPageId}/fields/${
+          field: `kirby-builder/${modelEndpoint}/fields/${
             this.blockPath
           }+${fieldSet.fields[fieldName].name}`,
-          model: this.endpoints.model,
+          model: modelEndpoint,
           section: this.endpoints.section
         };
+
         fieldSet.fields[fieldName].parentPath = this.blockPath;
       });
       let newFieldSet = {

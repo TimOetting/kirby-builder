@@ -8,6 +8,17 @@ use Kirby\Form\Field;
 use Kirby\Form\Fields;
 use Kirby\Toolkit\I18n;
 
+function callFieldAPI($ApiInstance, $fieldPath, $context, $path) {
+  $fieldPath = Str::split($fieldPath, '+');
+  $form = Form::for($context);
+  $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
+  $fieldApi = $ApiInstance->clone([
+    'routes' => $field->api(),
+    'data'   => array_merge($ApiInstance->data(), ['field' => $field])
+  ]);
+  return $fieldApi->call($path, $ApiInstance->requestMethod(), $ApiInstance->requestData());
+}
+
 Kirby::plugin('timoetting/kirbybuilder', [
   'fields' => [
     'builder' => [
@@ -61,7 +72,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
               $properties[$propertyName] = $this->model()->blueprint()->extend($property);
               $properties[$propertyName] = $this->extendRecursively($properties[$propertyName], $propertyName);
             }
-            if($propertyName == "label") {
+            if($propertyName === "label") {
               $properties[$propertyName] = I18n::translate($property, $property);
             }
           }
@@ -120,6 +131,16 @@ Kirby::plugin('timoetting/kirbybuilder', [
             'model'  => $this->model() ?? null
           ]);
           return $form;
+        },
+        'callFieldAPI' => function($fieldPath, $context, $path) {
+          $fieldPath = Str::split($fieldPath, '+');
+          $form = Form::for($context);
+          $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
+          $fieldApi = $this->clone([
+            'routes' => $field->api(),
+            'data'   => array_merge($this->data(), ['field' => $field])
+          ]);
+          return $fieldApi->call($path, $this->requestMethod(), $this->requestData());
         }
       ],
       'validations' => [
@@ -209,18 +230,18 @@ Kirby::plugin('timoetting/kirbybuilder', [
         }
       ],
       [
+        'pattern' => 'kirby-builder/site/fields/(:any)/(:all?)',
+        'method' => 'ALL',
+        'action'  => function (string $fieldPath, string $path = null) {            
+          return callFieldAPI($this, $fieldPath, site(), $path);
+        }
+      ],
+      [
         'pattern' => 'kirby-builder/pages/(:any)/fields/(:any)/(:all?)',
         'method' => 'ALL',
         'action'  => function (string $id, string $fieldPath, string $path = null) {            
           if ($page = $this->page($id)) {
-            $fieldPath = Str::split($fieldPath, '+');
-            $form = Form::for($page);
-            $field = fieldFromPath($fieldPath, $page, $form->fields()->toArray());
-            $fieldApi = $this->clone([
-              'routes' => $field->api(),
-              'data'   => array_merge($this->data(), ['field' => $field])
-            ]);
-            return $fieldApi->call($path, $this->requestMethod(), $this->requestData());
+            return callFieldAPI($this, $fieldPath, $page, $path);
           }
         }
       ],
