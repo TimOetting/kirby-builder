@@ -423,7 +423,14 @@ export default {
   }
 }
 
-.k-sortable-ghost > .k-column-content > .kBuilderBlock, .k-sortable-ghost > .kBuilderBlock, .sortable-ghost > .k-column-content > .kBuilderBlock, .sortable-ghost > .kBuilderBlock {
+.k-sortable-ghost > .k-column-content > .kBuilderBlock, 
+.k-sortable-ghost > .kBuilderBlock, 
+.sortable-ghost > .k-column-content > .kBuilderBlock , 
+.sortable-ghost > .kBuilderBlock {
   box-shadow: 0 0 0 2px #4271ae, 0 5px 10px 2px rgba(22, 23, 26, 0.25);
+}
+
+.k-sortable-ghost > .kBuilderBlock .kBuilderPreview__frame {
+  pointer-events: none;
 }
 </style>
