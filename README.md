@@ -53,6 +53,7 @@ mybuilder:
       preview: # Optional. If defined, a preview of the block can be rendered by the specified snippet from within the snippets folder.
         snippet: blocks/quote
         css: /assets/css/blocks/quote.css
+      defaultView: preview # Optional. If the value "preview" is set, the block will show the preview when the page is loaded in the panel. If the value is a tab name, the respective tab is preselected when the page is loaded. Newly created blocks ignore this value and have the edit mode or the first tab preselected.
       fields:
         text:
           label: Quote Text

@@ -127,7 +127,6 @@ export default {
     if (!this.activeFieldSet) {
       this.activeFieldSet = this.fieldSets[0].key;
     }
-    let localUiState = JSON.parse(localStorage.getItem(this.localUiStateKey));
     if (this.block.expandedInitially != null) {
       this.expanded = this.block.expandedInitially;
       delete this.block.expandedInitially;
@@ -147,17 +146,29 @@ export default {
         delete this.block.isNew;
       });
     }
-    if (localUiState) {
+    let localUiState = JSON.parse(localStorage.getItem(this.localUiStateKey));
+    if (localUiState && localUiState.expanded !== null) {
       this.expanded = localUiState.expanded;
+    }
+    if (
+      this.fieldGroup.defaultView &&
+      this.fieldGroup.defaultView != "default" &&
+      !this.isNew
+    ) {
+      if (this.fieldGroup.defaultView == "preview") {
+        this.showPreview = true;
+      } else {
+        this.activeFieldSet = this.fieldGroup.defaultView;
+      }
+    } else if (localUiState) {
       this.showPreview = localUiState.showPreview;
       this.activeFieldSet = localUiState.activeFieldSet;
     } else {
       this.storeLocalUiState();
     }
-    if (this.fieldGroup.preview && this.showPreview) {
+
+    if (this.fieldGroup.preview && this.showPreview && this.expanded) {
       this.displayPreview(this.fieldGroup.preview);
-    } else {
-      this.displayFieldSet(this.activeFieldSet);
     }
   },
   data() {
