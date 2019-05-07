@@ -242,6 +242,7 @@ export default {
         preview: this.fieldGroup.preview,
         blockContent: this.block,
         blockFields: this.fieldGroup.fields,
+        block: this.fieldGroup,
         blockUid: this.extendedUid,
         pageid: this.pageId
       };

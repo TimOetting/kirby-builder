@@ -19,6 +19,24 @@ function callFieldAPI($ApiInstance, $fieldPath, $context, $path) {
   return $fieldApi->call($path, $ApiInstance->requestMethod(), $ApiInstance->requestData());
 }
 
+function getBlockForm($value, $block, $model = null) {
+  $fields = [];
+  if (array_key_exists('fields', $block)) {
+    $fields = $block['fields'];
+  } else if (array_key_exists('tabs', $block)) {
+    $tabs = $block['tabs'];
+    foreach ( $tabs as $tabKey => $tab) {
+      $fields = array_merge($fields, $tab['fields']);
+    }
+  }
+  $form = new Form([
+    'fields' => $fields,
+    'values' => $value,
+    'model'  => $model
+  ]);
+  return $form;
+}
+
 Kirby::plugin('timoetting/kirbybuilder', [
   'fields' => [
     'builder' => [
@@ -116,21 +134,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
           return $vals;
         },
         'getBlockForm' => function ($value, $block) {
-          $fields = [];
-          if (array_key_exists('fields', $block)) {
-            $fields = $block['fields'];
-          } else if (array_key_exists('tabs', $block)) {
-            $tabs = $block['tabs'];
-            foreach ( $tabs as $tabKey => $tab) {
-              $fields = array_merge($fields, $tab['fields']);
-            }
-          }
-          $form = new Form([
-            'fields' => $fields,
-            'values' => $value,
-            'model'  => $this->model() ?? null
-          ]);
-          return $form;
+          return getBlockForm($value, $block, $this->model());
         },
         'callFieldAPI' => function($fieldPath, $context, $path) {
           $fieldPath = Str::split($fieldPath, '+');
@@ -203,7 +207,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
           $kirby            = kirby();
           $blockUid         = get('blockUid');
           $blockContent     = get('blockContent');
-          $blockFields     = get('blockFields');
+          $block            = get('block');
           $previewOptions   = get('preview');
           $cache            = $kirby->cache('timoetting.builder');
           $existingPreviews = $cache->get('previews');
@@ -218,11 +222,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
           $snippet      = $previewOptions['snippet'] ?? null;
           $modelName    = $previewOptions['modelname'] ?? 'data';
           $originalPage = $kirby->page(get('pageid'));
-          $form = new Form([
-            'fields' => $blockFields,
-            'values' => $blockContent,
-            'model'  => $originalPage
-          ]);
+          $form = getBlockForm($blockContent, $block,$originalPage);
           return array(
             'preview' => snippet($snippet, ['page' => $originalPage, $modelName => new Content($form->data(), $originalPage)], true) ,
             'content' => get('blockContent')
