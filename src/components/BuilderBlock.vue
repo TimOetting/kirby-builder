@@ -55,8 +55,7 @@
             <k-dropdown-content
               class="kBuilderBlock__actionsDropDownContent"
               :ref="'blockActions'"
-              align="
-              right"
+              align="right"
             >
               <k-dropdown-item
                 icon="copy"
@@ -241,7 +240,6 @@ export default {
       let previewData = {
         preview: this.fieldGroup.preview,
         blockContent: this.block,
-        blockFields: this.fieldGroup.fields,
         block: this.fieldGroup,
         blockUid: this.extendedUid,
         pageid: this.pageId
@@ -333,105 +331,105 @@ export default {
 
 <style lang="stylus">
 .kBuilderBlock {
-  background: white;
-  box-shadow: 0 2px 5px rgba(22, 23, 26, 0.05);
-  position: relative;
-  opacity: 1;
-  transition: opacity 0.5s, transform 0.5s;
+  background white
+  box-shadow 0 2px 5px rgba(22, 23, 26, 0.05)
+  position relative
+  opacity 1
+  transition opacity 0.5s, transform 0.5s
 
   &--pending {
-    opacity: 0;
-    transform: translateY(calc(10px + 5%));
-    transition: opacity 0s, transform 0s;
+    opacity 0
+    transform translateY(calc(10px + 5%))
+    transition opacity 0s, transform 0s
   }
 
   &__label {
-    display: flex;
-    cursor: pointer;
-    height: 100%;
-    align-items: center;
+    display flex
+    cursor pointer
+    height 100%
+    align-items center
+    flex-grow 1
+    height 38px
   }
 
   &__expandedIcon {
-    margin-right: 4px;
-    transform: rotate(-90deg);
+    margin-right 4px
+    transform rotate(-90deg)
 
     &--expanded {
-      transform: rotate(0);
+      transform rotate(0)
     }
   }
 
   &__header {
-    height: 38px;
-    font-size: 0.875rem;
-    display: flex;
-    align-items: center;
+    font-size 0.875rem
+    display flex
+    align-items center
+    justify-content flex-end
+    flex-wrap wrap
 
     &--col-1 {
-      padding-left: 0.75rem;
+      padding-left 0.75rem
     }
   }
 
   &__actions {
-    position: absolute;
-    right: 0;
-    top: 0;
-    display: flex;
+    display flex
   }
 
   &__actionsGroup {
-    margin-right: 0;
+    margin-right 0
 
     &.k-button-group>.k-button {
-      padding-top: 0;
-      padding-bottom: 0;
+      padding-top 0
+      padding-bottom 0
     }
   }
 
   &__actionsDropDown {
-    display: inline-block;
+    display inline-block
   }
 
   &__actionsDropDownContent {
-    z-index: 2;
+    z-index 2
   }
 
   &__actionsButton {
-    min-width: 38px;
-    height: 38px;
-    opacity: 0.4;
-    color: rgb(22, 23, 26);
-    font-weight: 500;
+    min-width 38px
+    height 38px
+    opacity 0.4
+    color rgb(22, 23, 26)
+    font-weight 500
 
     &:hover {
-      opacity: 0.7;
+      opacity 0.7
     }
 
     &--active {
-      pointer-events: none;
-      opacity: 1;
+      pointer-events none
+      opacity 1
     }
 
     .k-button-figure img {
-      background-color: transparent;
-      border-radius: 0;
+      background-color transparent
+      border-radius 0
     }
   }
 
   &__form {
-    padding: 0.625rem 0.75rem 2.25rem 0.75rem;
+    padding 0.625rem 0.75rem 2.25rem 0.75rem
   }
 
   .sortable-drag {
-    cursor: -webkit-grab;
+    cursor -webkit-grab
   }
 
   .kBuilderBlock, .k-structure-table, .k-card, .k-list-item {
-    box-shadow: 0 2px 5px rgba(22, 23, 26, 0.15), 0 0 0 1px rgba(22, 23, 26, 0.05);
+    box-shadow 0 2px 5px rgba(22, 23, 26, 0.15), 0 0 0 1px rgba(22, 23, 26, 0.05)
   }
 
   .k-structure {
-    margin-left: 25px;
+    margin-left 25px
   }
 }
 
@@ -439,10 +437,10 @@ export default {
 .k-sortable-ghost > .kBuilderBlock, 
 .sortable-ghost > .k-column-content > .kBuilderBlock , 
 .sortable-ghost > .kBuilderBlock {
-  box-shadow: 0 0 0 2px #4271ae, 0 5px 10px 2px rgba(22, 23, 26, 0.25);
+  box-shadow 0 0 0 2px #4271ae, 0 5px 10px 2px rgba(22, 23, 26, 0.25)
 }
 
 .k-sortable-ghost > .kBuilderBlock .kBuilderPreview__frame {
-  pointer-events: none;
+  pointer-events none;
 }
 </style>
