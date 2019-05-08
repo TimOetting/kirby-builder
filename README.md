@@ -107,8 +107,7 @@ mybuilder:
                 date:
                   label: Date
                   type: date
-    calltoaction:
-      extends: blocks/calltoaction # the Builder Field blueprint can be rather complex. It is therefore recommended to organize your fieldsets in single files. This example here would take the content of the file /site/blueprints/blocks/calltoaction.yml and use it instead of the extends statement.
+    calltoaction: blocks/calltoaction # the Builder Field blueprint can be rather complex. It is therefore recommended to organize your fieldsets in single files. This example would take the content of the file /site/blueprints/blocks/calltoaction.yml and use it for the fieldset "calltoaction".
 ```
 
 ## Template Usage

@@ -57,7 +57,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
         },
         'fieldsets' => function () {
           $fieldSets = Yaml::decode($this->fieldsets);
-          $fieldSets = $this->extendRecursively($fieldSets);
+          $fieldSets = $this->extendRecursively($fieldSets, "fieldsets");
           return $fieldSets;
         },
         'value' => function () {
@@ -86,7 +86,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
       'methods' => [
         'extendRecursively' => function ($properties, $currentPropertiesName = null) {
           foreach ($properties as $propertyName => $property) {
-            if(is_array($property)){
+            if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
               $properties[$propertyName] = $this->model()->blueprint()->extend($property);
               $properties[$propertyName] = $this->extendRecursively($properties[$propertyName], $propertyName);
             }
