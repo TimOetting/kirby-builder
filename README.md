@@ -49,8 +49,9 @@ mybuilder:
   max: 10 # Optional. Limits the number of builder blocks that can be added.
   fieldsets:
     quote: # This is a field set. It contains a group of kirby fields. The user can select from these sets to build the content.
-      label: Quote
-      preview: # Optional. If defined, a preview of the block can be rendered by the specified snippet from within the snippets folder.
+      name: Quote # The name option is used as a label for the buttons to add new fieldsets. It is also used as a label in the header of the fieldset, if the label option is not set explicitly (see next line).
+      label: Quote by {{citation}} # Optional. The label option can be used to override the header text of the fieldset. The 'mustache' syntax can be used to include the value of any field of the fieldset.
+      preview: # Optional. If defined, a preview of the fieldset can be rendered by the specified snippet from within the snippets folder.
         snippet: blocks/quote
         css: /assets/css/blocks/quote.css
       defaultView: preview # Optional. If the value "preview" is set, the block will show the preview when the page is loaded in the panel. If the value is a tab name, the respective tab is preselected when the page is loaded. Newly created blocks ignore this value and have the edit mode or the first tab preselected.
@@ -62,7 +63,7 @@ mybuilder:
           label: Citation
           type: text
     bodytext:
-      label: Text
+      name: Text
       tabs: # Optional. Tabs can be used to group the fields of a field set. In this example, we use one tab to contain the content related fields and one for styling settings. It makes no difference for the content handling in the template if there are tabs or not.
         content:
           label: Content
@@ -85,7 +86,7 @@ mybuilder:
               label: Font Size
               type: number
     events:
-      label: Events
+      name: Events
       preview:
         snippet: blocks/events
         css: /assets/css/blocks/events.css
