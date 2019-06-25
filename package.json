@@ -22,9 +22,11 @@
   },
   "devDependencies": {
     "@vue/component-compiler-utils": "^2.3.0",
+    "autoprefixer": "^9.6.0",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
-    "parcel-bundler": "^1.10.3",
+    "mustache": "^3.0.1",
+    "parcel-bundler": "^1.12.3",
     "sass": "^1.15.1",
     "stylus": "^0.54.5",
     "vue-hot-reload-api": "^2.3.1",

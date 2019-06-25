@@ -70,7 +70,7 @@
           :class="['kBuilder__addBlockButton', 'kBuilder__addBlockButton--' + key]"
           v-for="(value, key) in fieldsets"
           :key="key"
-          :text="value.label"
+          :text="value.name || value.label"
           @click="addBlock(key)"
         >
           <template slot="options">

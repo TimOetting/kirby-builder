@@ -86,12 +86,11 @@ Kirby::plugin('timoetting/kirbybuilder', [
       'methods' => [
         'extendRecursively' => function ($properties, $currentPropertiesName = null) {
           foreach ($properties as $propertyName => $property) {
-            if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
+            if($propertyName === "label" || $propertyName === "name") {
+              $properties[$propertyName] = I18n::translate($property, $property);
+            }else if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
               $properties[$propertyName] = $this->model()->blueprint()->extend($property);
               $properties[$propertyName] = $this->extendRecursively($properties[$propertyName], $propertyName);
-            }
-            if($propertyName === "label") {
-              $properties[$propertyName] = I18n::translate($property, $property);
             }
           }
           if ($currentPropertiesName === 'fields') {

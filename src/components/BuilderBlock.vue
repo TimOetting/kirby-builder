@@ -23,7 +23,7 @@
           :class="{'kBuilderBlock__expandedIcon--expanded': expanded}"
           type="angle-down"
         />
-        {{fieldGroup.label}}
+        <span v-html=title></span>
       </span>
       <div class="kBuilderBlock__actions">
         <k-button-group class="kBuilderBlock__actionsGroup">
@@ -101,6 +101,7 @@
 
 <script>
 import BuilderPreview from "./BuilderPreview.vue";
+import Mustache from "mustache";
 export default {
   props: {
     endpoints: Object,
@@ -228,6 +229,13 @@ export default {
         );
       }
       return fieldSets;
+    },
+    title() {
+      if (!this.fieldGroup.label) {
+        return this.fieldGroup.name;
+      } else {
+        return Mustache.render(this.fieldGroup.label, this.block);
+      }
     }
   },
   methods: {
