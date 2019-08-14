@@ -38,6 +38,7 @@
           :styles="cssContents[blockValue._key]"
           :script="jsContents[blockValue._key]"
           :parentPath="path"
+          :canDuplicate="(!max || blockCount < max)"
           @input="onBlockInput"
           @clone="cloneBlock"
           @delete="deleteBlock"

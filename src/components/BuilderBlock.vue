@@ -58,6 +58,7 @@
               align="right"
             >
               <k-dropdown-item
+                v-if="canDuplicate"
                 icon="copy"
                 @click="$emit('clone', index, showPreview, expanded, activeFieldSet)"
               >{{ $t('builder.clone') }}</k-dropdown-item>
@@ -114,7 +115,8 @@ export default {
     encodedPageId: String,
     styles: String,
     script: String,
-    parentPath: String
+    parentPath: String,
+    canDuplicate: Boolean
   },
   components: {
     BuilderPreview

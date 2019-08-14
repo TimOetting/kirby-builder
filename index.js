@@ -9570,6 +9570,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 //
 //
+//
 var _default = {
   props: {
     endpoints: Object,
@@ -9582,7 +9583,8 @@ var _default = {
     encodedPageId: String,
     styles: String,
     script: String,
-    parentPath: String
+    parentPath: String,
+    canDuplicate: Boolean
   },
   components: {
     BuilderPreview: _BuilderPreview.default
@@ -9946,24 +9948,26 @@ exports.default = _default;
                           attrs: { align: "right" }
                         },
                         [
-                          _c(
-                            "k-dropdown-item",
-                            {
-                              attrs: { icon: "copy" },
-                              on: {
-                                click: function($event) {
-                                  _vm.$emit(
-                                    "clone",
-                                    _vm.index,
-                                    _vm.showPreview,
-                                    _vm.expanded,
-                                    _vm.activeFieldSet
-                                  )
-                                }
-                              }
-                            },
-                            [_vm._v(_vm._s(_vm.$t("builder.clone")))]
-                          ),
+                          _vm.canDuplicate
+                            ? _c(
+                                "k-dropdown-item",
+                                {
+                                  attrs: { icon: "copy" },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.$emit(
+                                        "clone",
+                                        _vm.index,
+                                        _vm.showPreview,
+                                        _vm.expanded,
+                                        _vm.activeFieldSet
+                                      )
+                                    }
+                                  }
+                                },
+                                [_vm._v(_vm._s(_vm.$t("builder.clone")))]
+                              )
+                            : _vm._e(),
                           _vm._v(" "),
                           _c(
                             "k-dropdown-item",
@@ -15012,7 +15016,8 @@ exports.default = _default;
                     "columns-count": _vm.columnsCount,
                     styles: _vm.cssContents[blockValue._key],
                     script: _vm.jsContents[blockValue._key],
-                    parentPath: _vm.path
+                    parentPath: _vm.path,
+                    canDuplicate: !_vm.max || _vm.blockCount < _vm.max
                   },
                   on: {
                     input: _vm.onBlockInput,
