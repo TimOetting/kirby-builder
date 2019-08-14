@@ -6,8 +6,8 @@
   "type": "kirby-field",
   "license": "MIT",
   "scripts": {
-    "watch": "parcel watch src/main.js --out-dir ./ --out-file index.js --no-source-maps",
-    "build": "parcel build src/main.js --out-dir ./ --out-file index.js --no-source-maps --experimental-scope-hoisting"
+    "watch": "parcel watch src/index.js --no-source-maps -d ./",
+    "build": "parcel build src/index.js --no-source-maps --experimental-scope-hoisting -d ./"
   },
   "postcss": {
     "plugins": {

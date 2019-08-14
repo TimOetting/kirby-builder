@@ -15149,7 +15149,7 @@ render._withStripped = true
       
       }
     })();
-},{"./BuilderBlock.vue":"components/BuilderBlock.vue","vuedraggable":"../node_modules/vuedraggable/dist/vuedraggable.umd.min.js","_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js","vue-hot-reload-api":"../node_modules/vue-hot-reload-api/dist/index.js","vue":"../node_modules/vue/dist/vue.runtime.esm.js"}],"main.js":[function(require,module,exports) {
+},{"./BuilderBlock.vue":"components/BuilderBlock.vue","vuedraggable":"../node_modules/vuedraggable/dist/vuedraggable.umd.min.js","_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js","vue-hot-reload-api":"../node_modules/vue-hot-reload-api/dist/index.js","vue":"../node_modules/vue/dist/vue.runtime.esm.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _BuilderField = _interopRequireDefault(require("./components/BuilderField.vue"));
@@ -15189,7 +15189,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54624" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64343" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -15364,4 +15364,4 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","main.js"], null)
+},{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)

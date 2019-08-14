@@ -286,9 +286,7 @@ export default {
       Object.keys(fieldSet.fields).forEach(fieldName => {
         const modelEndpoint = this.endpoints.model;
         fieldSet.fields[fieldName].endpoints = {
-          field: `kirby-builder/${modelEndpoint}/fields/${this.blockPath}+${
-            fieldSet.fields[fieldName].name
-          }`,
+          field: `kirby-builder/${modelEndpoint}/fields/${this.blockPath}+${fieldSet.fields[fieldName].name}`,
           model: modelEndpoint,
           section: this.endpoints.section
         };

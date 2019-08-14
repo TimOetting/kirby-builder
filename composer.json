@@ -1,14 +1,9 @@
 {
   "name": "timoetting/kirby-builder",
   "type": "kirby-plugin",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "This versatile plugin for Kirby CMS (v3) lets you predefine content blocks with different field sets that can then be added, edited and arranged inside Kirby's panel.",
   "license": "MIT",
-  "autoload": {
-    "files": [
-      "config.php"
-    ]
-  },
   "authors": [
     {
       "name": "Tim Ötting",
