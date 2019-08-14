@@ -99,7 +99,10 @@ export default {
     name: [String, Number],
     required: Boolean,
     type: String,
-    value: String,
+    value: {
+      type: String,
+      default: []
+    },
     fieldsets: Object,
     columns: Number,
     max: Number,
