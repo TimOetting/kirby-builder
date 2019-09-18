@@ -107,8 +107,10 @@ export default {
   props: {
     endpoints: Object,
     block: Object,
-    fieldGroup: Object,
+    // fieldGroup: Object,
+    readyFieldGroup: Object,
     index: Number,
+    label: String,
     columnsCount: Number,
     pageUid: String,
     pageId: String,
@@ -116,7 +118,8 @@ export default {
     styles: String,
     script: String,
     parentPath: String,
-    canDuplicate: Boolean
+    canDuplicate: Boolean,
+    blueprint: String
   },
   components: {
     BuilderPreview
@@ -126,52 +129,7 @@ export default {
       this.block._uid =
         this.block._key + "_" + new Date().valueOf() + "_" + this._uid;
     }
-    if (!this.activeFieldSet) {
-      this.activeFieldSet = this.fieldSets[0].key;
-    }
-    if (this.block.expandedInitially != null) {
-      this.expanded = this.block.expandedInitially;
-      delete this.block.expandedInitially;
-    }
-    if (this.block.showPreviewInitially) {
-      this.showPreview = this.block.showPreviewInitially;
-      delete this.block.showPreviewInitially;
-    }
-    if (this.block.activeFieldSetInitially) {
-      this.activeFieldSet = this.block.activeFieldSetInitially;
-      delete this.block.activeFieldSetInitially;
-    }
-    if (this.block.isNew) {
-      this.isNew = true;
-      window.requestAnimationFrame(() => {
-        this.isNew = false;
-        delete this.block.isNew;
-      });
-    }
-    let localUiState = JSON.parse(localStorage.getItem(this.localUiStateKey));
-    if (localUiState && localUiState.expanded !== null) {
-      this.expanded = localUiState.expanded;
-    }
-    if (
-      this.fieldGroup.defaultView &&
-      this.fieldGroup.defaultView != "default" &&
-      !this.isNew
-    ) {
-      if (this.fieldGroup.defaultView == "preview") {
-        this.showPreview = true;
-      } else {
-        this.activeFieldSet = this.fieldGroup.defaultView;
-      }
-    } else if (localUiState) {
-      this.showPreview = localUiState.showPreview;
-      this.activeFieldSet = localUiState.activeFieldSet;
-    } else {
-      this.storeLocalUiState();
-    }
-
-    if (this.fieldGroup.preview && this.showPreview && this.expanded) {
-      this.displayPreview(this.fieldGroup.preview);
-    }
+    this.loadBlockForm();
   },
   data() {
     return {
@@ -183,7 +141,8 @@ export default {
       previewHeight: 0,
       previewStored: false,
       previewMarkup: "",
-      showPreview: false
+      showPreview: false,
+      fieldGroup: []
     };
   },
   computed: {
@@ -233,14 +192,71 @@ export default {
       return fieldSets;
     },
     title() {
-      if (!this.fieldGroup.label) {
-        return this.fieldGroup.name;
-      } else {
-        return Mustache.render(this.fieldGroup.label, this.block);
-      }
+      return Mustache.render(this.label, this.block);
+      // if (!this.fieldGroup.label) {
+      //   return this.fieldGroup.name;
+      // } else {
+      //   return Mustache.render(this.fieldGroup.label, this.block);
+      // }
     }
   },
   methods: {
+    loadBlockForm() {
+      this.$api
+        .get(`kirby-builder/pages/test/blockformbybluebrint/${this.blueprint}`)
+        .then(res => {
+          console.log("res", res);
+          this.fieldGroup = res;
+          if (!this.activeFieldSet) {
+            this.activeFieldSet = this.fieldSets[0].key;
+          }
+          if (this.block.expandedInitially != null) {
+            this.expanded = this.block.expandedInitially;
+            delete this.block.expandedInitially;
+          }
+          if (this.block.showPreviewInitially) {
+            this.showPreview = this.block.showPreviewInitially;
+            delete this.block.showPreviewInitially;
+          }
+          if (this.block.activeFieldSetInitially) {
+            this.activeFieldSet = this.block.activeFieldSetInitially;
+            delete this.block.activeFieldSetInitially;
+          }
+          if (this.block.isNew) {
+            this.isNew = true;
+            window.requestAnimationFrame(() => {
+              this.isNew = false;
+              delete this.block.isNew;
+            });
+          }
+          let localUiState = JSON.parse(
+            localStorage.getItem(this.localUiStateKey)
+          );
+          if (localUiState && localUiState.expanded !== null) {
+            this.expanded = localUiState.expanded;
+          }
+          if (
+            this.fieldGroup.defaultView &&
+            this.fieldGroup.defaultView != "default" &&
+            !this.isNew
+          ) {
+            if (this.fieldGroup.defaultView == "preview") {
+              this.showPreview = true;
+            } else {
+              this.activeFieldSet = this.fieldGroup.defaultView;
+            }
+          } else if (localUiState) {
+            this.showPreview = localUiState.showPreview;
+            this.activeFieldSet = localUiState.activeFieldSet;
+          } else {
+            this.storeLocalUiState();
+          }
+
+          if (this.fieldGroup.preview && this.showPreview && this.expanded) {
+            this.displayPreview(this.fieldGroup.preview);
+          }
+        });
+    },
     onBlockInput(event) {
       this.$emit("input", this.val);
     },

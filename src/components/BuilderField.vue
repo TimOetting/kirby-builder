@@ -32,7 +32,8 @@
           :encoded-page-id="encodedPageId"
           :endpoints="endpoints"
           :block="blockValue"
-          :fieldGroup="fieldsets[blockValue._key]"
+          :label="reducedFieldsets[blockValue._key].label || reducedFieldsets[blockValue._key].name"
+          :blueprint="reducedFieldsets[blockValue._key].blueprint"
           :index="index"
           :columns-count="columnsCount"
           :styles="cssContents[blockValue._key]"
@@ -69,7 +70,7 @@
       <k-list>
         <k-list-item
           :class="['kBuilder__addBlockButton', 'kBuilder__addBlockButton--' + key]"
-          v-for="(value, key) in fieldsets"
+          v-for="(value, key) in reducedFieldsets"
           :key="key"
           :text="value.name || value.label"
           @click="addBlock(key)"
@@ -100,10 +101,15 @@ export default {
     required: Boolean,
     type: String,
     value: {
-      type: String,
+      type: Array,
       default: []
     },
-    fieldsets: Object,
+    valueTwo: {
+      type: Array,
+      default: [1, 2]
+    },
+    // fieldsets: Object,
+    reducedFieldsets: Object,
     columns: Number,
     max: Number,
     label: String,
@@ -113,7 +119,8 @@ export default {
     encodedPageId: String,
     cssUrls: String,
     jsUrls: String,
-    parentPath: String
+    parentPath: String,
+    content: Object
   },
   components: {
     BuilderBlock
@@ -180,17 +187,18 @@ export default {
       return this.value.length;
     },
     fieldsetCount() {
-      return Object.keys(this.fieldsets).length;
+      return Object.keys(this.reducedFieldsets).length;
     },
     fieldsetKeys() {
-      return Object.keys(this.fieldsets);
+      return Object.keys(this.reducedFieldsets);
     },
     addBlockButtonLabel() {
       return this.$t("add");
-    },
-    supportedBlockTypes() {
-      return Object.keys(this.fieldsets);
     }
+    //TODO: benötigt?
+    // supportedBlockTypes() {
+    //   return Object.keys(this.fieldsets);
+    // }
   },
   methods: {
     onBlockInput(event) {
@@ -248,7 +256,7 @@ export default {
     addBlock(key) {
       const position =
         this.targetPosition == null ? this.value.length : this.targetPosition;
-      const fieldSet = this.fieldsets[key];
+      const fieldSet = this.reducedFieldsets[key];
       this.value.splice(position, 0, this.getBlankContent(key, fieldSet));
       this.value[position].isNew = true;
       this.$emit("input", this.value);

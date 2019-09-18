@@ -40,11 +40,12 @@ function getBlockForm($value, $block, $model = null) {
 Kirby::plugin('timoetting/kirbybuilder', [
   'fields' => [
     'builder' => [
-      'props' => [
-        'value' => function ($value = null) {
-          return $value;
-        }
-      ],
+      //TODO: Checken ob getValues gebraucht wird.
+      // 'props' => [
+      //   'value' => function ($value = null) {
+      //     return $value;
+      //   }
+      // ],
       'computed' => [
         'pageId' => function () {
           return $this->model()->id();
@@ -55,57 +56,95 @@ Kirby::plugin('timoetting/kirbybuilder', [
         'encodedPageId' => function () {
           return str_replace('/', '+', $this->model()->id());
         },
-        'fieldsets' => function () {
-          $fieldSets = Yaml::decode($this->fieldsets);
-          $fieldSets = $this->extendRecursively($fieldSets, "fieldsets");
-          return $fieldSets;
+        // 'fieldsets' => function () {
+        //   // $fieldSets = Yaml::decode($this->fieldsets);
+        //   $fieldSets = $this->blocks;
+        //   $fieldSets = $this->extendRecursively($fieldSets, "fieldsets");
+        //   // return $fieldSets;
+        //   return $fieldSets;
+        // },
+        'reducedFieldsets' => function () {
+          $fieldSets = $this->blocks;
+          $reducedFieldsets = [];
+          foreach ($fieldSets as $propertyName => $property) {
+            $reducedFieldsets[$propertyName]["blueprint"] = $property;
+            $fieldSets[$propertyName] = Blueprint::extend($property);
+            if (array_key_exists("label", $fieldSets[$propertyName])) {
+              $reducedFieldsets[$propertyName]["label"] = I18n::translate($fieldSets[$propertyName]["label"], $fieldSets[$propertyName]["label"]);
+            }
+            if (array_key_exists("name", $fieldSets[$propertyName])) {
+              $reducedFieldsets[$propertyName]["name"] = I18n::translate($fieldSets[$propertyName]["name"], $fieldSets[$propertyName]["name"]);
+            }
+          }
+          return $reducedFieldsets;
         },
+        // 'blockBlueprints' => function () {
+        //   $fieldSets = Yaml::decode($this->fieldsets);
+        //   return $fieldSets;
+        // },
         'value' => function () {
-          $values = $this->value != null ? Yaml::decode($this->value) : Yaml::decode($this->default);
-          return $this->getValues($values);
+          // $values = $this->value != null ? Yaml::decode($this->value) : Yaml::decode($this->default);
+          // if ($values == null) {
+          //   $values = [];
+          // }
+          $values = [];
+          if ($this->value) {
+            $values = Yaml::decode($this->value);
+          } else if ($this->default) {
+            $values = Yaml::decode($this->default);
+          }
+          return $values; 
+          //TODO: Checken ob getValues gebraucht wird.
+          // return $this->getValues($values);
         },
         'cssUrls' => function() {
-          $cssUrls = array_map(function($arr) {
-            if(array_key_exists('preview', $arr)) {
-              return array_key_exists('css', $arr['preview']) ? $arr['preview']['css'] : '';
-            }
-          }, $this->fieldsets);
-          $cssUrls = array_filter($cssUrls);
-          return $cssUrls;
+          return [];
         },
         'jsUrls' => function() {
-          $jsUrls = array_map(function($arr) {
-            if(array_key_exists('preview', $arr)) {
-              return array_key_exists('js', $arr['preview']) ? $arr['preview']['js'] : '';
-            }
-          }, $this->fieldsets);
-          $jsUrls = array_filter($jsUrls);
-          return $jsUrls;
-        }	        
+          return [];
+        }	  
+        // 'cssUrls' => function() {
+        //   $cssUrls = array_map(function($arr) {
+        //     if(array_key_exists('preview', $arr)) {
+        //       return array_key_exists('css', $arr['preview']) ? $arr['preview']['css'] : '';
+        //     }
+        //   }, $this->fieldsets);
+        //   $cssUrls = array_filter($cssUrls);
+        //   return $cssUrls;
+        // },
+        // 'jsUrls' => function() {
+        //   $jsUrls = array_map(function($arr) {
+        //     if(array_key_exists('preview', $arr)) {
+        //       return array_key_exists('js', $arr['preview']) ? $arr['preview']['js'] : '';
+        //     }
+        //   }, $this->fieldsets);
+        //   $jsUrls = array_filter($jsUrls);
+        //   return $jsUrls;
+        // }	        
       ],
       'methods' => [
-        'extendRecursively' => function ($properties, $currentPropertiesName = null) {
-          foreach ($properties as $propertyName => $property) {
-            if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
-              $properties[$propertyName] = $this->model()->blueprint()->extend($property);
-              $properties[$propertyName] = $this->extendRecursively($properties[$propertyName], $propertyName);
-            }
-            if($propertyName === "label" || $propertyName === "name") {
-              $translatedText = I18n::translate($property, $property);
-              if (!empty($translatedText)) {
-                $properties[$propertyName] = $translatedText;
-              }
-            }
-          }
-          if ($currentPropertiesName === 'fields') {
-            $fieldForm = new Form([
-              'fields' => $properties,
-              'model'  => $this->model() ?? null
-            ]);
-            $properties = $fieldForm->fields()->toArray();
-          }
-          return $properties;
-        },
+        // 'extendRecursively' => function ($properties, $currentPropertiesName = null) {
+        //   foreach ($properties as $propertyName => $property) {
+        //     if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
+        //       $properties[$propertyName] = Blueprint::extend($property);
+        //       $properties[$propertyName] = $this->extendRecursively($properties[$propertyName], $propertyName);
+        //     }
+        //     if($propertyName === "label" || $propertyName === "name") {
+        //       $translatedText = I18n::translate($property, $property);
+        //       if (!empty($translatedText)) {
+        //         $properties[$propertyName] = $translatedText;
+        //       }
+        //     }
+        //   }
+        //   if ($currentPropertiesName === 'fields') {
+        //     $fieldForm = new Form([
+        //       'fields' => $properties,
+        //       'model'  => $this->model() ?? null
+        //     ]);
+        //     $properties = $fieldForm->fields()->toArray();
+        //   }
+        //   return $properties;
+        // },
         'getData' => function ($values) {
           $vals = [];
           if ($values == null) {
@@ -121,21 +160,21 @@ Kirby::plugin('timoetting/kirbybuilder', [
           }
           return $vals;
         },
-        'getValues' => function ($values) {
-          $vals = [];
-          if ($values == null) {
-            return $vals;
-          }
-          foreach ($values as $key => $value) {
-            $blockKey = $value['_key'];
-            if (array_key_exists($blockKey, $this->fieldsets)) {
-              $block = $this->fieldsets[$blockKey];
-              $form = $this->getBlockForm($value, $block);
-            }
-            $vals[] = $form->values();
-          }
-          return $vals;
-        },
+        // 'getValues' => function ($values) {
+        //   $vals = [];
+        //   if ($values == null) {
+        //     return $vals;
+        //   }
+        //   foreach ($values as $key => $value) {
+        //     $blockKey = $value['_key'];
+        //     if (array_key_exists($blockKey, $this->fieldsets)) {
+        //       $block = $this->fieldsets[$blockKey];
+        //       $form = $this->getBlockForm($value, $block);
+        //     }
+        //     $vals[] = $form->values();
+        //   }
+        //   return $vals;
+        // },
         'getBlockForm' => function ($value, $block) {
           return getBlockForm($value, $block, $this->model());
         },
@@ -183,6 +222,16 @@ Kirby::plugin('timoetting/kirbybuilder', [
   ],
   'api' => [
     'routes' => [
+      [
+        'pattern' => 'kirby-builder/pages/(:any)/blockformbybluebrint/(:all?)',
+        'action'  => function (string $pageUid, string $blueprint) {       
+          $page = kirby()->page($pageUid);
+          $mixin = Blueprint::find($blueprint);
+          $props = Data::read($mixin);
+          $extendedProps = extendRecursively($props, $page);
+          return $extendedProps;
+        }
+      ],
       [
         'pattern' => 'kirby-builder/preview',
         'method' => 'POST',
@@ -300,4 +349,29 @@ function fieldFromPath($fieldPath, $page, $fields) {
     $fieldProps['model'] = $page;
     return new Field($fieldProps['type'], $fieldProps);
   }
+}
+
+function extendRecursively($properties, $page, $currentPropertiesName = null) {
+  foreach ($properties as $propertyName => $property) {
+    // if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
+    // TODO: müsste es $currentPropertiesName !== "blocks" sein?
+    if(is_array($property) && $currentPropertiesName !== "fieldsets"){
+      $properties[$propertyName] = Blueprint::extend($property);
+      $properties[$propertyName] = extendRecursively($properties[$propertyName], $page, $propertyName);
+    }
+    if($propertyName === "label" || $propertyName === "name") {
+      $translatedText = I18n::translate($property, $property);
+      if (!empty($translatedText)) {
+        $properties[$propertyName] = $translatedText;
+      }
+    }
+  }
+  if ($currentPropertiesName === 'fields') {
+  $fieldForm = new Form([
+    'fields' => $properties,
+    'model'  => $page ?? null
+    ]);
+    $properties = $fieldForm->fields()->toArray();
+  }
+  return $properties;
 }
