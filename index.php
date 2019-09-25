@@ -8,15 +8,37 @@ use Kirby\Form\Field;
 use Kirby\Form\Fields;
 use Kirby\Toolkit\I18n;
 
-function callFieldAPI($ApiInstance, $fieldPath, $context, $path) {
-  $fieldPath = Str::split($fieldPath, '+');
-  $form = Form::for($context);
-  $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
+require_once __DIR__ . '/lib/BuilderBlueprint.php';
+use KirbyBuilder\Builder\BuilderBlueprint;
+// load([ 'KirbyBuilder\\Cms\\BuilderBlueprint' => '/lib/BuilderBlueprint.php' ], __DIR__);
+// function callFieldAPI($ApiInstance, $fieldPath, $context, $path) {
+//   $fieldPath = Str::split($fieldPath, '+');
+//   $form = Form::for($context);
+//   $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
+//   $fieldApi = $ApiInstance->clone([
+//     'routes' => $field->api(),
+//     'data'   => array_merge($ApiInstance->data(), ['field' => $field])
+//   ]);
+//   return $fieldApi->call($path, $ApiInstance->requestMethod(), $ApiInstance->requestData());
+// }
+
+function callFieldAPI($ApiInstance, $model, $blockBlueprint, $field, $apiPath) {
+  // $blockBlueprint = Str::split($blockBlueprint, '+');
+  $blockBlueprint = str_replace("+", "/", $blockBlueprint);
+  $blockBlueprintProps = getExtendedBlockBlueprintProps($blockBlueprint, $model);
+  $blockForm = getBlockForm(null, $blockBlueprintProps, $model);
+  $blockFields = $blockForm->fields();
+  $field = $blockFields->find($field);
+  // $fieldPath = Str::split($fieldPath, '+');
+  // $form = Form::for($context);
+  // $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
   $fieldApi = $ApiInstance->clone([
     'routes' => $field->api(),
     'data'   => array_merge($ApiInstance->data(), ['field' => $field])
   ]);
-  return $fieldApi->call($path, $ApiInstance->requestMethod(), $ApiInstance->requestData());
+  // dump($field);
+  // dump($fieldApi);
+  return $fieldApi->call($apiPath, $ApiInstance->requestMethod(), $ApiInstance->requestData());
 }
 
 function getBlockForm($value, $block, $model = null) {
@@ -64,11 +86,18 @@ Kirby::plugin('timoetting/kirbybuilder', [
         //   return $fieldSets;
         // },
         'reducedFieldsets' => function () {
+          // TODO: Refactor name from Fieldset to Block
           $fieldSets = $this->blocks;
           $reducedFieldsets = [];
           foreach ($fieldSets as $propertyName => $property) {
             $reducedFieldsets[$propertyName]["blueprint"] = $property;
-            $fieldSets[$propertyName] = Blueprint::extend($property);
+            $fieldSets[$propertyName] = BuilderBlueprint::extend($property);
+            // if (!array_key_exists("label", $fieldSets[$propertyName]) && !array_key_exists("name", $fieldSets[$propertyName])) {
+            //   // dump($propertyName);
+            //   // dump($fieldSets[$propertyName]);
+            //   $fieldSets[$propertyName] = BuilderBlueprint::extend($fieldSets[$propertyName]);
+            //   // dump($fieldSets[$propertyName]);
+            // }
             if (array_key_exists("label", $fieldSets[$propertyName])) {
               $reducedFieldsets[$propertyName]["label"] = I18n::translate($fieldSets[$propertyName]["label"], $fieldSets[$propertyName]["label"]);
             }
@@ -95,6 +124,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
           }
           return $values; 
           //TODO: Checken ob getValues gebraucht wird.
+          // Wohl schon für Übersetzungen
           // return $this->getValues($values);
         },
         'cssUrls' => function() {
@@ -178,16 +208,16 @@ Kirby::plugin('timoetting/kirbybuilder', [
         'getBlockForm' => function ($value, $block) {
           return getBlockForm($value, $block, $this->model());
         },
-        'callFieldAPI' => function($fieldPath, $context, $path) {
-          $fieldPath = Str::split($fieldPath, '+');
-          $form = Form::for($context);
-          $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
-          $fieldApi = $this->clone([
-            'routes' => $field->api(),
-            'data'   => array_merge($this->data(), ['field' => $field])
-          ]);
-          return $fieldApi->call($path, $this->requestMethod(), $this->requestData());
-        }
+        // 'callFieldAPI' => function($fieldPath, $context, $path) {
+        //   $fieldPath = Str::split($fieldPath, '+');
+        //   $form = Form::for($context);
+        //   $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
+        //   $fieldApi = $this->clone([
+        //     'routes' => $field->api(),
+        //     'data'   => array_merge($this->data(), ['field' => $field])
+        //   ]);
+        //   return $fieldApi->call($path, $this->requestMethod(), $this->requestData());
+        // }
       ],
       'validations' => [
         'validateChildren' => function ($values) {
@@ -216,8 +246,20 @@ Kirby::plugin('timoetting/kirbybuilder', [
         }
       ],
       'save' => function ($values = null) {
-        return $this->getData($values);
+        // return $this->getData($values);
+        return $values;
       },
+    ],
+  ],
+  'routes' => [
+    [
+      'pattern' => 'test/pages/(:any)/blockblueprint/(:any)/fields/(:any)/(:all?)',
+      'action'  => function (string $id, string $blockBlueprint, string $field, string $apiPath = null) {
+        if ($page = kirby()->page("test4")) {
+          return callFieldAPI($this, $page, $blockBlueprint, $field, $apiPath);
+        }
+        return "true";
+      }
     ],
   ],
   'api' => [
@@ -226,9 +268,19 @@ Kirby::plugin('timoetting/kirbybuilder', [
         'pattern' => 'kirby-builder/pages/(:any)/blockformbybluebrint/(:all?)',
         'action'  => function (string $pageUid, string $blueprint) {       
           $page = kirby()->page($pageUid);
-          $mixin = Blueprint::find($blueprint);
-          $props = Data::read($mixin);
-          $extendedProps = extendRecursively($props, $page);
+          $extendedProps = getExtendedBlockBlueprintProps($blueprint, $page);
+          $defaultValues = [];
+          if(array_key_exists("tabs", $extendedProps)) {
+            $tabs = $extendedProps['tabs'];
+            foreach ( $tabs as $tabKey => &$tab) {
+              $tabForm = getBlockForm(null, $tab, $page);
+              $defaultValues = array_merge($defaultValues, $tabForm->data(true));
+            }
+          } else {
+            $blockForm = getBlockForm(null, $extendedProps, $page);
+            $defaultValues = $blockForm->data(true);
+          }
+          $extendedProps["defaultValues"] = $defaultValues;
           return $extendedProps;
         }
       ],
@@ -297,6 +349,15 @@ Kirby::plugin('timoetting/kirbybuilder', [
           }
         }
       ],
+      [
+        'pattern' => 'kirby-builder/pages/(:any)/blockblueprint/(:any)/fields/(:any)/(:all?)',
+        'method' => 'ALL',
+        'action'  => function (string $id, string $blockBlueprint, string $field, string $apiPath = null) {
+          if ($page = $this->page($id)) {
+            return callFieldAPI($this, $page, $blockBlueprint, $field, $apiPath);
+          }
+        }
+      ],
     ],
   ],
   'translations' => [
@@ -321,9 +382,9 @@ Kirby::plugin('timoetting/kirbybuilder', [
     'snippet-wrapper' => __DIR__ . '/templates/snippet-wrapper.php'
   ],
   'fieldMethods' => [
-      'toBuilderBlocks' => function ($field) {
-        return $field->toStructure();
-      }
+    'toBuilderBlocks' => function ($field) {
+      return $field->toStructure();
+    }
   ]
 ]);
 
@@ -333,7 +394,8 @@ function fieldFromPath($fieldPath, $page, $fields) {
   $fieldProps = $fields[$fieldName];
   if ($fieldProps['type'] === 'builder' && count($fieldPath) > 0) {
     $fieldsetKey = array_shift($fieldPath);
-    $fieldset = $fieldProps['fieldsets'][$fieldsetKey];
+    // $fieldset = $fieldProps['fieldsets'][$fieldsetKey];
+    $fieldset = $fieldProps['blocks'][$fieldsetKey];
     if (array_key_exists('tabs', $fieldset) && is_array($fieldset['tabs'])) {
       $fieldsetFields = [];
       foreach ( $fieldset['tabs'] as $tabKey => $tab) {
@@ -352,11 +414,14 @@ function fieldFromPath($fieldPath, $page, $fields) {
 }
 
 function extendRecursively($properties, $page, $currentPropertiesName = null) {
+  if (array_key_exists("extends", $properties)) {
+    $properties = BuilderBlueprint::extend($properties);
+  }
   foreach ($properties as $propertyName => $property) {
     // if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
     // TODO: müsste es $currentPropertiesName !== "blocks" sein?
-    if(is_array($property) && $currentPropertiesName !== "fieldsets"){
-      $properties[$propertyName] = Blueprint::extend($property);
+    if(is_array($property) && $currentPropertiesName !== "blocks"){
+      $properties[$propertyName] = BuilderBlueprint::extend($property);
       $properties[$propertyName] = extendRecursively($properties[$propertyName], $page, $propertyName);
     }
     if($propertyName === "label" || $propertyName === "name") {
@@ -367,11 +432,17 @@ function extendRecursively($properties, $page, $currentPropertiesName = null) {
     }
   }
   if ($currentPropertiesName === 'fields') {
-  $fieldForm = new Form([
-    'fields' => $properties,
-    'model'  => $page ?? null
+    $fieldForm = new Form([
+      'fields' => $properties,
+      'model'  => $page ?? null
     ]);
     $properties = $fieldForm->fields()->toArray();
   }
   return $properties;
+}
+
+function getExtendedBlockBlueprintProps($blockBlueprint, $page) {
+  $mixin = Blueprint::find($blockBlueprint);
+  $props = Data::read($mixin);
+  return extendRecursively($props, $page);
 }

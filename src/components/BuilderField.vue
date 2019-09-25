@@ -18,6 +18,7 @@
         class="kBuilder__column"
         :width="columnWidth"
         v-for="(blockValue, index) in value"
+        v-if="reducedFieldsets[blockValue._key]"
         :key="blockValue._uid"
       >
         <div
@@ -102,7 +103,7 @@ export default {
     type: String,
     value: {
       type: Array,
-      default: []
+      default: [1,2]
     },
     valueTwo: {
       type: Array,
@@ -126,6 +127,7 @@ export default {
     BuilderBlock
   },
   mounted() {
+    console.log('>>>mounted Builder Field', this._uid);
     for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
       fetch("/" + cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
         .then(res => {
@@ -144,6 +146,12 @@ export default {
           this.$set(this.jsContents, fieldSetKey, res);
         });
     }
+    // TODO: clear why this is necessary
+    console.log('>>>>> this.value', this.value);
+    if (this.value == null) {
+      this.value = Array();
+    }
+    console.log('>>>>> this.value after', this.value, this.value.length);
   },
   data() {
     return {
@@ -254,15 +262,19 @@ export default {
       this.dialogOpen = false;
     },
     addBlock(key) {
+      console.log('>>>this.value', this.value);
+      if (this.value == null) {
+        this.value = [];
+      }
       const position =
         this.targetPosition == null ? this.value.length : this.targetPosition;
       const fieldSet = this.reducedFieldsets[key];
       this.value.splice(position, 0, this.getBlankContent(key, fieldSet));
-      this.value[position].isNew = true;
+      // this.value[position].isNew = true;
       this.$emit("input", this.value);
-      this.$nextTick(function() {
-        this.$emit("input", this.value);
-      });
+      // this.$nextTick(function() {
+      //   this.$emit("input", this.value);
+      // });
       this.targetPosition = null;
       if (this.dialogOpen) {
         this.$refs.dialog.close();
@@ -283,35 +295,40 @@ export default {
       if (activeFieldSet) {
         cloneValue.activeFieldSetInitially = activeFieldSet;
       }
-      cloneValue.isNew = true;
+      // cloneValue.isNew = true;
       this.$emit("input", this.value);
       this.$nextTick(function() {
         this.$emit("input", this.value);
       });
     },
     getBlankContent(key, fieldSet) {
-      let content = { _key: key };
-      if (fieldSet.fields) {
-        Object.keys(fieldSet.fields).forEach(fieldName => {
-          content[fieldName] =
-            fieldSet.fields[fieldName].value ||
-            fieldSet.fields[fieldName].default ||
-            null;
-        });
-      } else if (fieldSet.tabs) {
-        for (const tabName in fieldSet.tabs) {
-          if (fieldSet.tabs.hasOwnProperty(tabName)) {
-            const tab = fieldSet.tabs[tabName];
-            Object.keys(tab.fields).forEach(fieldName => {
-              content[fieldName] =
-                tab.fields[fieldName].value ||
-                tab.fields[fieldName].default ||
-                null;
-            });
-          }
-        }
+      return { 
+        _key: key, 
+        _uid: key + "_" + new Date().valueOf() + "_" + this._uid 
       }
-      return content;
+      // let content = { _key: key };
+      // console.log('>>>>fieldSet', fieldSet);
+      // if (fieldSet.fields) {
+      //   Object.keys(fieldSet.fields).forEach(fieldName => {
+      //     content[fieldName] =
+      //       fieldSet.fields[fieldName].value ||
+      //       fieldSet.fields[fieldName].default ||
+      //       null;
+      //   });
+      // } else if (fieldSet.tabs) {
+      //   for (const tabName in fieldSet.tabs) {
+      //     if (fieldSet.tabs.hasOwnProperty(tabName)) {
+      //       const tab = fieldSet.tabs[tabName];
+      //       Object.keys(tab.fields).forEach(fieldName => {
+      //         content[fieldName] =
+      //           tab.fields[fieldName].value ||
+      //           tab.fields[fieldName].default ||
+      //           null;
+      //       });
+      //     }
+      //   }
+      // }
+      // return content;
     },
     deleteBlock(index) {
       this.clearLocalUiStates(this.value[index]);
