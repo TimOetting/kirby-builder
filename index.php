@@ -219,32 +219,33 @@ Kirby::plugin('timoetting/kirbybuilder', [
         //   return $fieldApi->call($path, $this->requestMethod(), $this->requestData());
         // }
       ],
-      'validations' => [
-        'validateChildren' => function ($values) {
-          $errorMessages = [];
-          foreach ($values as $key => $value) {
-            $blockKey = $value['_key'];
-            $block = $this->fieldsets[$blockKey];
-            if (array_key_exists($blockKey, $this->fieldsets)) {
-              $form = $this->getBlockForm($value, $block);
-              if ($form->errors()) {
-                foreach ($form->errors() as $fieldKey => $error) {
-                  foreach ($error["message"] as $errorKey => $message) {
-                    if ($errorKey != "validateChildren") {
-                      $errorMessages[] = $error['label'] . ': ' . $message;
-                    } else {
-                      $errorMessages[] = $message;
-                    }
-                  }
-                }
-              }
-            }
-          }
-          if (count($errorMessages)) {
-            throw new Exception(implode("\n", $errorMessages));
-          }
-        }
-      ],
+      // TODO: Rebuild Validation (pass _blueprint along with _key and _uid)
+      // 'validations' => [
+      //   'validateChildren' => function ($values) {
+      //     $errorMessages = [];
+      //     foreach ($values as $key => $value) {
+      //       $blockKey = $value['_key'];
+      //       $block = $this->fieldsets[$blockKey];
+      //       if (array_key_exists($blockKey, $this->fieldsets)) {
+      //         $form = $this->getBlockForm($value, $block);
+      //         if ($form->errors()) {
+      //           foreach ($form->errors() as $fieldKey => $error) {
+      //             foreach ($error["message"] as $errorKey => $message) {
+      //               if ($errorKey != "validateChildren") {
+      //                 $errorMessages[] = $error['label'] . ': ' . $message;
+      //               } else {
+      //                 $errorMessages[] = $message;
+      //               }
+      //             }
+      //           }
+      //         }
+      //       }
+      //     }
+      //     if (count($errorMessages)) {
+      //       throw new Exception(implode("\n", $errorMessages));
+      //     }
+      //   }
+      // ],
       'save' => function ($values = null) {
         // return $this->getData($values);
         return $values;
@@ -255,7 +256,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
     [
       'pattern' => 'test/pages/(:any)/blockblueprint/(:any)/fields/(:any)/(:all?)',
       'action'  => function (string $id, string $blockBlueprint, string $field, string $apiPath = null) {
-        if ($page = kirby()->page("test4")) {
+        if ($page = kirby()->page($id)) {
           return callFieldAPI($this, $page, $blockBlueprint, $field, $apiPath);
         }
         return "true";
