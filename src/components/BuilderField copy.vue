@@ -18,7 +18,6 @@
         class="kBuilder__column"
         :width="columnWidth"
         v-for="(blockValue, index) in value"
-        v-if="blockConfigs[blockValue._key]"
         :key="blockValue._uid"
       >
         <div
@@ -33,8 +32,7 @@
           :encoded-page-id="encodedPageId"
           :endpoints="endpoints"
           :block="blockValue"
-          :label="reducedFieldsets[blockValue._key].label || reducedFieldsets[blockValue._key].name"
-          :blockConfig="blockConfigs[blockValue._key]"
+          :fieldGroup="fieldsets[blockValue._key]"
           :index="index"
           :columns-count="columnsCount"
           :styles="cssContents[blockValue._key]"
@@ -71,7 +69,7 @@
       <k-list>
         <k-list-item
           :class="['kBuilder__addBlockButton', 'kBuilder__addBlockButton--' + key]"
-          v-for="(value, key) in reducedFieldsets"
+          v-for="(value, key) in fieldsets"
           :key="key"
           :text="value.name || value.label"
           @click="addBlock(key)"
@@ -102,16 +100,10 @@ export default {
     required: Boolean,
     type: String,
     value: {
-      type: Array,
-      default: [1, 2]
+      type: String,
+      default: []
     },
-    valueTwo: {
-      type: Array,
-      default: [1, 2]
-    },
-    // fieldsets: Object,
-    reducedFieldsets: Object,
-    blockConfigs: Object,
+    fieldsets: Object,
     columns: Number,
     max: Number,
     label: String,
@@ -121,14 +113,12 @@ export default {
     encodedPageId: String,
     cssUrls: String,
     jsUrls: String,
-    parentPath: String,
-    content: Object
+    parentPath: String
   },
   components: {
     BuilderBlock
   },
   mounted() {
-    console.log(">>>mounted Builder Field", this._uid);
     for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
       fetch("/" + cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
         .then(res => {
@@ -147,12 +137,6 @@ export default {
           this.$set(this.jsContents, fieldSetKey, res);
         });
     }
-    // TODO: clear why this is necessary
-    console.log(">>>>> this.value", this.value);
-    if (this.value == null) {
-      this.value = Array();
-    }
-    console.log(">>>>> this.value after", this.value, this.value.length);
   },
   data() {
     return {
@@ -196,18 +180,17 @@ export default {
       return this.value.length;
     },
     fieldsetCount() {
-      return Object.keys(this.reducedFieldsets).length;
+      return Object.keys(this.fieldsets).length;
     },
     fieldsetKeys() {
-      return Object.keys(this.reducedFieldsets);
+      return Object.keys(this.fieldsets);
     },
     addBlockButtonLabel() {
       return this.$t("add");
+    },
+    supportedBlockTypes() {
+      return Object.keys(this.fieldsets);
     }
-    //TODO: benötigt?
-    // supportedBlockTypes() {
-    //   return Object.keys(this.fieldsets);
-    // }
   },
   methods: {
     onBlockInput(event) {
@@ -263,19 +246,15 @@ export default {
       this.dialogOpen = false;
     },
     addBlock(key) {
-      console.log(">>>this.value", this.value);
-      if (this.value == null) {
-        this.value = [];
-      }
       const position =
         this.targetPosition == null ? this.value.length : this.targetPosition;
-      const fieldSet = this.reducedFieldsets[key];
+      const fieldSet = this.fieldsets[key];
       this.value.splice(position, 0, this.getBlankContent(key, fieldSet));
-      // this.value[position].isNew = true;
+      this.value[position].isNew = true;
       this.$emit("input", this.value);
-      // this.$nextTick(function() {
-      //   this.$emit("input", this.value);
-      // });
+      this.$nextTick(function() {
+        this.$emit("input", this.value);
+      });
       this.targetPosition = null;
       if (this.dialogOpen) {
         this.$refs.dialog.close();
@@ -296,40 +275,35 @@ export default {
       if (activeFieldSet) {
         cloneValue.activeFieldSetInitially = activeFieldSet;
       }
-      // cloneValue.isNew = true;
+      cloneValue.isNew = true;
       this.$emit("input", this.value);
       this.$nextTick(function() {
         this.$emit("input", this.value);
       });
     },
     getBlankContent(key, fieldSet) {
-      return {
-        _key: key,
-        _uid: key + "_" + new Date().valueOf() + "_" + this._uid
-      };
-      // let content = { _key: key };
-      // console.log('>>>>fieldSet', fieldSet);
-      // if (fieldSet.fields) {
-      //   Object.keys(fieldSet.fields).forEach(fieldName => {
-      //     content[fieldName] =
-      //       fieldSet.fields[fieldName].value ||
-      //       fieldSet.fields[fieldName].default ||
-      //       null;
-      //   });
-      // } else if (fieldSet.tabs) {
-      //   for (const tabName in fieldSet.tabs) {
-      //     if (fieldSet.tabs.hasOwnProperty(tabName)) {
-      //       const tab = fieldSet.tabs[tabName];
-      //       Object.keys(tab.fields).forEach(fieldName => {
-      //         content[fieldName] =
-      //           tab.fields[fieldName].value ||
-      //           tab.fields[fieldName].default ||
-      //           null;
-      //       });
-      //     }
-      //   }
-      // }
-      // return content;
+      let content = { _key: key };
+      if (fieldSet.fields) {
+        Object.keys(fieldSet.fields).forEach(fieldName => {
+          content[fieldName] =
+            fieldSet.fields[fieldName].value ||
+            fieldSet.fields[fieldName].default ||
+            null;
+        });
+      } else if (fieldSet.tabs) {
+        for (const tabName in fieldSet.tabs) {
+          if (fieldSet.tabs.hasOwnProperty(tabName)) {
+            const tab = fieldSet.tabs[tabName];
+            Object.keys(tab.fields).forEach(fieldName => {
+              content[fieldName] =
+                tab.fields[fieldName].value ||
+                tab.fields[fieldName].default ||
+                null;
+            });
+          }
+        }
+      }
+      return content;
     },
     deleteBlock(index) {
       this.clearLocalUiStates(this.value[index]);

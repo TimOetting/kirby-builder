@@ -85,6 +85,21 @@ Kirby::plugin('timoetting/kirbybuilder', [
         //   // return $fieldSets;
         //   return $fieldSets;
         // },
+        'blockConfigs' => function () {
+          $blocks = $this->blocks;
+          $blockConfigs = [];
+          foreach ($blocks as $blockName => $property) {
+            $blockConfigs[$blockName] = BuilderBlueprint::extend($property);
+            // translate for add . Rest will be translated on follow-up request from client
+            if (array_key_exists("label", $blockConfigs[$blockName])) {
+              $blockConfigs[$blockName]["label"] = I18n::translate($blockConfigs[$blockName]["label"], $blockConfigs[$blockName]["label"]);
+            }
+            if (array_key_exists("name", $blockConfigs[$blockName])) {
+              $blockConfigs[$blockName]["name"] = I18n::translate($blockConfigs[$blockName]["name"], $blockConfigs[$blockName]["name"]);
+            }
+          }
+          return $blockConfigs;
+        },
         'reducedFieldsets' => function () {
           // TODO: Refactor name from Fieldset to Block
           $fieldSets = $this->blocks;
@@ -269,7 +284,31 @@ Kirby::plugin('timoetting/kirbybuilder', [
         'pattern' => 'kirby-builder/pages/(:any)/blockformbybluebrint/(:all?)',
         'action'  => function (string $pageUid, string $blueprint) {       
           $page = kirby()->page($pageUid);
+          $blockConfig = kirby()->request()->data();
           $extendedProps = getExtendedBlockBlueprintProps($blueprint, $page);
+          $defaultValues = [];
+          if(array_key_exists("tabs", $extendedProps)) {
+            $tabs = $extendedProps['tabs'];
+            foreach ( $tabs as $tabKey => &$tab) {
+              $tabForm = getBlockForm(null, $tab, $page);
+              $defaultValues = array_merge($defaultValues, $tabForm->data(true));
+            }
+          } else {
+            $blockForm = getBlockForm(null, $extendedProps, $page);
+            $defaultValues = $blockForm->data(true);
+          }
+          $extendedProps["defaultValues"] = $defaultValues;
+          return $extendedProps;
+        }
+      ],
+      [
+        'pattern' => 'kirby-builder/pages/(:any)/blockformbyconfig',
+        'method' => 'POST',
+        'action'  => function (string $pageUid) {
+          $page = kirby()->page($pageUid);
+          $blockConfig = kirby()->request()->data();
+          // $extendedProps = getExtendedBlockBlueprintProps($blueprint, $page);
+          $extendedProps = extendRecursively($blockConfig, $page);
           $defaultValues = [];
           if(array_key_exists("tabs", $extendedProps)) {
             $tabs = $extendedProps['tabs'];

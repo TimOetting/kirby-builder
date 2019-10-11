@@ -23,7 +23,7 @@
           :class="{'kBuilderBlock__expandedIcon--expanded': expanded}"
           type="angle-down"
         />
-        <span v-html=title(block)></span>
+        <span v-html=title></span>
       </span>
       <div class="kBuilderBlock__actions">
         <k-button-group class="kBuilderBlock__actionsGroup">
@@ -35,13 +35,13 @@
             :image="tabImage(fieldSet.icon)"
             @click="displayFieldSet(fieldSet.key); toggleExpand(true)"
             class="kBuilderBlock__actionsButton"
-            :class="[{'kBuilderBlock__actionsButton--active': (activeFieldSet == fieldSet.key && expanded )}, `kBuilderBlock__actionsButton--type-${fieldSet.key}`]"
+            :class="{'kBuilderBlock__actionsButton--active': (activeFieldSet == fieldSet.key && expanded )}"
           >{{fieldSet.label}}</k-button>
           <k-button
             v-if="fieldGroup.preview"
             icon="preview"
             @click="displayPreview()"
-            class="kBuilderBlock__actionsButton kBuilderBlock__actionsButton--preview"
+            class="kBuilderBlock__actionsButton"
             :class="{'kBuilderBlock__actionsButton--active': showPreview && expanded}"
           >{{ $t('builder.preview') }}</k-button>
         </k-button-group>
@@ -90,6 +90,7 @@
         v-for="fieldSet in fieldSets"
         class="kBuilderBlock__form"
         v-model="fieldSet.model"
+        :value="{}"
         :fields="fieldSet.fields"
         :validate="true"
         v-on="$listeners"
@@ -106,10 +107,8 @@ export default {
   props: {
     endpoints: Object,
     block: Object,
-    // fieldGroup: Object,
-    readyFieldGroup: Object,
+    fieldGroup: Object,
     index: Number,
-    label: String,
     columnsCount: Number,
     pageUid: String,
     pageId: String,
@@ -117,8 +116,7 @@ export default {
     styles: String,
     script: String,
     parentPath: String,
-    canDuplicate: Boolean,
-    blockConfig: Object
+    canDuplicate: Boolean
   },
   components: {
     BuilderPreview
@@ -128,16 +126,8 @@ export default {
       this.block._uid =
         this.block._key + "_" + new Date().valueOf() + "_" + this._uid;
     }
-    // if (this.block.isNew) {
-    //   this.isNew = true;
-    //   window.requestAnimationFrame(() => {
-    //     this.isNew = false;
-    //     delete this.block.isNew;
-    //   });
-    // }
-    if (this.block.activeFieldSetInitially) {
-      this.activeFieldSet = this.block.activeFieldSetInitially;
-      delete this.block.activeFieldSetInitially;
+    if (!this.activeFieldSet) {
+      this.activeFieldSet = this.fieldSets[0].key;
     }
     if (this.block.expandedInitially != null) {
       this.expanded = this.block.expandedInitially;
@@ -147,11 +137,41 @@ export default {
       this.showPreview = this.block.showPreviewInitially;
       delete this.block.showPreviewInitially;
     }
+    if (this.block.activeFieldSetInitially) {
+      this.activeFieldSet = this.block.activeFieldSetInitially;
+      delete this.block.activeFieldSetInitially;
+    }
+    if (this.block.isNew) {
+      this.isNew = true;
+      window.requestAnimationFrame(() => {
+        this.isNew = false;
+        delete this.block.isNew;
+      });
+    }
     let localUiState = JSON.parse(localStorage.getItem(this.localUiStateKey));
     if (localUiState && localUiState.expanded !== null) {
       this.expanded = localUiState.expanded;
     }
-    this.loadBlockForm();
+    if (
+      this.fieldGroup.defaultView &&
+      this.fieldGroup.defaultView != "default" &&
+      !this.isNew
+    ) {
+      if (this.fieldGroup.defaultView == "preview") {
+        this.showPreview = true;
+      } else {
+        this.activeFieldSet = this.fieldGroup.defaultView;
+      }
+    } else if (localUiState) {
+      this.showPreview = localUiState.showPreview;
+      this.activeFieldSet = localUiState.activeFieldSet;
+    } else {
+      this.storeLocalUiState();
+    }
+
+    if (this.fieldGroup.preview && this.showPreview && this.expanded) {
+      this.displayPreview(this.fieldGroup.preview);
+    }
   },
   data() {
     return {
@@ -163,16 +183,12 @@ export default {
       previewHeight: 0,
       previewStored: false,
       previewMarkup: "",
-      showPreview: false,
-      fieldGroup: {}
+      showPreview: false
     };
   },
   computed: {
     localUiStateKey() {
       return `kBuilder.uiState.${this.block._uid}`;
-    },
-    localFormGroupKey() {
-      return `kBuilder.formGroup.${this.blueprint}`;
     },
     extendedUid() {
       return this.pageId.replace("/", "-") + "-" + this._uid;
@@ -215,91 +231,18 @@ export default {
         );
       }
       return fieldSets;
+    },
+    title() {
+      if (!this.fieldGroup.label) {
+        return this.fieldGroup.name;
+      } else {
+        return Mustache.render(this.fieldGroup.label, this.block);
+      }
     }
-    // title() {
-    //   return Mustache.render(this.label, this.block);
-    // return Mustache.render(this.label, this.block);
-    // if (!this.fieldGroup.label) {
-    //   return this.fieldGroup.name;
-    // } else {
-    //   return Mustache.render(this.fieldGroup.label, this.block);
-    // }
-    // }
   },
   methods: {
-    title(block) {
-      return Mustache.render(this.label, block);
-    },
-    loadBlockForm() {
-      // const fieldGroupFromLocalStorage = JSON.parse(localStorage.getItem(this.localFormGroupKey));
-      // if (fieldGroupFromLocalStorage) {
-      //   this.fieldGroup = Object.assign({}, this.fieldGroup, fieldGroupFromLocalStorage)
-      //   this.initFieldGroup();
-      // }
-
-      // this.$api
-      //   .get(
-      //     `kirby-builder/pages/${this.pageId}/blockformbybluebrint/${this.blueprint}`
-      //   )
-      //   .then(res => {
-      //     this.fieldGroup = Object.assign({}, this.fieldGroup, res);
-      //     // localStorage.setItem(this.localFormGroupKey, JSON.stringify(res))
-      //     this.$nextTick(() => {
-      //       this.initFieldGroup();
-      //     });
-      //   });
-
-      this.$api
-        .post(
-          `kirby-builder/pages/${this.pageId}/blockformbyconfig`,
-          this.blockConfig
-        )
-        .then(res => {
-          this.fieldGroup = Object.assign({}, this.fieldGroup, res);
-          // localStorage.setItem(this.localFormGroupKey, JSON.stringify(res))
-          this.$nextTick(() => {
-            this.initFieldGroup();
-          });
-        });
-    },
-    initFieldGroup() {
-      let localUiState = JSON.parse(localStorage.getItem(this.localUiStateKey));
-      if (Object.keys(this.block).length <= 2) {
-        // If array  has only _key and _uid and therefore is new
-        // This does not work, why ever: this.block = Object.assign({}, this.block, res.defaultValues);
-        Object.entries(this.fieldGroup.defaultValues).forEach(
-          ([key, value]) => {
-            this.$set(this.block, key, value);
-          }
-        );
-      }
-      if (!this.activeFieldSet) {
-        this.activeFieldSet = this.fieldSets[0].key;
-      }
-      if (
-        this.fieldGroup.defaultView &&
-        this.fieldGroup.defaultView != "default" &&
-        !this.isNew
-      ) {
-        if (this.fieldGroup.defaultView == "preview") {
-          this.showPreview = true;
-        } else {
-          this.activeFieldSet = this.fieldGroup.defaultView;
-        }
-      } else if (localUiState) {
-        this.showPreview = localUiState.showPreview;
-        this.activeFieldSet = localUiState.activeFieldSet;
-      } else {
-        this.storeLocalUiState();
-      }
-
-      if (this.fieldGroup.preview && this.showPreview && this.expanded) {
-        this.displayPreview(this.fieldGroup.preview);
-      }
-      this.$emit("input", this.block);
-    },
     onBlockInput(event) {
-      this.$emit("input", this.block);
+      this.$emit("input", this.val);
     },
     displayPreview() {
       this.showPreview = true;
@@ -345,11 +288,7 @@ export default {
       Object.keys(fieldSet.fields).forEach(fieldName => {
         const modelEndpoint = this.endpoints.model;
         fieldSet.fields[fieldName].endpoints = {
-          // field: `kirby-builder/${modelEndpoint}/fields/${this.blockPath}+${fieldSet.fields[fieldName].name}`,
-          field: `kirby-builder/${modelEndpoint}/blockblueprint/${this.blueprint.replace(
-            /\//g, // slash
-            "+"
-          )}/fields/${fieldSet.fields[fieldName].name}`,
+          field: `kirby-builder/${modelEndpoint}/fields/${this.blockPath}+${fieldSet.fields[fieldName].name}`,
           model: modelEndpoint,
           section: this.endpoints.section
         };
