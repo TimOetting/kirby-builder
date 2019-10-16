@@ -86,7 +86,8 @@ Kirby::plugin('timoetting/kirbybuilder', [
         //   return $fieldSets;
         // },
         'blockConfigs' => function () {
-          $blocks = $this->blocks;
+          // $blocks = $this->blocks || $this->fieldsets;
+          $blocks = $this->fieldsets;
           $blockConfigs = [];
           foreach ($blocks as $blockName => $property) {
             $blockConfigs[$blockName] = BuilderBlueprint::extend($property);
@@ -102,7 +103,8 @@ Kirby::plugin('timoetting/kirbybuilder', [
         },
         'reducedFieldsets' => function () {
           // TODO: Refactor name from Fieldset to Block
-          $fieldSets = $this->blocks;
+          // $fieldSets = $this->blocks || $this->fieldsets;
+          $fieldSets = $this->fieldsets;
           $reducedFieldsets = [];
           foreach ($fieldSets as $propertyName => $property) {
             $reducedFieldsets[$propertyName]["blueprint"] = $property;
