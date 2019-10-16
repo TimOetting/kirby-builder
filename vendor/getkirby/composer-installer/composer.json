@@ -1,0 +1,30 @@
+{
+    "name": "getkirby/composer-installer",
+    "description": "Kirby's custom Composer installer for the Kirby CMS and for Kirby plugins",
+    "type": "composer-plugin",
+    "license": "MIT",
+    "homepage": "https://getkirby.com",
+    "require": {
+        "composer-plugin-api": "^1.0"
+    },
+    "require-dev": {
+        "composer/composer": "^1.8",
+        "phpunit/phpunit": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kirby\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Kirby\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "./vendor/bin/phpunit --stderr --coverage-html=tests/coverage"
+    },
+    "extra": {
+        "class": "Kirby\\ComposerInstaller\\Plugin"
+    }
+}

@@ -24,6 +24,7 @@
   ],
   "require": {
     "php": ">=7.1.0",
-    "getkirby/composer-installer": "^1.1"
+    "getkirby/composer-installer": "^1.1",
+    "spatie/async": "^1.1"
   }
 }

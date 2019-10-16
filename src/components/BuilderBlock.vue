@@ -122,6 +122,7 @@ export default {
     BuilderPreview
   },
   mounted() {
+    console.log("block mounted", this._uid, this.block);
     if (!this.block._uid) {
       this.block._uid =
         this.block._key + "_" + new Date().valueOf() + "_" + this._uid;

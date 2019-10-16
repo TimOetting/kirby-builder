@@ -3,7 +3,9 @@
     :label="label"
     class="kBuilder"
     :class="classObject"
+    v-if="loaded"
   >
+    {{_uid}}
     <k-draggable
       class="kBuilder__blocks k-grid"
       @update="onBlockMoved"
@@ -103,7 +105,8 @@ export default {
       type: String,
       default: []
     },
-    fieldsets: Object,
+    // fieldsets: Object,
+    blockConfigs: Object,
     columns: Number,
     max: Number,
     label: String,
@@ -119,6 +122,7 @@ export default {
     BuilderBlock
   },
   mounted() {
+    console.log("mounted field", this._uid);
     for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
       fetch("/" + cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
         .then(res => {
@@ -137,6 +141,19 @@ export default {
           this.$set(this.jsContents, fieldSetKey, res);
         });
     }
+    this.$api
+      .post(
+        `kirby-builder/pages/${this.pageUid}/blocksbyconfig`,
+        this.blockConfigs
+      )
+      .then(res => {
+        console.log(">>>res");
+        console.log(res);
+        console.log(">>>this.fieldsets");
+        console.log(this.fieldsets);
+        this.fieldsets = res;
+        this.loaded = true;
+      });
   },
   data() {
     return {
@@ -146,7 +163,9 @@ export default {
       lastUniqueKey: 0,
       cssContents: {},
       jsContents: {},
-      dialogOpen: false
+      dialogOpen: false,
+      fieldsets: {},
+      loaded: false
     };
   },
   computed: {
@@ -246,6 +265,9 @@ export default {
       this.dialogOpen = false;
     },
     addBlock(key) {
+      if (this.value == null) {
+        this.value = [];
+      }
       const position =
         this.targetPosition == null ? this.value.length : this.targetPosition;
       const fieldSet = this.fieldsets[key];
@@ -282,28 +304,37 @@ export default {
       });
     },
     getBlankContent(key, fieldSet) {
-      let content = { _key: key };
-      if (fieldSet.fields) {
-        Object.keys(fieldSet.fields).forEach(fieldName => {
-          content[fieldName] =
-            fieldSet.fields[fieldName].value ||
-            fieldSet.fields[fieldName].default ||
-            null;
-        });
-      } else if (fieldSet.tabs) {
-        for (const tabName in fieldSet.tabs) {
-          if (fieldSet.tabs.hasOwnProperty(tabName)) {
-            const tab = fieldSet.tabs[tabName];
-            Object.keys(tab.fields).forEach(fieldName => {
-              content[fieldName] =
-                tab.fields[fieldName].value ||
-                tab.fields[fieldName].default ||
-                null;
-            });
-          }
-        }
-      }
-      return content;
+      console.log("fieldSet", fieldSet);
+      let blockContent = {
+        _key: key,
+        _uid: key + "_" + new Date().valueOf() + "_" + this._uid
+      };
+      Object.entries(fieldSet.defaultValues).forEach(([key, value]) => {
+        blockContent[key] = value;
+      });
+      return blockContent;
+      // let content = { _key: key };
+      // if (fieldSet.fields) {
+      //   Object.keys(fieldSet.fields).forEach(fieldName => {
+      //     content[fieldName] =
+      //       fieldSet.fields[fieldName].value ||
+      //       fieldSet.fields[fieldName].default ||
+      //       null;
+      //   });
+      // } else if (fieldSet.tabs) {
+      //   for (const tabName in fieldSet.tabs) {
+      //     if (fieldSet.tabs.hasOwnProperty(tabName)) {
+      //       const tab = fieldSet.tabs[tabName];
+      //       Object.keys(tab.fields).forEach(fieldName => {
+      //         content[fieldName] =
+      //           tab.fields[fieldName].value ||
+      //           tab.fields[fieldName].default ||
+      //           null;
+      //       });
+      //     }
+      //   }
+      // }
+      // return content;
     },
     deleteBlock(index) {
       this.clearLocalUiStates(this.value[index]);
