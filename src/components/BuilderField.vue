@@ -18,7 +18,7 @@
         class="kBuilder__column"
         :width="columnWidth"
         v-for="(blockValue, index) in value"
-        v-if="blockConfigs[blockValue._key]"
+        v-if="extendedBlockConfigs[blockValue._key]"
         :key="blockValue._uid"
       >
         <div
@@ -33,8 +33,9 @@
           :encoded-page-id="encodedPageId"
           :endpoints="endpoints"
           :block="blockValue"
-          :label="reducedFieldsets[blockValue._key].label || reducedFieldsets[blockValue._key].name"
-          :blockConfig="blockConfigs[blockValue._key]"
+          :label="extendedBlockConfigs[blockValue._key].label || extendedBlockConfigs[blockValue._key].name"
+          :blockConfig="extendedBlockConfigs[blockValue._key]"
+          :fieldGroup="extendedBlockConfigs[blockValue._key]"
           :index="index"
           :columns-count="columnsCount"
           :styles="cssContents[blockValue._key]"
@@ -71,7 +72,7 @@
       <k-list>
         <k-list-item
           :class="['kBuilder__addBlockButton', 'kBuilder__addBlockButton--' + key]"
-          v-for="(value, key) in reducedFieldsets"
+          v-for="(value, key) in extendedBlockConfigs"
           :key="key"
           :text="value.name || value.label"
           @click="addBlock(key)"
@@ -110,7 +111,7 @@ export default {
       default: [1, 2]
     },
     // fieldsets: Object,
-    reducedFieldsets: Object,
+    // reducedFieldsets: Object,
     blockConfigs: Object,
     columns: Number,
     max: Number,
@@ -128,7 +129,7 @@ export default {
     BuilderBlock
   },
   mounted() {
-    console.log(">>>mounted Builder Field", this._uid);
+    // TODO: clarify why this is necessary
     for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
       fetch("/" + cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
         .then(res => {
@@ -147,12 +148,52 @@ export default {
           this.$set(this.jsContents, fieldSetKey, res);
         });
     }
-    // TODO: clear why this is necessary
-    console.log(">>>>> this.value", this.value);
+
+    Object.entries(this.blockConfigs).forEach(([blockKey, blockConfig]) => {
+      const localExtendedBlockConfigKey = `kBuilder.extendedBlockConfigs.${JSON.stringify(
+        blockConfig
+      )}`;
+      const extendedBlockConfigFromLocalStorage = JSON.parse(
+        localStorage.getItem(localExtendedBlockConfigKey)
+      );
+      if (extendedBlockConfigFromLocalStorage) {
+        this.$set(
+          this.extendedBlockConfigs,
+          blockKey,
+          extendedBlockConfigFromLocalStorage
+        );
+        // this.fieldGroup = Object.assign({}, this.fieldGroup, extendedBlockConfigFromLocalStorage)
+        // this.initFieldGroup();
+      }
+      if (typeof blockConfig === "string") {
+        blockConfig = {
+          extends: blockConfig
+        };
+      }
+      this.$api
+        .post(
+          `kirby-builder/pages/${this.pageId}/blockformbyconfig`,
+          blockConfig
+        )
+        .then(res => {
+          // this.extendedBlockConfigs[blockKey] = res;
+          this.$set(this.extendedBlockConfigs, blockKey, res);
+          // this.fieldGroup = Object.assign({}, this.fieldGroup, res);
+          localStorage.setItem(
+            localExtendedBlockConfigKey,
+            JSON.stringify(res)
+          );
+          // this.$nextTick(() => {
+          //   this.initFieldGroup();
+          // });
+        });
+    });
+
+    // TODO: clarify why this is necessary
+
     if (this.value == null) {
       this.value = Array();
     }
-    console.log(">>>>> this.value after", this.value, this.value.length);
   },
   data() {
     return {
@@ -162,7 +203,8 @@ export default {
       lastUniqueKey: 0,
       cssContents: {},
       jsContents: {},
-      dialogOpen: false
+      dialogOpen: false,
+      extendedBlockConfigs: {}
     };
   },
   computed: {
@@ -196,10 +238,10 @@ export default {
       return this.value.length;
     },
     fieldsetCount() {
-      return Object.keys(this.reducedFieldsets).length;
+      return Object.keys(this.extendedBlockConfigs).length;
     },
     fieldsetKeys() {
-      return Object.keys(this.reducedFieldsets);
+      return Object.keys(this.extendedBlockConfigs);
     },
     addBlockButtonLabel() {
       return this.$t("add");
@@ -263,14 +305,13 @@ export default {
       this.dialogOpen = false;
     },
     addBlock(key) {
-      console.log(">>>this.value", this.value);
       if (this.value == null) {
         this.value = [];
       }
       const position =
         this.targetPosition == null ? this.value.length : this.targetPosition;
-      const fieldSet = this.reducedFieldsets[key];
-      this.value.splice(position, 0, this.getBlankContent(key, fieldSet));
+      const blockConfig = this.extendedBlockConfigs[key];
+      this.value.splice(position, 0, this.getBlankContent(key, blockConfig));
       // this.value[position].isNew = true;
       this.$emit("input", this.value);
       // this.$nextTick(function() {

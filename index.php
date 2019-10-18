@@ -11,35 +11,35 @@ use Kirby\Toolkit\I18n;
 require_once __DIR__ . '/lib/BuilderBlueprint.php';
 use KirbyBuilder\Builder\BuilderBlueprint;
 // load([ 'KirbyBuilder\\Cms\\BuilderBlueprint' => '/lib/BuilderBlueprint.php' ], __DIR__);
-// function callFieldAPI($ApiInstance, $fieldPath, $context, $path) {
-//   $fieldPath = Str::split($fieldPath, '+');
-//   $form = Form::for($context);
-//   $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
-//   $fieldApi = $ApiInstance->clone([
-//     'routes' => $field->api(),
-//     'data'   => array_merge($ApiInstance->data(), ['field' => $field])
-//   ]);
-//   return $fieldApi->call($path, $ApiInstance->requestMethod(), $ApiInstance->requestData());
-// }
-
-function callFieldAPI($ApiInstance, $model, $blockBlueprint, $field, $apiPath) {
-  // $blockBlueprint = Str::split($blockBlueprint, '+');
-  $blockBlueprint = str_replace("+", "/", $blockBlueprint);
-  $blockBlueprintProps = getExtendedBlockBlueprintProps($blockBlueprint, $model);
-  $blockForm = getBlockForm(null, $blockBlueprintProps, $model);
-  $blockFields = $blockForm->fields();
-  $field = $blockFields->find($field);
-  // $fieldPath = Str::split($fieldPath, '+');
-  // $form = Form::for($context);
-  // $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
+function callFieldAPI($ApiInstance, $fieldPath, $context, $path) {
+  $fieldPath = Str::split($fieldPath, '+');
+  $form = Form::for($context);
+  $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
   $fieldApi = $ApiInstance->clone([
     'routes' => $field->api(),
     'data'   => array_merge($ApiInstance->data(), ['field' => $field])
   ]);
-  // dump($field);
-  // dump($fieldApi);
-  return $fieldApi->call($apiPath, $ApiInstance->requestMethod(), $ApiInstance->requestData());
+  return $fieldApi->call($path, $ApiInstance->requestMethod(), $ApiInstance->requestData());
 }
+
+// function callFieldAPI($ApiInstance, $model, $blockBlueprint, $field, $apiPath) {
+//   // $blockBlueprint = Str::split($blockBlueprint, '+');
+//   $blockBlueprint = str_replace("+", "/", $blockBlueprint);
+//   $blockBlueprintProps = getExtendedBlockBlueprintProps($blockBlueprint, $model);
+//   $blockForm = getBlockForm(null, $blockBlueprintProps, $model);
+//   $blockFields = $blockForm->fields();
+//   $field = $blockFields->find($field);
+//   // $fieldPath = Str::split($fieldPath, '+');
+//   // $form = Form::for($context);
+//   // $field = fieldFromPath($fieldPath, $context, $form->fields()->toArray());
+//   $fieldApi = $ApiInstance->clone([
+//     'routes' => $field->api(),
+//     'data'   => array_merge($ApiInstance->data(), ['field' => $field])
+//   ]);
+//   // dump($field);
+//   // dump($fieldApi);
+//   return $fieldApi->call($apiPath, $ApiInstance->requestMethod(), $ApiInstance->requestData());
+// }
 
 function getBlockForm($value, $block, $model = null) {
   $fields = [];
@@ -86,44 +86,45 @@ Kirby::plugin('timoetting/kirbybuilder', [
         //   return $fieldSets;
         // },
         'blockConfigs' => function () {
-          // $blocks = $this->blocks || $this->fieldsets;
-          $blocks = $this->fieldsets;
-          $blockConfigs = [];
-          foreach ($blocks as $blockName => $property) {
-            $blockConfigs[$blockName] = BuilderBlueprint::extend($property);
-            // translate for add . Rest will be translated on follow-up request from client
-            if (array_key_exists("label", $blockConfigs[$blockName])) {
-              $blockConfigs[$blockName]["label"] = I18n::translate($blockConfigs[$blockName]["label"], $blockConfigs[$blockName]["label"]);
-            }
-            if (array_key_exists("name", $blockConfigs[$blockName])) {
-              $blockConfigs[$blockName]["name"] = I18n::translate($blockConfigs[$blockName]["name"], $blockConfigs[$blockName]["name"]);
-            }
-          }
-          return $blockConfigs;
+          return $this->fieldsets;
+          // // $blocks = $this->blocks || $this->fieldsets;
+          // $blocks = $this->fieldsets;
+          // $blockConfigs = [];
+          // foreach ($blocks as $blockName => $property) {
+          //   $blockConfigs[$blockName] = BuilderBlueprint::extend($property);
+          //   // translate for add . Rest will be translated on follow-up request from client
+          //   if (array_key_exists("label", $blockConfigs[$blockName])) {
+          //     $blockConfigs[$blockName]["label"] = I18n::translate($blockConfigs[$blockName]["label"], $blockConfigs[$blockName]["label"]);
+          //   }
+          //   if (array_key_exists("name", $blockConfigs[$blockName])) {
+          //     $blockConfigs[$blockName]["name"] = I18n::translate($blockConfigs[$blockName]["name"], $blockConfigs[$blockName]["name"]);
+          //   }
+          // }
+          // return $blockConfigs;
         },
-        'reducedFieldsets' => function () {
-          // TODO: Refactor name from Fieldset to Block
-          // $fieldSets = $this->blocks || $this->fieldsets;
-          $fieldSets = $this->fieldsets;
-          $reducedFieldsets = [];
-          foreach ($fieldSets as $propertyName => $property) {
-            $reducedFieldsets[$propertyName]["blueprint"] = $property;
-            $fieldSets[$propertyName] = BuilderBlueprint::extend($property);
-            // if (!array_key_exists("label", $fieldSets[$propertyName]) && !array_key_exists("name", $fieldSets[$propertyName])) {
-            //   // dump($propertyName);
-            //   // dump($fieldSets[$propertyName]);
-            //   $fieldSets[$propertyName] = BuilderBlueprint::extend($fieldSets[$propertyName]);
-            //   // dump($fieldSets[$propertyName]);
-            // }
-            if (array_key_exists("label", $fieldSets[$propertyName])) {
-              $reducedFieldsets[$propertyName]["label"] = I18n::translate($fieldSets[$propertyName]["label"], $fieldSets[$propertyName]["label"]);
-            }
-            if (array_key_exists("name", $fieldSets[$propertyName])) {
-              $reducedFieldsets[$propertyName]["name"] = I18n::translate($fieldSets[$propertyName]["name"], $fieldSets[$propertyName]["name"]);
-            }
-          }
-          return $reducedFieldsets;
-        },
+        // 'reducedFieldsets' => function () {
+        //   // TODO: Refactor name from Fieldset to Block
+        //   // $fieldSets = $this->blocks || $this->fieldsets;
+        //   $fieldSets = $this->fieldsets;
+        //   $reducedFieldsets = [];
+        //   foreach ($fieldSets as $propertyName => $property) {
+        //     $reducedFieldsets[$propertyName]["blueprint"] = $property;
+        //     $fieldSets[$propertyName] = BuilderBlueprint::extend($property);
+        //     // if (!array_key_exists("label", $fieldSets[$propertyName]) && !array_key_exists("name", $fieldSets[$propertyName])) {
+        //     //   // dump($propertyName);
+        //     //   // dump($fieldSets[$propertyName]);
+        //     //   $fieldSets[$propertyName] = BuilderBlueprint::extend($fieldSets[$propertyName]);
+        //     //   // dump($fieldSets[$propertyName]);
+        //     // }
+        //     if (array_key_exists("label", $fieldSets[$propertyName])) {
+        //       $reducedFieldsets[$propertyName]["label"] = I18n::translate($fieldSets[$propertyName]["label"], $fieldSets[$propertyName]["label"]);
+        //     }
+        //     if (array_key_exists("name", $fieldSets[$propertyName])) {
+        //       $reducedFieldsets[$propertyName]["name"] = I18n::translate($fieldSets[$propertyName]["name"], $fieldSets[$propertyName]["name"]);
+        //     }
+        //   }
+        //   return $reducedFieldsets;
+        // },
         // 'blockBlueprints' => function () {
         //   $fieldSets = Yaml::decode($this->fieldsets);
         //   return $fieldSets;
@@ -437,7 +438,11 @@ function fieldFromPath($fieldPath, $page, $fields) {
   if ($fieldProps['type'] === 'builder' && count($fieldPath) > 0) {
     $fieldsetKey = array_shift($fieldPath);
     // $fieldset = $fieldProps['fieldsets'][$fieldsetKey];
-    $fieldset = $fieldProps['blocks'][$fieldsetKey];
+    // $fieldset = $fieldProps['blocks'][$fieldsetKey];
+    $fieldset = $fieldProps['fieldsets'][$fieldsetKey];
+    // $fieldset = extendRecursively($fieldset, $page);
+    $fieldset = Blueprint::extend($fieldset);
+    $fieldset = extendRecursively($fieldset, $page, '__notNull');
     if (array_key_exists('tabs', $fieldset) && is_array($fieldset['tabs'])) {
       $fieldsetFields = [];
       foreach ( $fieldset['tabs'] as $tabKey => $tab) {
@@ -456,13 +461,14 @@ function fieldFromPath($fieldPath, $page, $fields) {
 }
 
 function extendRecursively($properties, $page, $currentPropertiesName = null) {
+  // $properties = BuilderBlueprint::extend($properties);
   if (array_key_exists("extends", $properties)) {
     $properties = BuilderBlueprint::extend($properties);
   }
   foreach ($properties as $propertyName => $property) {
     // if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
     // TODO: müsste es $currentPropertiesName !== "blocks" sein?
-    if(is_array($property) && $currentPropertiesName !== "blocks"){
+    if(is_array($property) && $currentPropertiesName !== "fieldsets"){
       $properties[$propertyName] = BuilderBlueprint::extend($property);
       $properties[$propertyName] = extendRecursively($properties[$propertyName], $page, $propertyName);
     }

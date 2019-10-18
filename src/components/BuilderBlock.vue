@@ -106,7 +106,7 @@ export default {
   props: {
     endpoints: Object,
     block: Object,
-    // fieldGroup: Object,
+    fieldGroup: Object,
     readyFieldGroup: Object,
     index: Number,
     label: String,
@@ -117,8 +117,8 @@ export default {
     styles: String,
     script: String,
     parentPath: String,
-    canDuplicate: Boolean,
-    blockConfig: Object
+    canDuplicate: Boolean
+    // blockConfig: Object
   },
   components: {
     BuilderPreview
@@ -151,7 +151,8 @@ export default {
     if (localUiState && localUiState.expanded !== null) {
       this.expanded = localUiState.expanded;
     }
-    this.loadBlockForm();
+    // this.loadBlockForm();
+    this.initFieldGroup();
   },
   data() {
     return {
