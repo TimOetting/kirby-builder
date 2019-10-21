@@ -32,7 +32,7 @@
           :page-uid="pageUid"
           :encoded-page-id="encodedPageId"
           :endpoints="endpoints"
-          :block="blockValue"
+          :value="blockValue"
           :label="extendedBlockConfigs[blockValue._key].label || extendedBlockConfigs[blockValue._key].name"
           :blockConfig="extendedBlockConfigs[blockValue._key]"
           :fieldGroup="extendedBlockConfigs[blockValue._key]"
@@ -42,6 +42,8 @@
           :script="jsContents[blockValue._key]"
           :parentPath="path"
           :canDuplicate="(!max || blockCount < max)"
+          :cssContent="(extendedBlockConfigs[blockValue._key].preview && cssContents[extendedBlockConfigs[blockValue._key].preview.css]) ? cssContents[extendedBlockConfigs[blockValue._key].preview.css] : 'bla'"
+          :cssContents="cssContents"
           @input="onBlockInput"
           @clone="cloneBlock"
           @delete="deleteBlock"
@@ -97,108 +99,26 @@ export default {
     counter: [Boolean, Object],
     disabled: Boolean,
     endpoints: Object,
-    help: String,
     input: [String, Number],
     name: [String, Number],
     required: Boolean,
     type: String,
     value: {
       type: Array,
-      default: [1, 2]
+      default: []
     },
-    valueTwo: {
-      type: Array,
-      default: [1, 2]
-    },
-    // fieldsets: Object,
-    // reducedFieldsets: Object,
     blockConfigs: Object,
     columns: Number,
     max: Number,
     label: String,
-    preview: Object,
     pageId: String,
     pageUid: String,
     encodedPageId: String,
-    cssUrls: String,
-    jsUrls: String,
-    parentPath: String,
-    content: Object
-  },
-  components: {
-    BuilderBlock
-  },
-  mounted() {
-    // TODO: clarify why this is necessary
-    for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
-      fetch("/" + cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
-        .then(res => {
-          return res.text();
-        })
-        .then(res => {
-          this.$set(this.cssContents, fieldSetKey, res);
-        });
-    }
-    for (const [fieldSetKey, jsUrls] of Object.entries(this.jsUrls)) {
-      fetch("/" + jsUrls.replace(/^\/+/g, "")) //regex removes leading slashes
-        .then(res => {
-          return res.text();
-        })
-        .then(res => {
-          this.$set(this.jsContents, fieldSetKey, res);
-        });
-    }
-
-    Object.entries(this.blockConfigs).forEach(([blockKey, blockConfig]) => {
-      const localExtendedBlockConfigKey = `kBuilder.extendedBlockConfigs.${JSON.stringify(
-        blockConfig
-      )}`;
-      const extendedBlockConfigFromLocalStorage = JSON.parse(
-        localStorage.getItem(localExtendedBlockConfigKey)
-      );
-      if (extendedBlockConfigFromLocalStorage) {
-        this.$set(
-          this.extendedBlockConfigs,
-          blockKey,
-          extendedBlockConfigFromLocalStorage
-        );
-        // this.fieldGroup = Object.assign({}, this.fieldGroup, extendedBlockConfigFromLocalStorage)
-        // this.initFieldGroup();
-      }
-      if (typeof blockConfig === "string") {
-        blockConfig = {
-          extends: blockConfig
-        };
-      }
-      this.$api
-        .post(
-          `kirby-builder/pages/${this.pageId}/blockformbyconfig`,
-          blockConfig
-        )
-        .then(res => {
-          // this.extendedBlockConfigs[blockKey] = res;
-          this.$set(this.extendedBlockConfigs, blockKey, res);
-          // this.fieldGroup = Object.assign({}, this.fieldGroup, res);
-          localStorage.setItem(
-            localExtendedBlockConfigKey,
-            JSON.stringify(res)
-          );
-          // this.$nextTick(() => {
-          //   this.initFieldGroup();
-          // });
-        });
-    });
-
-    // TODO: clarify why this is necessary
-
-    if (this.value == null) {
-      this.value = Array();
-    }
+    parentPath: String
   },
   data() {
     return {
       dragging: false,
-      toggle: true,
       targetPosition: null,
       lastUniqueKey: 0,
       cssContents: {},
@@ -206,6 +126,33 @@ export default {
       dialogOpen: false,
       extendedBlockConfigs: {}
     };
+  },
+  components: {
+    BuilderBlock
+  },
+  mounted() {
+    Object.entries(this.blockConfigs).forEach(([blockKey, blockConfig]) => {
+      const extendedBlockConfigLocalStorageKey = `kBuilder.extendedBlockConfigs.${JSON.stringify(
+        blockConfig
+      )}`;
+      this.loadExtendedBlockConfigFromLocalStorage(
+        this.extendedBlockConfigs,
+        blockKey,
+        extendedBlockConfigLocalStorageKey
+      );
+      this.loadBlockFormsByConfig(blockConfig).then(extendedBlockConfig => {
+        this.$set(this.extendedBlockConfigs, blockKey, extendedBlockConfig);
+        localStorage.setItem(
+          extendedBlockConfigLocalStorageKey,
+          JSON.stringify(extendedBlockConfig)
+        );
+        this.loadBlockPreviewStyle(this.cssContents, extendedBlockConfig);
+      });
+    });
+
+    if (this.value == null) {
+      this.value = Array();
+    }
   },
   computed: {
     classObject() {
@@ -246,12 +193,50 @@ export default {
     addBlockButtonLabel() {
       return this.$t("add");
     }
-    //TODO: benötigt?
-    // supportedBlockTypes() {
-    //   return Object.keys(this.fieldsets);
-    // }
   },
   methods: {
+    loadExtendedBlockConfigFromLocalStorage(
+      extendedBlockConfigs,
+      blockKey,
+      localStorageKey
+    ) {
+      const extendedBlockConfigFromLocalStorage = JSON.parse(
+        localStorage.getItem(localStorageKey)
+      );
+      if (extendedBlockConfigFromLocalStorage) {
+        this.$set(
+          extendedBlockConfigs,
+          blockKey,
+          extendedBlockConfigFromLocalStorage
+        );
+      }
+    },
+    loadBlockFormsByConfig(blockConfig) {
+      if (typeof blockConfig === "string") {
+        blockConfig = {
+          extends: blockConfig
+        };
+      }
+      return this.$api.post(
+        `kirby-builder/pages/${this.pageId}/blockformbyconfig`,
+        blockConfig
+      );
+    },
+    loadBlockPreviewStyle(cssContents, extendedBlockConfig) {
+      if (extendedBlockConfig.preview && extendedBlockConfig.preview.css) {
+        const cssUrl = extendedBlockConfig.preview.css;
+        if (!cssContents[cssUrl]) {
+          this.$set(cssContents, cssUrl, {});
+          return fetch("/" + cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
+            .then(res => {
+              return res.text();
+            })
+            .then(res => {
+              this.$set(cssContents, cssUrl, res);
+            });
+        }
+      }
+    },
     onBlockInput(event) {
       this.$emit("input", this.value);
     },
@@ -312,15 +297,11 @@ export default {
         this.targetPosition == null ? this.value.length : this.targetPosition;
       const blockConfig = this.extendedBlockConfigs[key];
       this.value.splice(position, 0, this.getBlankContent(key, blockConfig));
-      // this.value[position].isNew = true;
-      this.$emit("input", this.value);
-      // this.$nextTick(function() {
-      //   this.$emit("input", this.value);
-      // });
       this.targetPosition = null;
       if (this.dialogOpen) {
         this.$refs.dialog.close();
       }
+      this.$emit("input", this.value);
     },
     cloneBlock(index, showPreview, expanded, activeFieldSet) {
       let clone = JSON.parse(JSON.stringify(this.value[index]));
@@ -337,45 +318,18 @@ export default {
       if (activeFieldSet) {
         cloneValue.activeFieldSetInitially = activeFieldSet;
       }
-      // cloneValue.isNew = true;
       this.$emit("input", this.value);
-      this.$nextTick(function() {
-        this.$emit("input", this.value);
-      });
+    },
+    deleteBlock(index) {
+      this.clearLocalUiStates(this.value[index]);
+      this.value.splice(index, 1);
+      this.$emit("input", this.value);
     },
     getBlankContent(key, fieldSet) {
       return {
         _key: key,
         _uid: key + "_" + new Date().valueOf() + "_" + this._uid
       };
-      // let content = { _key: key };
-      // console.log('>>>>fieldSet', fieldSet);
-      // if (fieldSet.fields) {
-      //   Object.keys(fieldSet.fields).forEach(fieldName => {
-      //     content[fieldName] =
-      //       fieldSet.fields[fieldName].value ||
-      //       fieldSet.fields[fieldName].default ||
-      //       null;
-      //   });
-      // } else if (fieldSet.tabs) {
-      //   for (const tabName in fieldSet.tabs) {
-      //     if (fieldSet.tabs.hasOwnProperty(tabName)) {
-      //       const tab = fieldSet.tabs[tabName];
-      //       Object.keys(tab.fields).forEach(fieldName => {
-      //         content[fieldName] =
-      //           tab.fields[fieldName].value ||
-      //           tab.fields[fieldName].default ||
-      //           null;
-      //       });
-      //     }
-      //   }
-      // }
-      // return content;
-    },
-    deleteBlock(index) {
-      this.clearLocalUiStates(this.value[index]);
-      this.value.splice(index, 1);
-      this.$emit("input", this.value);
     },
     deepRemoveProperty(obj, property) {
       Object.keys(obj).forEach(prop => {

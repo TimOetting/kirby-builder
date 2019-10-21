@@ -2,7 +2,7 @@
   <div :class="[
     'kBuilderBlock', 
     'kBuilderBlock--col-' + columnsCount, 
-    'kBuilderBlock--type-' + block._key,
+    'kBuilderBlock--type-' + value._key,
     {'kBuilderBlock--previewMode': showPreview && expanded }, 
     {'kBuilderBlock--expanded': expanded },
     {'kBuilderBlock--pending': isNew },
@@ -23,7 +23,7 @@
           :class="{'kBuilderBlock__expandedIcon--expanded': expanded}"
           type="angle-down"
         />
-        <span v-html=title(block)></span>
+        <span v-html=title(value)></span>
       </span>
       <div class="kBuilderBlock__actions">
         <k-button-group class="kBuilderBlock__actionsGroup">
@@ -79,7 +79,7 @@
         v-if="fieldGroup.preview"
         v-show="showPreview"
         :markup="previewMarkup"
-        :styles="styles"
+        :styles="cssContent"
         :index="index"
         :script="script"
         ref="preview"
@@ -105,7 +105,7 @@ import Mustache from "mustache";
 export default {
   props: {
     endpoints: Object,
-    block: Object,
+    value: Object,
     fieldGroup: Object,
     readyFieldGroup: Object,
     index: Number,
@@ -114,45 +114,10 @@ export default {
     pageUid: String,
     pageId: String,
     encodedPageId: String,
-    styles: String,
     script: String,
     parentPath: String,
-    canDuplicate: Boolean
-    // blockConfig: Object
-  },
-  components: {
-    BuilderPreview
-  },
-  mounted() {
-    if (!this.block._uid) {
-      this.block._uid =
-        this.block._key + "_" + new Date().valueOf() + "_" + this._uid;
-    }
-    // if (this.block.isNew) {
-    //   this.isNew = true;
-    //   window.requestAnimationFrame(() => {
-    //     this.isNew = false;
-    //     delete this.block.isNew;
-    //   });
-    // }
-    if (this.block.activeFieldSetInitially) {
-      this.activeFieldSet = this.block.activeFieldSetInitially;
-      delete this.block.activeFieldSetInitially;
-    }
-    if (this.block.expandedInitially != null) {
-      this.expanded = this.block.expandedInitially;
-      delete this.block.expandedInitially;
-    }
-    if (this.block.showPreviewInitially) {
-      this.showPreview = this.block.showPreviewInitially;
-      delete this.block.showPreviewInitially;
-    }
-    let localUiState = JSON.parse(localStorage.getItem(this.localUiStateKey));
-    if (localUiState && localUiState.expanded !== null) {
-      this.expanded = localUiState.expanded;
-    }
-    // this.loadBlockForm();
-    this.initFieldGroup();
+    canDuplicate: Boolean,
+    cssContent: String
   },
   data() {
     return {
@@ -165,12 +130,39 @@ export default {
       previewStored: false,
       previewMarkup: "",
       showPreview: false,
-      fieldGroup: {}
+      fieldGroup: {},
+      styles: null
     };
+  },
+  components: {
+    BuilderPreview
+  },
+  mounted() {
+    if (!this.value._uid) {
+      this.value._uid =
+        this.value._key + "_" + new Date().valueOf() + "_" + this._uid;
+    }
+    if (this.value.activeFieldSetInitially) {
+      this.activeFieldSet = this.value.activeFieldSetInitially;
+      delete this.value.activeFieldSetInitially;
+    }
+    if (this.value.expandedInitially != null) {
+      this.expanded = this.value.expandedInitially;
+      delete this.value.expandedInitially;
+    }
+    if (this.value.showPreviewInitially) {
+      this.showPreview = this.value.showPreviewInitially;
+      delete this.value.showPreviewInitially;
+    }
+    let localUiState = JSON.parse(localStorage.getItem(this.localUiStateKey));
+    if (localUiState && localUiState.expanded !== null) {
+      this.expanded = localUiState.expanded;
+    }
+    this.initFieldGroup();
   },
   computed: {
     localUiStateKey() {
-      return `kBuilder.uiState.${this.block._uid}`;
+      return `kBuilder.uiState.${this.value._uid}`;
     },
     localFormGroupKey() {
       return `kBuilder.formGroup.${this.blueprint}`;
@@ -178,22 +170,8 @@ export default {
     extendedUid() {
       return this.pageId.replace("/", "-") + "-" + this._uid;
     },
-    previewUrl() {
-      if (this.previewStored) {
-        return (
-          "kirby-builder-preview/" +
-          this.extendedUid +
-          "?" +
-          this.objectToGetParams(this.fieldGroup.preview) +
-          "&pageid=" +
-          this.pageId
-        );
-      } else {
-        return null;
-      }
-    },
     blockPath() {
-      return this.parentPath + "+" + this.block._key;
+      return this.parentPath + "+" + this.value._key;
     },
     fieldSets() {
       let fieldSets = [];
@@ -201,7 +179,7 @@ export default {
         for (const tabKey in this.fieldGroup.tabs) {
           if (this.fieldGroup.tabs.hasOwnProperty(tabKey)) {
             const tab = this.fieldGroup.tabs[tabKey];
-            fieldSets.push(this.newFieldSet(tab, tabKey, this.block));
+            fieldSets.push(this.newFieldSet(tab, tabKey, this.value));
           }
         }
       } else if (this.fieldGroup.fields) {
@@ -209,7 +187,7 @@ export default {
           this.newFieldSet(
             this.fieldGroup,
             "content",
-            this.block,
+            this.value,
             "edit",
             this.$t("edit")
           )
@@ -217,60 +195,18 @@ export default {
       }
       return fieldSets;
     }
-    // title() {
-    //   return Mustache.render(this.label, this.block);
-    // return Mustache.render(this.label, this.block);
-    // if (!this.fieldGroup.label) {
-    //   return this.fieldGroup.name;
-    // } else {
-    //   return Mustache.render(this.fieldGroup.label, this.block);
-    // }
-    // }
   },
   methods: {
-    title(block) {
-      return Mustache.render(this.label, block);
-    },
-    loadBlockForm() {
-      // const fieldGroupFromLocalStorage = JSON.parse(localStorage.getItem(this.localFormGroupKey));
-      // if (fieldGroupFromLocalStorage) {
-      //   this.fieldGroup = Object.assign({}, this.fieldGroup, fieldGroupFromLocalStorage)
-      //   this.initFieldGroup();
-      // }
-
-      // this.$api
-      //   .get(
-      //     `kirby-builder/pages/${this.pageId}/blockformbybluebrint/${this.blueprint}`
-      //   )
-      //   .then(res => {
-      //     this.fieldGroup = Object.assign({}, this.fieldGroup, res);
-      //     // localStorage.setItem(this.localFormGroupKey, JSON.stringify(res))
-      //     this.$nextTick(() => {
-      //       this.initFieldGroup();
-      //     });
-      //   });
-
-      this.$api
-        .post(
-          `kirby-builder/pages/${this.pageId}/blockformbyconfig`,
-          this.blockConfig
-        )
-        .then(res => {
-          this.fieldGroup = Object.assign({}, this.fieldGroup, res);
-          // localStorage.setItem(this.localFormGroupKey, JSON.stringify(res))
-          this.$nextTick(() => {
-            this.initFieldGroup();
-          });
-        });
+    title(blockValue) {
+      return Mustache.render(this.label, blockValue);
     },
     initFieldGroup() {
       let localUiState = JSON.parse(localStorage.getItem(this.localUiStateKey));
-      if (Object.keys(this.block).length <= 2) {
+      if (Object.keys(this.value).length <= 2) {
         // If array  has only _key and _uid and therefore is new
-        // This does not work, why ever: this.block = Object.assign({}, this.block, res.defaultValues);
         Object.entries(this.fieldGroup.defaultValues).forEach(
           ([key, value]) => {
-            this.$set(this.block, key, value);
+            this.$set(this.value, key, value);
           }
         );
       }
@@ -297,17 +233,17 @@ export default {
       if (this.fieldGroup.preview && this.showPreview && this.expanded) {
         this.displayPreview(this.fieldGroup.preview);
       }
-      this.$emit("input", this.block);
+      this.$emit("input", this.value);
     },
     onBlockInput(event) {
-      this.$emit("input", this.block);
+      this.$emit("input", this.value);
     },
     displayPreview() {
       this.showPreview = true;
       this.expanded = true;
       let previewData = {
         preview: this.fieldGroup.preview,
-        blockContent: this.block,
+        blockContent: this.value,
         block: this.fieldGroup,
         blockUid: this.extendedUid,
         pageid: this.pageId
@@ -327,10 +263,6 @@ export default {
       this.previewHeight = 0;
       this.storeLocalUiState();
     },
-    onPreviewLoaded(event) {
-      this.previewHeight = event.detail.height;
-      this.activeFieldSet = null;
-    },
     toggleExpand(expanded) {
       if (typeof expanded === "boolean") {
         this.expanded = expanded;
@@ -347,10 +279,6 @@ export default {
         const modelEndpoint = this.endpoints.model;
         fieldSet.fields[fieldName].endpoints = {
           field: `kirby-builder/${modelEndpoint}/fields/${this.blockPath}+${fieldSet.fields[fieldName].name}`,
-          // field: `kirby-builder/${modelEndpoint}/blockblueprint/${this.blueprint.replace(
-          //   /\//g, // slash
-          //   "+"
-          // )}/fields/${fieldSet.fields[fieldName].name}`,
           model: modelEndpoint,
           section: this.endpoints.section
         };
