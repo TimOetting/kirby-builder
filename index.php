@@ -139,44 +139,28 @@ Kirby::plugin('timoetting/kirbybuilder', [
   'api' => [
     'routes' => [
       [
-        'pattern' => 'kirby-builder/pages/(:any)/blockformbybluebrint/(:all?)',
-        'action'  => function (string $pageUid, string $blueprint) {       
-          $page = kirby()->page($pageUid);
-          $blockConfig = kirby()->request()->data();
-          $extendedProps = getExtendedBlockBlueprintProps($blueprint, $page);
-          $defaultValues = [];
-          if(array_key_exists("tabs", $extendedProps)) {
-            $tabs = $extendedProps['tabs'];
-            foreach ( $tabs as $tabKey => &$tab) {
-              $tabForm = getBlockForm(null, $tab, $page);
-              $defaultValues = array_merge($defaultValues, $tabForm->data(true));
-            }
-          } else {
-            $blockForm = getBlockForm(null, $extendedProps, $page);
-            $defaultValues = $blockForm->data(true);
-          }
-          $extendedProps["defaultValues"] = $defaultValues;
-          return $extendedProps;
-        }
-      ],
-      [
         'pattern' => 'kirby-builder/pages/(:any)/blockformbyconfig',
         'method' => 'POST',
         'action'  => function (string $pageUid) {
           $page = kirby()->page($pageUid);
           $blockConfig = kirby()->request()->data();
-          // $extendedProps = getExtendedBlockBlueprintProps($blueprint, $page);
           $extendedProps = extendRecursively($blockConfig, $page);
           $defaultValues = [];
           if(array_key_exists("tabs", $extendedProps)) {
             $tabs = $extendedProps['tabs'];
             foreach ( $tabs as $tabKey => &$tab) {
-              $tabForm = getBlockForm(null, $tab, $page);
-              $defaultValues = array_merge($defaultValues, $tabForm->data(true));
+              foreach ($tab["fields"] as $fieldKey => &$field) {
+                if (array_key_exists("default", $field)) {
+                  $defaultValues[$fieldKey] = $field["default"];
+                }
+              }
             }
           } else {
-            $blockForm = getBlockForm(null, $extendedProps, $page);
-            $defaultValues = $blockForm->data(true);
+            foreach ($extendedProps["fields"] as $fieldKey => &$field) {
+              if (array_key_exists("default", $field)) {
+                $defaultValues[$fieldKey] = $field["default"];
+              }
+            }
           }
           $extendedProps["defaultValues"] = $defaultValues;
           return $extendedProps;

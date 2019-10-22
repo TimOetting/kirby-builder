@@ -296,6 +296,7 @@ export default {
       const position =
         this.targetPosition == null ? this.value.length : this.targetPosition;
       const blockConfig = this.extendedBlockConfigs[key];
+      //TODO muss hier getBlankContnt geändert werden, damit die defaults auch als bools übernommen werden
       this.value.splice(position, 0, this.getBlankContent(key, blockConfig));
       this.targetPosition = null;
       if (this.dialogOpen) {

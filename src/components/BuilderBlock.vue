@@ -90,8 +90,9 @@
         v-for="fieldSet in fieldSets"
         class="kBuilderBlock__form"
         v-model="fieldSet.model"
+        :value="{}"
         :fields="fieldSet.fields"
-        :validate="true"
+        :validate="false"
         v-on="$listeners"
         :key="fieldSet.key + _uid"
       />
