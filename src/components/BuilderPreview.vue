@@ -125,7 +125,6 @@ export default {
         const content = this.previewFrameDocument.getElementById(
           "kirby-builder-body"
         );
-        console.log(">>>content.scrollHeight", content.scrollHeight);
         const contentHeight = content.scrollHeight;
         if (contentHeight > 0) {
           this.previewHeight = contentHeight;

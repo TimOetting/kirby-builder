@@ -92,35 +92,48 @@ Kirby::plugin('timoetting/kirbybuilder', [
           return getBlockForm($value, $block, $this->model());
         },
       ],
-      // TODO: Rebuild Validation (pass _blueprint along with _key and _uid)
-      // 'validations' => [
-      //   'validateChildren' => function ($values) {
-      //     $errorMessages = [];
-      //     foreach ($values as $key => $value) {
-      //       $blockKey = $value['_key'];
-      //       $block = $this->fieldsets[$blockKey];
-      //       if (array_key_exists($blockKey, $this->fieldsets)) {
-      //         $form = $this->getBlockForm($value, $block);
-      //         if ($form->errors()) {
-      //           foreach ($form->errors() as $fieldKey => $error) {
-      //             foreach ($error["message"] as $errorKey => $message) {
-      //               if ($errorKey != "validateChildren") {
-      //                 $errorMessages[] = $error['label'] . ': ' . $message;
-      //               } else {
-      //                 $errorMessages[] = $message;
-      //               }
-      //             }
-      //           }
-      //         }
-      //       }
-      //     }
-      //     if (count($errorMessages)) {
-      //       throw new Exception(implode("\n", $errorMessages));
-      //     }
-      //   }
-      // ],
+      'validations' => [
+        'validateChildren' => function ($values) {
+          $errorMessages = [];
+          $blockConfigs = [];
+          foreach ($values as $key => $value) {
+            if (!array_key_exists("_key", $value)) {
+              dump($value);
+            }
+            $blockKey = $value['_key'];
+            if (array_key_exists($blockKey, $this->fieldsets) && !array_key_exists($blockKey, $blockConfigs)) {
+              $blockConfigs = array_merge(extendRecursively([$blockKey => $this->fieldsets[$blockKey]], $this->model(), null, true), $blockConfigs);
+            }
+          }
+          foreach ($values as $value) {
+            $blockKey = $value['_key'];
+            $block = $blockConfigs[$blockKey];
+            if (array_key_exists($blockKey, $blockConfigs)) {
+              $form = $this->getBlockForm($value, $block);
+              if ($form->errors()) {
+                foreach ($form->errors() as $fieldKey => $error) {
+                  foreach ($error["message"] as $errorKey => $message) {
+                    if ($errorKey != "validateChildren") {
+                      $errorMessage = "";
+                      if (array_key_exists('name', $block)) {
+                        $errorMessage .= $block["name"] . "/";
+                      }
+                      $errorMessage .= $error['label'] . ': ' . $message;
+                      $errorMessages[] = $errorMessage;
+                    } else {
+                      $errorMessages[] = $message;
+                    }
+                  }
+                }
+              }
+            }
+          }
+          if (count($errorMessages)) {
+            throw new Exception(implode("\n", $errorMessages));
+          }
+        }
+      ],
       'save' => function ($values = null) {
-        // return $this->getData($values);
         return $values;
       },
     ],
@@ -299,7 +312,7 @@ function fieldFromPath($fieldPath, $page, $fields) {
   }
 }
 
-function extendRecursively($properties, $page, $currentPropertiesName = null) {
+function extendRecursively($properties, $page, $currentPropertiesName = null, $force = false) {
   // $properties = BuilderBlueprint::extend($properties);
   if (array_key_exists("extends", $properties)) {
     $properties = BuilderBlueprint::extend($properties);
@@ -307,7 +320,7 @@ function extendRecursively($properties, $page, $currentPropertiesName = null) {
   foreach ($properties as $propertyName => $property) {
     // if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
     // TODO: müsste es $currentPropertiesName !== "blocks" sein?
-    if(is_array($property) && $currentPropertiesName !== "fieldsets"){
+    if($force || (is_array($property) && $currentPropertiesName !== "fieldsets")){
       $properties[$propertyName] = BuilderBlueprint::extend($property);
       $properties[$propertyName] = extendRecursively($properties[$propertyName], $page, $propertyName);
     }
