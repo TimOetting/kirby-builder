@@ -57,13 +57,10 @@ Kirby::plugin('timoetting/kirbybuilder', [
           return $this->fieldsets;
         },
         'value' => function () {
-          $values = [];
-          if ($this->value) {
-            $values = Yaml::decode($this->value);
-          } else if ($this->default) {
-            $values = Yaml::decode($this->default);
-          }
-          return $values;
+
+          $values = Yaml::decode($this->value);
+          $blockConfigs = $this->getBlockConfigs($values);
+          return $this->getValues($values, $blockConfigs);
         },
         'cssUrls' => function() {
           return [];
@@ -73,20 +70,49 @@ Kirby::plugin('timoetting/kirbybuilder', [
         }       
       ],
       'methods' => [
-        'getData' => function ($values) {
+        'getData' => function ($values, $blockConfigs) {
           $vals = [];
           if ($values == null) {
             return $vals;
           }
           foreach ($values as $key => $value) {
             $blockKey = $value['_key'];
-            if (array_key_exists($blockKey, $this->fieldsets)) {
-              $block = $this->fieldsets[$blockKey];
+            if (array_key_exists($blockKey, $blockConfigs)) {
+              $block = $blockConfigs[$blockKey];
               $form = $this->getBlockForm($value, $block);
             }
             $vals[] = $form->data();
           }
           return $vals;
+        },
+        'getValues' => function ($values, $blockConfigs) {
+          $vals = [];
+          if ($values == null) {
+            return $vals;
+          }
+          foreach ($values as $key => $value) {
+            $blockKey = $value['_key'];
+            if (array_key_exists($blockKey, $blockConfigs)) {
+              $block = $blockConfigs[$blockKey];
+              $form = $this->getBlockForm($value, $block);
+            }
+            $vals[] = $form->values();
+          }
+          return $vals;
+        },
+        'getBlockConfigs' => function ($values) {
+          $blockConfigs = [];
+          $cache = [];
+          if (empty($values)) {
+            return $blockConfigs;
+          }
+          foreach ($values as $key => $value) {
+            $blockKey = $value['_key'];
+            if (array_key_exists($blockKey, $this->fieldsets) && !array_key_exists($blockKey, $blockConfigs)) {
+              $blockConfigs = array_merge(extendRecursively([$blockKey => $this->fieldsets[$blockKey]], $this->model(), null, true, $cache), $blockConfigs);
+            }
+          }
+          return $blockConfigs;
         },
         'getBlockForm' => function ($value, $block) {
           return getBlockForm($value, $block, $this->model());
@@ -95,16 +121,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
       'validations' => [
         'validateChildren' => function ($values) {
           $errorMessages = [];
-          $blockConfigs = [];
-          foreach ($values as $key => $value) {
-            if (!array_key_exists("_key", $value)) {
-              dump($value);
-            }
-            $blockKey = $value['_key'];
-            if (array_key_exists($blockKey, $this->fieldsets) && !array_key_exists($blockKey, $blockConfigs)) {
-              $blockConfigs = array_merge(extendRecursively([$blockKey => $this->fieldsets[$blockKey]], $this->model(), null, true), $blockConfigs);
-            }
-          }
+          $blockConfigs = $this->getBlockConfigs($values);
           foreach ($values as $value) {
             $blockKey = $value['_key'];
             $block = $blockConfigs[$blockKey];
@@ -134,7 +151,13 @@ Kirby::plugin('timoetting/kirbybuilder', [
         }
       ],
       'save' => function ($values = null) {
-        return $values;
+        $blockConfigs = $this->getBlockConfigs($values);
+        foreach ($values as $index => &$value) {
+          if (array_key_exists('_blockconfig', $value)) {
+            unset($value['_blockconfig']);
+          }
+        }
+        return $this->getData($values, $blockConfigs);
       },
     ],
   ],
@@ -221,7 +244,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
           $snippet      = $previewOptions['snippet'] ?? null;
           $modelName    = $previewOptions['modelname'] ?? 'data';
           $originalPage = $kirby->page(get('pageid'));
-          $form = getBlockForm($blockContent, $block,$originalPage);
+          $form = getBlockForm($blockContent, $block, $originalPage);
           return array(
             'preview' => snippet($snippet, ['page' => $originalPage, $modelName => new Content($form->data(), $originalPage)], true) ,
             'content' => get('blockContent')
@@ -289,11 +312,8 @@ function fieldFromPath($fieldPath, $page, $fields) {
   $fieldProps = $fields[$fieldName];
   if ($fieldProps['type'] === 'builder' && count($fieldPath) > 0) {
     $fieldsetKey = array_shift($fieldPath);
-    // $fieldset = $fieldProps['fieldsets'][$fieldsetKey];
-    // $fieldset = $fieldProps['blocks'][$fieldsetKey];
     $fieldset = $fieldProps['fieldsets'][$fieldsetKey];
-    // $fieldset = extendRecursively($fieldset, $page);
-    $fieldset = Blueprint::extend($fieldset);
+    $fieldset = BuilderBlueprint::extend($fieldset);
     $fieldset = extendRecursively($fieldset, $page, '__notNull');
     if (array_key_exists('tabs', $fieldset) && is_array($fieldset['tabs'])) {
       $fieldsetFields = [];
@@ -312,17 +332,14 @@ function fieldFromPath($fieldPath, $page, $fields) {
   }
 }
 
-function extendRecursively($properties, $page, $currentPropertiesName = null, $force = false) {
-  // $properties = BuilderBlueprint::extend($properties);
+function extendRecursively($properties, $page, $currentPropertiesName = null, $force = false, &$cache = []) {
   if (array_key_exists("extends", $properties)) {
-    $properties = BuilderBlueprint::extend($properties);
+    $properties = BuilderBlueprint::extend($properties, $cache);
   }
   foreach ($properties as $propertyName => $property) {
-    // if(is_array($property) || (is_string($property) && $currentPropertiesName === "fieldsets")){
-    // TODO: müsste es $currentPropertiesName !== "blocks" sein?
-    if($force || (is_array($property) && $currentPropertiesName !== "fieldsets")){
-      $properties[$propertyName] = BuilderBlueprint::extend($property);
-      $properties[$propertyName] = extendRecursively($properties[$propertyName], $page, $propertyName);
+    if($force || (is_array($property) && $currentPropertiesName !== "fieldsets")){ // $currentPropertiesName !== "fieldsets" vllt raus
+      $properties[$propertyName] = BuilderBlueprint::extend($property, $cache);
+      $properties[$propertyName] = extendRecursively($properties[$propertyName], $page, $propertyName, false, $cache);
     }
     if($propertyName === "label" || $propertyName === "name") {
       $translatedText = I18n::translate($property, $property);
@@ -339,10 +356,4 @@ function extendRecursively($properties, $page, $currentPropertiesName = null, $f
     $properties = $fieldForm->fields()->toArray();
   }
   return $properties;
-}
-
-function getExtendedBlockBlueprintProps($blockBlueprint, $page) {
-  $mixin = Blueprint::find($blockBlueprint);
-  $props = Data::read($mixin);
-  return extendRecursively($props, $page);
 }

@@ -47,6 +47,7 @@
           @input="onBlockInput"
           @clone="cloneBlock"
           @delete="deleteBlock"
+          @transformed="updateValue(index, $event)"
         />
         <div
           v-if="(columnsCount % index == 0 && columnsCount > 1 && (!max || blockCount < max))"
@@ -149,7 +150,6 @@ export default {
         this.loadBlockPreviewStyle(this.cssContents, extendedBlockConfig);
       });
     });
-
     if (this.value == null) {
       this.value = Array();
     }
@@ -195,6 +195,11 @@ export default {
     }
   },
   methods: {
+    updateValue(valuePosition, newValue) {
+      // console.log(">>>", newValue);
+      // this.value[0] = newValue;
+      this.$set(this.value, valuePosition, newValue);
+    },
     loadExtendedBlockConfigFromLocalStorage(
       extendedBlockConfigs,
       blockKey,

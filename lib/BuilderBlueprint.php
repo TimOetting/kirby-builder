@@ -20,7 +20,7 @@ class BuilderBlueprint extends Blueprint
      * @param array|string $props
      * @return array
      */
-    public static function extend($props): array
+    public static function extend($props, &$cache = []): array
     {
         if (is_string($props) === true) {
             $props = [
@@ -42,7 +42,9 @@ class BuilderBlueprint extends Blueprint
             $props = A::merge($mixin, $props, A::MERGE_REPLACE);
         } else {
             try {
-                $propsFromExtension = Data::read($mixin);
+                $propsFromExtension = $cache[$mixin] ?? Data::read($mixin);
+                // $propsFromExtension = Data::read($mixin);
+                $cache[$mixin] = $propsFromExtension;
                 $props = A::merge($propsFromExtension, $props, A::MERGE_REPLACE);
                 if (array_key_exists("extends", $propsFromExtension)) {
                     $props["extends"] = $propsFromExtension["extends"];
@@ -56,7 +58,7 @@ class BuilderBlueprint extends Blueprint
         if ($extends === $props['extends']) {
             unset($props['extends']);
         } else {
-            $props = static::extend($props);
+            $props = static::extend($props, $cache);
         }
         return $props;
     }
