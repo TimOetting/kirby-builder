@@ -152,9 +152,11 @@ Kirby::plugin('timoetting/kirbybuilder', [
       ],
       'save' => function ($values = null) {
         $blockConfigs = $this->getBlockConfigs($values);
-        foreach ($values as $index => &$value) {
-          if (array_key_exists('_blockconfig', $value)) {
-            unset($value['_blockconfig']);
+        if ($values) {
+          foreach ($values as $index => &$value) {
+            if (array_key_exists('_blockconfig', $value)) {
+              unset($value['_blockconfig']);
+            }
           }
         }
         return $this->getData($values, $blockConfigs);
