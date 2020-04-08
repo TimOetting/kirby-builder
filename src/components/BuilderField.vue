@@ -207,9 +207,9 @@ export default {
     },
     onDragEnd(event) {
       this.dragging = false;
+      this.$root.$emit("blockMoved");
     },
     onMove(event) {
-      this.$root.$emit("blockMoved");
       return event.relatedContext.index != this.value.length + 1;
     },
     onStartDrag(event) {
