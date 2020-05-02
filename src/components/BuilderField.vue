@@ -120,7 +120,7 @@ export default {
   },
   mounted() {
     for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
-      fetch("/" + cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
+      fetch(cssUrl)
         .then(res => {
           return res.text();
         })
@@ -128,8 +128,8 @@ export default {
           this.$set(this.cssContents, fieldSetKey, res);
         });
     }
-    for (const [fieldSetKey, jsUrls] of Object.entries(this.jsUrls)) {
-      fetch("/" + jsUrls.replace(/^\/+/g, "")) //regex removes leading slashes
+    for (const [fieldSetKey, jsUrl] of Object.entries(this.jsUrls)) {
+      fetch(jsUrl)
         .then(res => {
           return res.text();
         })
@@ -207,9 +207,9 @@ export default {
     },
     onDragEnd(event) {
       this.dragging = false;
+      this.$root.$emit("blockMoved");
     },
     onMove(event) {
-      this.$root.$emit("blockMoved");
       return event.relatedContext.index != this.value.length + 1;
     },
     onStartDrag(event) {

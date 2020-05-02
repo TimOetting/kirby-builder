@@ -92,7 +92,7 @@ export default {
   },
   methods: {
     updateContent() {
-      this.$nextTick().then(() => {
+      this.$nextTick(() => {
         if (this.$refs["previewFrame"]) {
           this.previewFrameWindow = this.$refs["previewFrame"].contentWindow;
           this.previewFrameDocument = this.previewFrameWindow.document;
@@ -106,7 +106,7 @@ export default {
       });
     },
     updateFrameIfEmpty() {
-      this.$nextTick().then(() => {
+      this.$nextTick(() => {
         if (this.$refs["previewFrame"]) {
           const contentElement = this.$refs[
             "previewFrame"
