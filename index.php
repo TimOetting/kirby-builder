@@ -212,6 +212,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
           $blockContent     = get('blockContent');
           $block            = get('block');
           $previewOptions   = get('preview');
+          $pageId           = get('pageid');
           $cache            = $kirby->cache('timoetting.builder');
           $existingPreviews = $cache->get('previews');
           if(isset($existingPreviews)) {
@@ -224,7 +225,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
           }
           $snippet      = $previewOptions['snippet'] ?? null;
           $modelName    = $previewOptions['modelname'] ?? 'data';
-          $originalPage = $kirby->page(get('pageid'));
+          $originalPage = $pageId ? $kirby->page($pageId) : $kirby->site();
           $form = getBlockForm($blockContent, $block,$originalPage);
           return array(
             'preview' => snippet($snippet, ['page' => $originalPage, $modelName => new Content($form->data(), $originalPage)], true) ,
