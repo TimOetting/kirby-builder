@@ -22,7 +22,7 @@
             {{styles}}
           </style>
         </head>
-        <body>
+        <body id="kirby-builder-body">
           <div id="kirby-builder-content">
             {{markup}}
           </div>
@@ -123,7 +123,7 @@ export default {
     resize() {
       if (this.previewFrameDocument.getElementById) {
         const content = this.previewFrameDocument.getElementById(
-          "kirby-builder-content"
+          "kirby-builder-body"
         );
         const contentHeight = content.scrollHeight;
         if (contentHeight > 0) {

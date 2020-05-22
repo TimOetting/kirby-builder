@@ -113,7 +113,7 @@ mybuilder:
 
 ## Template Usage
 
-There are different ways to use the builder field inside a template. A clean approach for this is to use different snippets inside `site/snippets/sections/` that have the same file name like the field set names in the blueprint. In this case, we use the same snippet that we used for the preview inside the panel.
+There are different ways to use the builder field inside a template. A clean approach for this is to use different snippets inside `site/snippets/blocks/` that have the same file name like the field set names in the blueprint. In this case, we use the same snippet that we used for the preview inside the panel.
 
 ```php
 <?php # /site/templates/yourtemplate.php

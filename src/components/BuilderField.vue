@@ -18,12 +18,16 @@
         class="kBuilder__column"
         :width="columnWidth"
         v-for="(blockValue, index) in value"
+        v-if="extendedBlockConfigs[blockValue._key]"
         :key="blockValue._uid"
       >
         <div
           class="kBuilder__inlineAddButton"
           v-if="!max || blockCount < max"
-          :class="{'kBuilder__inlineAddButton--horizontal': (columnsCount == 1), 'kBuilder__inlineAddButton--vertical': (columnsCount > 1)}"
+          :class="{
+            'kBuilder__inlineAddButton--horizontal': columnsCount == 1,
+            'kBuilder__inlineAddButton--vertical': columnsCount > 1
+          }"
           @click="onClickAddBlock(index)"
         ></div>
         <builder-block
@@ -31,20 +35,37 @@
           :page-uid="pageUid"
           :encoded-page-id="encodedPageId"
           :endpoints="endpoints"
-          :block="blockValue"
-          :fieldGroup="fieldsets[blockValue._key]"
+          :value="blockValue"
+          :label="
+            extendedBlockConfigs[blockValue._key].label ||
+              extendedBlockConfigs[blockValue._key].name
+          "
+          :blockConfig="extendedBlockConfigs[blockValue._key]"
+          :fieldGroup="extendedBlockConfigs[blockValue._key]"
           :index="index"
           :columns-count="columnsCount"
           :styles="cssContents[blockValue._key]"
           :script="jsContents[blockValue._key]"
           :parentPath="path"
-          :canDuplicate="(!max || blockCount < max)"
+          :canDuplicate="!max || blockCount < max"
+          :cssContent="
+            extendedBlockConfigs[blockValue._key].preview &&
+            cssContents[extendedBlockConfigs[blockValue._key].preview.css]
+              ? cssContents[extendedBlockConfigs[blockValue._key].preview.css]
+              : ''
+          "
+          :cssContents="cssContents"
           @input="onBlockInput"
           @clone="cloneBlock"
           @delete="deleteBlock"
+          @transformed="updateValue(index, $event)"
         />
         <div
-          v-if="(columnsCount % index == 0 && columnsCount > 1 && (!max || blockCount < max))"
+          v-if="
+            columnsCount % index == 0 &&
+              columnsCount > 1 &&
+              (!max || blockCount < max)
+          "
           class="kBuilder__inlineAddButton kBuilder__inlineAddButton--vertical kBuilder__inlineAddButton--after"
           @click="onClickAddBlock(index + 1)"
         ></div>
@@ -57,7 +78,7 @@
           icon="add"
           @click="onClickAddBlock()"
           class="kBuilder__addButton"
-        >{{addBlockButtonLabel}}</k-button>
+        >{{ addBlockButtonLabel }}</k-button>
       </k-column>
     </k-draggable>
     <k-dialog
@@ -68,8 +89,11 @@
     >
       <k-list>
         <k-list-item
-          :class="['kBuilder__addBlockButton', 'kBuilder__addBlockButton--' + key]"
-          v-for="(value, key) in fieldsets"
+          :class="[
+            'kBuilder__addBlockButton',
+            'kBuilder__addBlockButton--' + key
+          ]"
+          v-for="(value, key) in extendedBlockConfigs"
           :key="key"
           :text="value.name || value.label"
           @click="addBlock(key)"
@@ -94,60 +118,59 @@ export default {
     counter: [Boolean, Object],
     disabled: Boolean,
     endpoints: Object,
-    help: String,
     input: [String, Number],
     name: [String, Number],
     required: Boolean,
     type: String,
     value: {
-      type: String,
+      type: Array,
       default: []
     },
+    blockConfigs: Object,
     fieldsets: Object,
     columns: Number,
     max: Number,
     label: String,
-    preview: Object,
     pageId: String,
     pageUid: String,
     encodedPageId: String,
-    cssUrls: String,
-    jsUrls: String,
-    parentPath: String
+    parentPath: String,
+    pending: Boolean
+  },
+  data() {
+    return {
+      dragging: false,
+      targetPosition: null,
+      lastUniqueKey: 0,
+      cssContents: {},
+      jsContents: {},
+      dialogOpen: false,
+      extendedBlockConfigs: {}
+    };
   },
   components: {
     BuilderBlock
   },
   mounted() {
-    for (const [fieldSetKey, cssUrl] of Object.entries(this.cssUrls)) {
-      fetch("/" + cssUrl.replace(/^\/+/g, "")) //regex removes leading slashes
-        .then(res => {
-          return res.text();
+    if (this.pending) {
+      // If this is a nested builder, the fieldsets of nested builders have not yet been extended. This happens asynchronously. therfore, the block field is "pending".
+      this.$api
+        .post(`kirby-builder/pages/${this.pageId}/builderconfig`, {
+          fieldsets: this.fieldsets,
+          value: this.value
         })
-        .then(res => {
-          this.$set(this.cssContents, fieldSetKey, res);
+        .then(extendedBuilderConfig => {
+          this.extendedBlockConfigs = extendedBuilderConfig.fieldsets;
+          this.value = extendedBuilderConfig.value;
+          this.loadBlockPreviewStyles();
         });
+    } else {
+      this.extendedBlockConfigs = this.fieldsets;
+      if (this.value == null) {
+        this.value = Array();
+      }
+      this.loadBlockPreviewStyles();
     }
-    for (const [fieldSetKey, jsUrls] of Object.entries(this.jsUrls)) {
-      fetch("/" + jsUrls.replace(/^\/+/g, "")) //regex removes leading slashes
-        .then(res => {
-          return res.text();
-        })
-        .then(res => {
-          this.$set(this.jsContents, fieldSetKey, res);
-        });
-    }
-  },
-  data() {
-    return {
-      dragging: false,
-      toggle: true,
-      targetPosition: null,
-      lastUniqueKey: 0,
-      cssContents: {},
-      jsContents: {},
-      dialogOpen: false
-    };
   },
   computed: {
     classObject() {
@@ -168,7 +191,6 @@ export default {
     draggableOptions() {
       return {
         group: this._uid,
-        // clone: true,
         handle: ".kBuilder__dragDropHandle",
         forceFallback: true,
         fallbackClass: "sortable-fallback",
@@ -180,19 +202,48 @@ export default {
       return this.value.length;
     },
     fieldsetCount() {
-      return Object.keys(this.fieldsets).length;
+      return Object.keys(this.extendedBlockConfigs).length;
     },
     fieldsetKeys() {
-      return Object.keys(this.fieldsets);
+      return Object.keys(this.extendedBlockConfigs);
     },
     addBlockButtonLabel() {
       return this.$t("add");
-    },
-    supportedBlockTypes() {
-      return Object.keys(this.fieldsets);
     }
   },
   methods: {
+    updateValue(valuePosition, newValue) {
+      this.$set(this.value, valuePosition, newValue);
+    },
+    loadBlockFormsByConfig(blockConfig) {
+      if (typeof blockConfig === "string") {
+        blockConfig = {
+          extends: blockConfig
+        };
+      }
+      return this.$api.post(
+        `kirby-builder/pages/${this.pageId}/blockformbyconfig`,
+        blockConfig
+      );
+    },
+    // load preview CSS and avoid duplicates
+    loadBlockPreviewStyles() {
+      Object.values(this.extendedBlockConfigs).forEach(extendedBlockConfig => {
+        if (extendedBlockConfig.preview && extendedBlockConfig.preview.css) {
+          const cssUrl = extendedBlockConfig.preview.css;
+          if (!this.cssContents[cssUrl]) {
+            this.$set(this.cssContents, cssUrl, {});
+            return fetch("/" + cssUrl.replace(/^\/+/g, "")) // regex removes leading slashes
+              .then(res => {
+                return res.text();
+              })
+              .then(res => {
+                this.$set(this.cssContents, cssUrl, res);
+              });
+          }
+        }
+      });
+    },
     onBlockInput(event) {
       this.$emit("input", this.value);
     },
@@ -246,19 +297,18 @@ export default {
       this.dialogOpen = false;
     },
     addBlock(key) {
+      if (this.value == null) {
+        this.value = [];
+      }
       const position =
         this.targetPosition == null ? this.value.length : this.targetPosition;
-      const fieldSet = this.fieldsets[key];
-      this.value.splice(position, 0, this.getBlankContent(key, fieldSet));
-      this.value[position].isNew = true;
-      this.$emit("input", this.value);
-      this.$nextTick(function() {
-        this.$emit("input", this.value);
-      });
+      const blockConfig = this.extendedBlockConfigs[key];
+      this.value.splice(position, 0, this.getBlankContent(key, blockConfig));
       this.targetPosition = null;
       if (this.dialogOpen) {
         this.$refs.dialog.close();
       }
+      this.$emit("input", this.value);
     },
     cloneBlock(index, showPreview, expanded, activeFieldSet) {
       let clone = JSON.parse(JSON.stringify(this.value[index]));
@@ -275,40 +325,18 @@ export default {
       if (activeFieldSet) {
         cloneValue.activeFieldSetInitially = activeFieldSet;
       }
-      cloneValue.isNew = true;
       this.$emit("input", this.value);
-      this.$nextTick(function() {
-        this.$emit("input", this.value);
-      });
-    },
-    getBlankContent(key, fieldSet) {
-      let content = { _key: key };
-      if (fieldSet.fields) {
-        Object.keys(fieldSet.fields).forEach(fieldName => {
-          content[fieldName] =
-            fieldSet.fields[fieldName].value ||
-            fieldSet.fields[fieldName].default ||
-            null;
-        });
-      } else if (fieldSet.tabs) {
-        for (const tabName in fieldSet.tabs) {
-          if (fieldSet.tabs.hasOwnProperty(tabName)) {
-            const tab = fieldSet.tabs[tabName];
-            Object.keys(tab.fields).forEach(fieldName => {
-              content[fieldName] =
-                tab.fields[fieldName].value ||
-                tab.fields[fieldName].default ||
-                null;
-            });
-          }
-        }
-      }
-      return content;
     },
     deleteBlock(index) {
       this.clearLocalUiStates(this.value[index]);
       this.value.splice(index, 1);
       this.$emit("input", this.value);
+    },
+    getBlankContent(key, fieldSet) {
+      return {
+        _key: key,
+        _uid: key + "_" + new Date().valueOf() + "_" + this._uid
+      };
     },
     deepRemoveProperty(obj, property) {
       Object.keys(obj).forEach(prop => {
@@ -338,7 +366,7 @@ export default {
 <style>
 /* Allow line breaks in validation error message */
 .k-error-details li {
-  white-space: pre-line; 
+  white-space: pre-line;
   word-wrap: break-word;
   font-family: inherit;
   margin-top: -1.25em;
@@ -359,7 +387,7 @@ export default {
   cursor: pointer;
 }
 .kBuilder__addBlockButtonIcon {
-  margin-right: .75em;
+  margin-right: 0.75em;
 }
 .kBuilder .kBuilder--col-1 {
   padding-left: 25px;
