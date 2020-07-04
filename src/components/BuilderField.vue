@@ -215,6 +215,7 @@ export default {
     updateValue(valuePosition, newValue) {
       this.$set(this.value, valuePosition, newValue);
     },
+    // TODO: Check if still needed
     loadBlockFormsByConfig(blockConfig) {
       if (typeof blockConfig === "string") {
         blockConfig = {

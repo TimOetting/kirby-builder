@@ -272,7 +272,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
         }
       ],
       [
-        'pattern' => 'kirby-builder/pages/(:any)/builderconfig',
+        'pattern' => 'kirby-builder/pages/(:all)/builderconfig',
         'method' => 'POST',
         'action'  => function (string $pageUid) {
           $page = kirby()->page($pageUid);
