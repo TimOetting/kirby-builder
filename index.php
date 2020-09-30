@@ -66,9 +66,10 @@ function fieldFromPath($fieldPath, $page, $fields) {
  * @param array $values
  * @param array $fieldsets
  * @param \Kirby\Api\Model|null $model
+ * @param string|null $builderKey
  * @return array
  */
-function getPanelReadyValues ($values, $fieldsets, $model = null)  {
+function getPanelReadyValues ($values, $fieldsets, $model = null, $builderKey = null)  {
   $vals = [];
   if ($values == null) {
     return $vals;
@@ -81,7 +82,18 @@ function getPanelReadyValues ($values, $fieldsets, $model = null)  {
     }
     $vals[] = $form->values();
   }
-  return $vals;
+  
+  $defaultLanguage = kirby()->languages()->default();
+
+  if( kirby()->language()->code() === $defaultLanguage->code() ) {
+    // if default language, just keep default logic from plugin
+    return $vals;
+  }
+
+  $defaultTranslation = $model->translation($defaultLanguage->code()); // @TODO: actually not sure if $model really is always a Page object!
+  $defaultData = Kirby\Data\Data::decode($defaultTranslation->content()[$builderKey], 'yaml');
+
+  return fixUntranslatableValueInheritance($vals, $defaultData, $fieldsets);
 }
 
 /**
@@ -166,7 +178,7 @@ Kirby::plugin('timoetting/kirbybuilder', [
             return $this->value;
           } else {
             $values = $this->value != null ? Yaml::decode($this->value) : Yaml::decode($this->default);
-            return getPanelReadyValues($values, $this->fieldsets, $this->model());
+            return getPanelReadyValues($values, $this->fieldsets, $this->model(), $this->name);
           }
         },
         'cssUrls' => function() {
@@ -377,7 +389,36 @@ Kirby::plugin('timoetting/kirbybuilder', [
   ],
   'fieldMethods' => [
     'toBuilderBlocks' => function ($field) {
-      return $field->toStructure();
+      /** @var \Kirby\Cms\Field $field */
+
+      $defaultLanguage = kirby()->languages()->default();
+
+      if( kirby()->language()->code() === $defaultLanguage->code() ) {
+        // if default language, just keep default logic from plugin
+        return $field->toStructure();
+      }
+
+      if( is_array($field->value()) ) {
+        // this is a nested builder, which will already be transformed at this point
+        return $field->toStructure();
+      }
+
+      /** @var \Kirby\Cms\Page $parentPage */
+      $parentPage = $field->parent(); // @TODO: actually not sure if this really is always a Page object!
+
+      $translatedData = Kirby\Data\Data::decode($field->value, 'yaml');
+
+      $defaultTranslation = $parentPage->translation($defaultLanguage->code());
+      $defaultData = Kirby\Data\Data::decode($defaultTranslation->content()[$field->key()], 'yaml');
+
+      $blueprint = $parentPage->blueprint();
+      $fieldDefinition = $blueprint->field($field->key());
+
+      $fieldsets = extendRecursively($fieldDefinition['fieldsets'], $parentPage);
+      $fieldsets = getEnhancedBlockConfig($fieldsets, $parentPage);
+
+      $translatedData = fixUntranslatableValueInheritance($translatedData, $defaultData, $fieldsets);
+      return new \Kirby\Cms\Structure($translatedData, $field->parent());
     }
   ]
 ]);
@@ -403,4 +444,32 @@ function extendRecursively($properties, $page, $currentPropertiesName = null, &$
     }
   }
   return $properties;
+}
+
+function fixUntranslatableValueInheritance(array $translatedData, array $defaultData, array $fieldsets) {
+  $defaultDataMapped = [];
+  foreach( $defaultData as $index => $data ) {
+    // map page builder elements for easier lookup later
+    $defaultDataMapped[$data['_uid']] = $data;
+  }
+
+  foreach( $translatedData as $index => &$data ) {
+    $blockKey = $data['_key'];
+
+    if( !($fieldset = $fieldsets[$blockKey]) ) {
+      continue;
+    }
+
+    $blockUid = $data['_uid'];
+
+    foreach( $fieldset['fields'] as $fieldName => $fieldConfig ) {
+      if( isset($fieldConfig['translate']) && !$fieldConfig['translate'] ) {
+        // "do not translate" is set, so replace translated value with default value
+        // use matching page builder in default language element via uid and $defaultDataMapped
+        $translatedData[$index][$fieldName] = $defaultDataMapped[$blockUid][$fieldName];
+      }
+    }
+  }
+
+  return $translatedData;
 }
