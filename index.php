@@ -466,7 +466,9 @@ function fixUntranslatableValueInheritance(array $translatedData, array $default
       if( isset($fieldConfig['translate']) && !$fieldConfig['translate'] ) {
         // "do not translate" is set, so replace translated value with default value
         // use matching page builder in default language element via uid and $defaultDataMapped
-        $translatedData[$index][$fieldName] = $defaultDataMapped[$blockUid][$fieldName];
+        if( isset($defaultDataMapped[$blockUid]) ) {
+          $translatedData[$index][$fieldName] = $defaultDataMapped[$blockUid][$fieldName];
+        }
       }
     }
   }
