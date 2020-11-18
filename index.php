@@ -101,6 +101,9 @@ function getBlockForm($value, $blockConfig, $model = null) {
       $fields = array_merge($fields, $tab['fields']);
     }
   }
+  foreach ($fields as $key => $field ) {
+    $fields[$key]["errors"] = null;
+  }
   $form = new Form([
     'fields' => $fields,
     'values' => $value,
