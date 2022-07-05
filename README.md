@@ -1,4 +1,12 @@
-# Kirby Builder
+# Kirby Builder (⚠️ deprecated)
+
+⚠️⚠️⚠️
+
+**This Plugin is deprecated and is no longer maintained, as its functionality can be replaced by the native [Blocks Field](https://getkirby.com/docs/reference/panel/fields/blocks) and [Layout Field](https://getkirby.com/docs/reference/panel/fields/layout)**
+
+⚠️⚠️⚠️
+
+---
 
 This versatile plugin for [Kirby CMS](https://a.paddle.com/v2/click/1129/38717?link=1170) (>= v3.0.1) lets you predefine content blocks with different field sets that can then be added, edited and arranged inside Kirby's panel.
 
