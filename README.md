@@ -1,4 +1,4 @@
-# Kirby Builder (⚠️ deprecated)
+# Kirby Builder (deprecated)
 
 ⚠️⚠️⚠️
 
